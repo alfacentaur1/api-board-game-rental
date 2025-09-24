@@ -1,0 +1,1 @@
+cus zacatek semestru je supr
