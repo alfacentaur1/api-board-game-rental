@@ -17,7 +17,7 @@ Systém poskytuje základní funkcionalitu půjčovny: registrace uživatelů, s
 
 * **Prohlížení katalogu her** – zobrazit seznam dostupných her a jejich vlastností + filtrace (stav: nová, poškozená, legacy).
 * **Sledování výpůjček** – kontrolovat aktuální a minulá vypůjčení.
-* **Hodnocení a komentování her** – hodnotit a recenzovat hry (plus mazat svoje recenze).
+* **Hodnocení a komentování her** – recenzovat hry (plus mazat svoje recenze).
 * **Zobrazení detailů hry** – zobrazit popis, počet kopií a stav hry.
 * **Seznam oblíbených her** – označit hry jako oblíbené pro rychlý přístup.
 * **Půjčování her s karmou** – hráč si může půjčit hru pouze tehdy, pokud má karmu **≥ 70 bodů**.  
@@ -28,7 +28,7 @@ Systém poskytuje základní funkcionalitu půjčovny: registrace uživatelů, s
 * **Potvrzování výpůjček** – schvalovat nebo odmítat výpůjčky hráčů.
 * **Správa výpůjček** – aktualizovat stav vypůjčených her a označit je jako vrácené. Při **včasném vrácení se automaticky přičte 5 bodů do karmy hráče**, pokud jeho karma není již 100. Při **pozdním vrácení se automaticky aplikuje penalizace** (např. odečtení bodů z karmy nebo jiná sankce dle pravidel systému).
 * **Kontrola dostupnosti her** – ověřovat počet kopií her a jejich aktuální stav.
-* **Generování reportů** – vytvářet přehledy o výpůjčkách (jaké hry jsou aktuálně vypůjčené, top nejpůjčovanějších her) a rezervacích.
+* **Generování reportů** – vytvářet přehledy o výpůjčkách (jaké hry jsou aktuálně vypůjčené, top nejpůjčovanějších her).
 
 ## Cíloví uživatelé
 
