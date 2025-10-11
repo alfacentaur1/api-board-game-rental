@@ -2,7 +2,7 @@
 
 ## Motivace a stručný popis
 
-Cílem semestrální práce je vytvořit systém pro správu půjčovny deskových her. Tento systém umožní hráčům rezervovat a půjčovat hry, sledovat jejich dostupnost a historii výpůjček. Správci systému budou mít možnost spravovat katalog her, potvrzovat rezervace a spravovat stav výpůjček. Motivací je zjednodušit proces půjčování a sledování her, eliminovat chyby z manuální evidence a zlepšit přehlednost pro hráče i správce.
+Cílem semestrální práce je vytvořit komunitní(tedy bez plateb) systém pro správu půjčovny deskových her. Tento systém umožní hráčům rezervovat a půjčovat hry, sledovat jejich dostupnost a historii výpůjček. Správci systému budou mít možnost spravovat katalog her, potvrzovat výpůjčky a spravovat stav výpůjček. Motivací je zjednodušit proces půjčování a sledování her, eliminovat chyby z manuální evidence a zlepšit přehlednost pro hráče i správce.
 
 Systém poskytuje základní funkcionalitu půjčovny: registrace uživatelů, správa herního katalogu, výpůjčky her, sledování dostupnosti a historie výpůjček, hodnocení her a správa „karmy“ hráčů. Cílem je vytvořit aplikaci, která je intuitivní, snadno použitelná a umožní efektivní správu půjčovny deskových her.
 
