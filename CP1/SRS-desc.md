@@ -6,14 +6,14 @@ Cílem semestrální práce je vytvořit komunitní(tedy bez plateb) systém pro
 
 Systém poskytuje základní funkcionalitu půjčovny: registrace uživatelů, správa herního katalogu, výpůjčky her, sledování dostupnosti a historie výpůjček, hodnocení her a správa „karmy“ hráčů. Cílem je vytvořit aplikaci, která je intuitivní, snadno použitelná a umožní efektivní správu půjčovny deskových her.
 
-## Hlavní funkce aplikace podle rolí(Use Cases)
+## Hlavní funkce aplikace podle rolí (Use Cases)
 
 ### Host (Guest)
 
 * **Registrace a přihlášení** – vytvořit účet a přihlásit se do systému.
 * **Prohlížení katalogu her** – zobrazit seznam dostupných her a jejich vlastností (stav: nová, poškozená, legacy).
 
-### Hráč (Player)
+### Hráč (RegisteredUser)
 
 * **Prohlížení katalogu her** – zobrazit seznam dostupných her a jejich vlastností + filtrace (stav: nová, poškozená, legacy).
 * **Sledování výpůjček** – kontrolovat aktuální a minulá vypůjčení.
@@ -22,7 +22,7 @@ Systém poskytuje základní funkcionalitu půjčovny: registrace uživatelů, s
 * **Seznam oblíbených her** – označit hry jako oblíbené pro rychlý přístup.
 * **Půjčování her s karmou** – hráč si může půjčit hru pouze tehdy, pokud má karmu **≥ 70 bodů**.  
 
-### Správce (Manager)
+### Správce (Admin)
 
 * **Správa katalogu her** – přidat, upravit vlastnosti hry (poškozená, nová, legacy) a mazat hry.
 * **Potvrzování výpůjček** – schvalovat nebo odmítat výpůjčky hráčů.
@@ -32,8 +32,8 @@ Systém poskytuje základní funkcionalitu půjčovny: registrace uživatelů, s
 
 ## Cíloví uživatelé
 
-1. **Hráči (Player)** – účastníci půjčovny, kteří si chtějí půjčovat a hodnotit hry.
-2. **Správci (Manager)** – osoby odpovědné za správu katalogu a dohled nad výpůjčkami.
+1. **Hráči (RegisteredUser)** – účastníci půjčovny, kteří si chtějí půjčovat a hodnotit hry.
+2. **Správci (Admin)** – osoby odpovědné za správu katalogu a dohled nad výpůjčkami.
 3. **Host (Guest)** – nepřihlášené osoby, možnost přihlášení, registrace a prohlížení katalogu.
 
 ## Omezení systému
@@ -44,7 +44,6 @@ Systém nebude určen pro následující funkce, i když by to mohlo být oček�
 * **Doručování her poštou** – všechny výpůjčky probíhají pouze osobním vyzvednutím.
 * **Správa turnajů nebo soutěží** – systém nebude organizovat nebo evidovat herní soutěže.
 * **Podpora platebních systémů** – systém nebude umožňovat platby online nebo integrovat platební brány.
-* **Košík výpůjček** – nebudeme uvažovat košík výpůjček.
 * **Sklad** – budeme uvažovat pouze 1 centrální sklad.
 * **Rezervace** – když jsou všechny kusy hry vypůjčeny, nebude možnost si zarezervovat výpůjčku.
 * **Nabízení her** – systém nebude umožňovat uživateli nabídnout svojí hru k vypůjčení.
