@@ -7,9 +7,11 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface BoardGameRepository extends JpaRepository<BoardGame, Integer> {
+public interface BoardGameRepository extends JpaRepository<BoardGame, Long> {
     public int findBoardGameIdByGameName(String gameName);
 
-    BoardGame getBoardGameById(int id);
+    BoardGame getBoardGameById(long id);
     List<String> getAllBoardGameNames();
+
+    BoardGame findBoardGameById(long id);
 }

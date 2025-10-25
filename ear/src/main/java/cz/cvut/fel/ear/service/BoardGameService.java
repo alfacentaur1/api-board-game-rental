@@ -1,6 +1,7 @@
 package cz.cvut.fel.ear.service;
 
 import ch.qos.logback.core.net.SyslogOutputStream;
+import cz.cvut.fel.ear.dao.BoardGameItemRepository;
 import cz.cvut.fel.ear.dao.BoardGameRepository;
 import cz.cvut.fel.ear.dao.RegisteredUserRepository;
 import cz.cvut.fel.ear.dao.UserRepository;
@@ -8,6 +9,8 @@ import cz.cvut.fel.ear.exception.EntityAlreadyExistsException;
 import cz.cvut.fel.ear.exception.EntityNotFoundException;
 import cz.cvut.fel.ear.exception.GameAlreadyInFavoritesException;
 import cz.cvut.fel.ear.model.BoardGame;
+import cz.cvut.fel.ear.model.BoardGameLoan;
+import cz.cvut.fel.ear.model.BoardGameState;
 import cz.cvut.fel.ear.model.RegisteredUser;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -20,10 +23,14 @@ import java.util.List;
 public class BoardGameService {
     private final BoardGameRepository boardGameRepository;
     private final RegisteredUserRepository userRepository;
+    private final BoardGameItemRepository boardGameItemRepository;
+    private final BoardGameItemService boardGameItemService;
 
-    public BoardGameService(BoardGameRepository boardGameRepository, RegisteredUserRepository userRepository) {
+    public BoardGameService(BoardGameRepository boardGameRepository, RegisteredUserRepository userRepository, BoardGameItemRepository boardGameItemRepository, BoardGameItemService boardGameItemService) {
         this.boardGameRepository = boardGameRepository;
         this.userRepository = userRepository;
+        this.boardGameItemRepository = boardGameItemRepository;
+        this.boardGameItemService = boardGameItemService;
     }
 
     public BoardGame getBoardGame(int gameId) {
@@ -43,7 +50,7 @@ public class BoardGameService {
     }
 
     @Transactional
-    public int createBoardGame(String name, String description) {
+    public long createBoardGame(String name, String description) {
         List<String> allBoardGameNames = boardGameRepository.getAllBoardGameNames();
         if (allBoardGameNames.contains(name)) {
             throw new EntityAlreadyExistsException("Board game with title " + name + " already exists");
@@ -98,9 +105,7 @@ public class BoardGameService {
         userRepository.save(user);
     }
 
-    public int boardGameAvalaibleItems(int gameId) {
-        return 0;
-    }
+
 
     public void viewBoardGameDetails(BoardGame boardGame) {
         if (boardGame == null) {
@@ -108,9 +113,15 @@ public class BoardGameService {
         }
         System.out.println(boardGame.getName());
         System.out.println(boardGame.getDescription());
-        System.out.println("Avalaible in stock: " + boardGameAvalaibleItems(boardGame.getId()));
+        System.out.println("Avalaible in stock: " + boardGameItemService.avalaibleItemsInStockNumber(boardGame.getId()));
 
     }
+
+    public List<String> listAllFavoriteBoardGame(long userId){
+        return userRepository.findAllFavoriteGames(userId);
+    }
+
+
 
 
 

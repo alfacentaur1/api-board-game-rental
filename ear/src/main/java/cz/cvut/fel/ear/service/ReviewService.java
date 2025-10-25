@@ -47,7 +47,7 @@ public class ReviewService {
      * @return
      */
     @Transactional
-    public Review CreateReview(int gameId, String content, int rating){
+    public Review createReview(long gameId, String content, int rating){
         BoardGame boardGame = boardGameRepository.getBoardGameById(gameId);
         if(boardGame == null){
             throw new EntityNotFoundException("Board game with id " + gameId + " not found");
@@ -72,7 +72,7 @@ public class ReviewService {
     }
 
 
-    public void DeleteReview(int id){
+    public void deleteReview(long id){
         Review review = reviewRepository.findById(id).orElse(null);
         if(review == null){
             throw new EntityNotFoundException("Review with id " + id + " not found");

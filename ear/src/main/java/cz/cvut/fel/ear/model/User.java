@@ -10,7 +10,7 @@ import java.util.List;
 public abstract class User {
     @Id
     @GeneratedValue
-    protected int id;
+    protected long id;
 
     @Column(unique=true)
     protected String username;

@@ -18,7 +18,7 @@ public class CategoryService {
         this.categoryRepository = categoryRepository;
     }
 
-    public int addCategory(String name) {
+    public long addCategory(String name) {
         if(categoryRepository.findAll().contains(name)){
             throw new CategoryAlreadyExistsException("Category with name " + name + " already exists");
         }
@@ -29,7 +29,7 @@ public class CategoryService {
     }
 
 
-    public void addBoardGameToCategory(int gameId, int categoryId) {
+    public void addBoardGameToCategory(long gameId, long categoryId) {
         Category category = categoryRepository.findById(categoryId).get();
         BoardGame boardGame = boardGameRepository.findById(gameId).get();
         if(category.getBoardGames().contains(boardGame)){
@@ -46,7 +46,7 @@ public class CategoryService {
 
     }
 
-    public void removeGameFromCategory(int gameId, int categoryId) {
+    public void removeGameFromCategory(long gameId, long categoryId) {
         Category category = categoryRepository.findById(categoryId).get();
         BoardGame boardGame = boardGameRepository.findById(gameId).get();
         if(category.getName() == null){

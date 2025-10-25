@@ -17,7 +17,7 @@ public class Review {
 
     @Id
     @GeneratedValue
-    private int id;
+    private long id;
 
     //rating
     private int value;

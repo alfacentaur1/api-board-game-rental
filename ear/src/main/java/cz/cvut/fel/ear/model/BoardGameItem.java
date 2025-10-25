@@ -14,7 +14,7 @@ import lombok.Setter;
 public class BoardGameItem {
     @Id
     @GeneratedValue
-    private int id;
+    private long id;
 
     @Column(nullable = false)
     private String serialNumber;

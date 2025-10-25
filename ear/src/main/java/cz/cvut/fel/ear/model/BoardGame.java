@@ -16,7 +16,7 @@ import java.util.List;
 public class BoardGame {
     @Id
     @GeneratedValue
-    private int id;
+    private long id;
 
     @Column(nullable = false, unique = true)
     private String name;

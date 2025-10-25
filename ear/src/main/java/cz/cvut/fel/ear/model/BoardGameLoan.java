@@ -17,7 +17,7 @@ import java.util.List;
 public class BoardGameLoan {
     @Id
     @GeneratedValue
-    private int id;
+    private long id;
 
     private LocalDateTime borrowedAt;
     private LocalDateTime returnedAt;
