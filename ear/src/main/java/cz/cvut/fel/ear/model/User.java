@@ -18,6 +18,46 @@ public abstract class User {
     @Column(unique = true)
     protected String email;
 
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    public List<Review> getRatings() {
+        return ratings;
+    }
+
+    public void setRatings(List<Review> ratings) {
+        this.ratings = ratings;
+    }
+
     protected String fullName;
 
     //mapping composition here

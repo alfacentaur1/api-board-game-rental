@@ -59,6 +59,7 @@ public class BoardGameItemServiceTest {
         boardGame.setAvailableStockItems(Arrays.asList(forLoanItem, borrowedItem));
     }
 
+
     // ----------------------------
     // Tests for avalaibleItemsInStockNumber
     // ----------------------------

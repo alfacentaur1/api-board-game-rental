@@ -9,8 +9,6 @@ import lombok.Setter;
 import java.util.List;
 
 @Entity
-@Setter
-@Getter
 @AllArgsConstructor
 @NoArgsConstructor
 public class Category {
@@ -23,4 +21,28 @@ public class Category {
 
     @ManyToMany(mappedBy = "categories")
     private List<BoardGame> boardGames;
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public List<BoardGame> getBoardGames() {
+        return boardGames;
+    }
+
+    public void setBoardGames(List<BoardGame> boardGames) {
+        this.boardGames = boardGames;
+    }
 }

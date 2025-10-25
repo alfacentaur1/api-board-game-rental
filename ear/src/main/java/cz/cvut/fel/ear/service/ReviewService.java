@@ -6,6 +6,7 @@ import cz.cvut.fel.ear.exception.EntityNotFoundException;
 import cz.cvut.fel.ear.exception.InvalidRatingScoreException;
 import cz.cvut.fel.ear.exception.ParametersException;
 import cz.cvut.fel.ear.model.BoardGame;
+import cz.cvut.fel.ear.model.RegisteredUser;
 import cz.cvut.fel.ear.model.Review;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -38,13 +39,16 @@ public class ReviewService {
 
 
     @Transactional
-    public Review createReview(long gameId, String content, int rating) {
+    public Review createReview(long gameId, String content, int rating, RegisteredUser registeredUser) {
         BoardGame boardGame = boardGameRepository.getBoardGameById(gameId);
         if (boardGame == null) {
             throw new EntityNotFoundException("Board game with id " + gameId + " not found");
         }
         if (content == null) {
             throw new ParametersException("content is null");
+        }
+        if(registeredUser == null ){
+            throw new ParametersException("registered user is null");
         }
 
         if (rating > maxRating || rating < minRating) {
@@ -60,6 +64,7 @@ public class ReviewService {
         review.setComment(content);
         review.setValue(rating);
         review.setCreatedAt(LocalDateTime.now());
+        review.setAuthor(registeredUser);
 
         reviewRepository.save(review);
         return review;

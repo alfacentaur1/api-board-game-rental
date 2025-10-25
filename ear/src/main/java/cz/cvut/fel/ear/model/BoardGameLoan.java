@@ -10,8 +10,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Getter
-@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class BoardGameLoan {
@@ -32,4 +30,60 @@ public class BoardGameLoan {
 
     @ManyToMany
     private List<BoardGameItem> gamesToBeBorrowed;
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public LocalDateTime getBorrowedAt() {
+        return borrowedAt;
+    }
+
+    public void setBorrowedAt(LocalDateTime borrowedAt) {
+        this.borrowedAt = borrowedAt;
+    }
+
+    public LocalDateTime getReturnedAt() {
+        return returnedAt;
+    }
+
+    public void setReturnedAt(LocalDateTime returnedAt) {
+        this.returnedAt = returnedAt;
+    }
+
+    public LocalDateTime getDueDate() {
+        return dueDate;
+    }
+
+    public void setDueDate(LocalDateTime dueDate) {
+        this.dueDate = dueDate;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
+    public RegisteredUser getUser() {
+        return user;
+    }
+
+    public void setUser(RegisteredUser user) {
+        this.user = user;
+    }
+
+    public List<BoardGameItem> getGamesToBeBorrowed() {
+        return gamesToBeBorrowed;
+    }
+
+    public void setGamesToBeBorrowed(List<BoardGameItem> gamesToBeBorrowed) {
+        this.gamesToBeBorrowed = gamesToBeBorrowed;
+    }
 }

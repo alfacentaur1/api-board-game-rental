@@ -12,8 +12,6 @@ import lombok.Setter;
 import java.util.List;
 
 @Entity
-@Getter
-@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @DiscriminatorValue("REGISTERED_USER")
@@ -25,4 +23,28 @@ public class RegisteredUser extends User {
 
     @OneToMany(mappedBy = "user")
     private List<BoardGameLoan> boardGameLoans;
+
+    public int getKarma() {
+        return karma;
+    }
+
+    public void setKarma(int karma) {
+        this.karma = karma;
+    }
+
+    public List<BoardGame> getFavoriteBoardGames() {
+        return favoriteBoardGames;
+    }
+
+    public void setFavoriteBoardGames(List<BoardGame> favoriteBoardGames) {
+        this.favoriteBoardGames = favoriteBoardGames;
+    }
+
+    public List<BoardGameLoan> getBoardGameLoans() {
+        return boardGameLoans;
+    }
+
+    public void setBoardGameLoans(List<BoardGameLoan> boardGameLoans) {
+        this.boardGameLoans = boardGameLoans;
+    }
 }

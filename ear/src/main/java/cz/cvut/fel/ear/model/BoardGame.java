@@ -9,11 +9,65 @@ import lombok.Setter;
 import java.util.List;
 
 @Entity
-@Getter
-@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class BoardGame {
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public int getAvailableCopies() {
+        return availableCopies;
+    }
+
+    public void setAvailableCopies(int availableCopies) {
+        this.availableCopies = availableCopies;
+    }
+
+    public List<Review> getRatings() {
+        return ratings;
+    }
+
+    public void setRatings(List<Review> ratings) {
+        this.ratings = ratings;
+    }
+
+    public List<BoardGameItem> getAvailableStockItems() {
+        return availableStockItems;
+    }
+
+    public void setAvailableStockItems(List<BoardGameItem> availableStockItems) {
+        this.availableStockItems = availableStockItems;
+    }
+
+    public List<Category> getCategories() {
+        return categories;
+    }
+
+    public void setCategories(List<Category> categories) {
+        this.categories = categories;
+    }
+
     @Id
     @GeneratedValue
     private long id;
