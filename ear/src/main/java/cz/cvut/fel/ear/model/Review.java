@@ -13,22 +13,23 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Entity
 @NoArgsConstructor
-public class Rating {
+public class Review {
 
     @Id
     @GeneratedValue
     private int id;
 
+    //rating
     private int value;
     private String comment;
     private LocalDateTime createdAt;
 
     //many to one has always foreign key -> owner side
     @ManyToOne
-    @JoinColumn(name="USER_ID")
+    @JoinColumn(name="USER_ID", nullable = false)
     private User author;
 
     @ManyToOne
-    @JoinColumn(name="BOARD_GAME_ID")
+    @JoinColumn(name="BOARD_GAME_ID", nullable = false)
     private BoardGame boardGame;
 }

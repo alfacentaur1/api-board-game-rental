@@ -27,7 +27,7 @@ public class BoardGameLoan {
     private Status status;
 
     @ManyToOne
-    @JoinColumn(name="USER_ID")
+    @JoinColumn(name="USER_ID",nullable=false)
     private RegisteredUser user;
 
     @ManyToMany

@@ -1,7 +1,6 @@
 package cz.cvut.fel.ear.model;
 
 import jakarta.persistence.*;
-import org.hibernate.annotations.Cascade;
 
 import java.util.List;
 
@@ -23,7 +22,7 @@ public abstract class User {
 
     //mapping composition here
     @OneToMany(mappedBy = "author",cascade = CascadeType.ALL)
-    protected List<Rating> ratings;
+    protected List<Review> ratings;
 
 
 }

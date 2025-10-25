@@ -18,7 +18,7 @@ public class BoardGame {
     @GeneratedValue
     private int id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String name;
 
     private String description;
@@ -26,7 +26,7 @@ public class BoardGame {
 
     //mapping composition here
     @OneToMany(mappedBy = "boardGame",cascade = CascadeType.ALL)
-    private List<Rating> ratings;
+    private List<Review> ratings;
 
     @OneToMany(mappedBy = "boardGame")
     private List<BoardGameItem> availableStockItems;
