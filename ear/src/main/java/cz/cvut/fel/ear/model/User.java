@@ -12,7 +12,7 @@ public abstract class User {
     @GeneratedValue
     protected long id;
 
-    @Column(unique=true)
+    @Column(unique = true)
     protected String username;
 
     @Column(unique = true)
@@ -21,7 +21,7 @@ public abstract class User {
     protected String fullName;
 
     //mapping composition here
-    @OneToMany(mappedBy = "author",cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
     protected List<Review> ratings;
 
 

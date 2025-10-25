@@ -8,6 +8,7 @@ import java.util.List;
 
 @Repository
 public interface RegisteredUserRepository extends JpaRepository<RegisteredUser, Long> {
-List<String> findAllFavoriteGames(long id);
-RegisteredUser findRegisteredUserById(long id);
+    List<String> findAllFavoriteGames(long id);
+
+    RegisteredUser findRegisteredUserById(long id);
 }

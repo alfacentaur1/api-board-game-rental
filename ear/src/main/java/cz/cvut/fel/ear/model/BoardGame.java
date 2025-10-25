@@ -25,7 +25,7 @@ public class BoardGame {
     private int availableCopies;
 
     //mapping composition here
-    @OneToMany(mappedBy = "boardGame",cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "boardGame", cascade = CascadeType.ALL)
     private List<Review> ratings;
 
     @OneToMany(mappedBy = "boardGame")

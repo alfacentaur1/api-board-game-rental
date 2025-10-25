@@ -4,10 +4,12 @@ import cz.cvut.fel.ear.dao.BoardGameRepository;
 import cz.cvut.fel.ear.dao.ReviewRepository;
 import cz.cvut.fel.ear.exception.EntityNotFoundException;
 import cz.cvut.fel.ear.exception.InvalidRatingScoreException;
+import cz.cvut.fel.ear.exception.ParametersException;
 import cz.cvut.fel.ear.model.BoardGame;
 import cz.cvut.fel.ear.model.Review;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -26,38 +28,30 @@ public class ReviewService {
         this.boardGameRepository = boardGameRepository;
     }
 
-    /**
-     *
-     * @param gameId
-     * @return
-     */
-    public List<Review> getAllBoardGameReviewsById(int gameId){
+    public List<Review> getAllBoardGameReviewsById(int gameId) {
         BoardGame boardGame = boardGameRepository.getBoardGameById(gameId);
-        if(boardGame == null){
+        if (boardGame == null) {
             throw new EntityNotFoundException("Board game with id " + gameId + " not found");
         }
         return reviewRepository.findAllByBoardGame(Collections.singletonList(gameId));
     }
 
-    /**
-     *
-     * @param gameId
-     * @param content
-     * @param rating
-     * @return
-     */
+
     @Transactional
-    public Review createReview(long gameId, String content, int rating){
+    public Review createReview(long gameId, String content, int rating) {
         BoardGame boardGame = boardGameRepository.getBoardGameById(gameId);
-        if(boardGame == null){
+        if (boardGame == null) {
             throw new EntityNotFoundException("Board game with id " + gameId + " not found");
         }
+        if (content == null) {
+            throw new ParametersException("content is null");
+        }
 
-        if(rating > maxRating || rating < minRating){
+        if (rating > maxRating || rating < minRating) {
             throw new InvalidRatingScoreException("Rating must be between " + minRating + " and " + maxRating);
         }
 
-        if(content.length() > maxCommentRange){
+        if (content.length() > maxCommentRange) {
             throw new InvalidRatingScoreException("Review content is limited to " + maxCommentRange + " characters");
         }
 
@@ -72,9 +66,9 @@ public class ReviewService {
     }
 
 
-    public void deleteReview(long id){
+    public void deleteReview(long id) {
         Review review = reviewRepository.findById(id).orElse(null);
-        if(review == null){
+        if (review == null) {
             throw new EntityNotFoundException("Review with id " + id + " not found");
         }
         reviewRepository.delete(review);

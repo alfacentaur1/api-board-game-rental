@@ -6,6 +6,7 @@ import cz.cvut.fel.ear.dao.RegisteredUserRepository;
 import cz.cvut.fel.ear.exception.EntityNotFoundException;
 import cz.cvut.fel.ear.exception.InvalidDateException;
 import cz.cvut.fel.ear.exception.InvalidStatusException;
+import cz.cvut.fel.ear.exception.ParametersException;
 import cz.cvut.fel.ear.model.*;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ public class LoanService {
     private final BoardGameLoanRepository boardGameLoanRepository;
     private final BoardGameItemRepository boardGameItemRepository;
     private final RegisteredUserRepository registeredUserRepository;
+
     public LoanService(BoardGameLoanRepository boardGameLoanRepository, BoardGameItemRepository boardGameItemRepository, RegisteredUserRepository registeredUserRepository) {
         this.boardGameLoanRepository = boardGameLoanRepository;
         this.boardGameItemRepository = boardGameItemRepository;
@@ -44,7 +46,7 @@ public class LoanService {
 
     public void approveGameLoan(long loanId) {
         BoardGameLoan boardGameLoan = getBoardGameLoan(loanId);
-        if(boardGameLoan==null){
+        if (boardGameLoan == null) {
             throw new EntityNotFoundException("BoardGameLoan with id " + loanId + " not found");
         }
         boardGameLoan.setStatus(Status.approved);
@@ -52,11 +54,11 @@ public class LoanService {
 
     public void rejectGameLoan(long loanId) {
         BoardGameLoan boardGameLoan = getBoardGameLoan(loanId);
-        if(boardGameLoan==null){
+        if (boardGameLoan == null) {
             throw new EntityNotFoundException("BoardGameLoan with id " + loanId + " not found");
         }
         List<BoardGameItem> loanBoardGameItems = boardGameLoanRepository.getBoardGameLoanById(loanId);
-        for(BoardGameItem boardGameItem : loanBoardGameItems){
+        for (BoardGameItem boardGameItem : loanBoardGameItems) {
             boardGameItem.setState(BoardGameState.FOR_LOAN);
         }
         boardGameLoan.setStatus(Status.rejected);
@@ -64,33 +66,35 @@ public class LoanService {
 
     public void changeLoanStatus(long loanId, Status newStatus) {
         BoardGameLoan boardGameLoan = getBoardGameLoan(loanId);
-        try{
+        try {
             Status.valueOf(newStatus.name());
-        }
-        catch(IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             throw new InvalidStatusException("Invalid status " + newStatus.name());
         }
-        if(boardGameLoan==null){
+        if (boardGameLoan == null) {
             throw new EntityNotFoundException("BoardGameLoan with id " + loanId + " not found");
         }
         boardGameLoan.setStatus(newStatus);
     }
 
     @Transactional
-    public long createBoardGameLoan( LocalDateTime dueDate, List<String> boardGameNames, long userId) {
+    public long createBoardGameLoan(LocalDateTime dueDate, List<String> boardGameNames, long userId) {
         LocalDateTime now = LocalDateTime.now();
-        if(dueDate.isBefore(now)){
+        if (dueDate.isBefore(now)) {
             throw new InvalidDateException("Due date is before current date");
         }
-        if(now.isAfter(dueDate) ){
+        if (now.isAfter(dueDate)) {
             throw new InvalidDateException("Borrowed date is after current date");
+        }
+        if (boardGameNames.isEmpty()) {
+            throw new ParametersException("BoardGameNames is empty");
         }
         BoardGameLoan boardGameLoan = new BoardGameLoan();
         List<BoardGameItem> gamesToBeBorrowed = new ArrayList<>();
-        for(String name : boardGameNames){
+        for (String name : boardGameNames) {
             BoardGameItem item = boardGameItemRepository
                     .findFirstByBoardGame_NameAndState(name, BoardGameState.FOR_LOAN);
-            if(item==null){
+            if (item == null) {
                 throw new EntityNotFoundException("BoardGame has no " + name + " items");
             }
             gamesToBeBorrowed.add(item);
@@ -103,19 +107,20 @@ public class LoanService {
         return boardGameLoanRepository.save(boardGameLoan).getId();
     }
 
-    public void returnBoardGameLoan( BoardGameLoan boardGameLoan) {
-        RegisteredUser user = boardGameLoan.getUser();
-
-        LocalDateTime now = LocalDateTime.now();
-        if(now.isAfter(boardGameLoan.getDueDate())){
-            if(user.getKarma() >4) user.setKarma(user.getKarma()-5);
+    public void returnBoardGameLoan(BoardGameLoan boardGameLoan) {
+        if (boardGameLoan == null) {
+            throw new ParametersException("BoardGameLoan with id " + boardGameLoan.getId() + " not found");
         }
-        else {
-            if(user.getKarma() <91){
-                user.setKarma(user.getKarma()+10);
+        RegisteredUser user = boardGameLoan.getUser();
+        LocalDateTime now = LocalDateTime.now();
+        if (now.isAfter(boardGameLoan.getDueDate())) {
+            if (user.getKarma() > 4) user.setKarma(user.getKarma() - 5);
+        } else {
+            if (user.getKarma() < 91) {
+                user.setKarma(user.getKarma() + 10);
             }
         }
-        for(BoardGameItem boardGameItem : boardGameLoan.getGamesToBeBorrowed()){
+        for (BoardGameItem boardGameItem : boardGameLoan.getGamesToBeBorrowed()) {
             boardGameItem.setState(BoardGameState.FOR_LOAN);
         }
 
@@ -123,9 +128,10 @@ public class LoanService {
 
     public List<BoardGameItem> currentlyBorrowedBoardGameItems() {
         List<BoardGameItem> boardGameItems = boardGameItemRepository.findAll();
-        List<BoardGameItem> currentlyBorrowedBoardGameItems = new ArrayList<>();;
-        for(BoardGameItem boardGameItem : boardGameItems){
-            if(boardGameItem.getState().equals(BoardGameState.BORROWED)){
+        List<BoardGameItem> currentlyBorrowedBoardGameItems = new ArrayList<>();
+        ;
+        for (BoardGameItem boardGameItem : boardGameItems) {
+            if (boardGameItem.getState().equals(BoardGameState.BORROWED)) {
                 currentlyBorrowedBoardGameItems.add(boardGameItem);
             }
         }

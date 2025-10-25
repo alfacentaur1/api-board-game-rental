@@ -3,6 +3,7 @@ package cz.cvut.fel.ear.service;
 import cz.cvut.fel.ear.dao.BoardGameItemRepository;
 import cz.cvut.fel.ear.dao.BoardGameRepository;
 import cz.cvut.fel.ear.exception.EntityNotFoundException;
+import cz.cvut.fel.ear.exception.ParametersException;
 import cz.cvut.fel.ear.model.BoardGame;
 import cz.cvut.fel.ear.model.BoardGameItem;
 import cz.cvut.fel.ear.model.BoardGameState;
@@ -56,11 +57,19 @@ public class BoardGameItemService {
     }
 
 
-    public long addBoardGameItem(int boardGameId, String serialNumber, BoardGameState state) {
+    public long addBoardGameItem(long boardGameId, String serialNumber, BoardGameState state) {
         BoardGame boardGame = boardGameRepository.findBoardGameById(boardGameId);
 
         if (boardGame == null) {
             throw new EntityNotFoundException("Board game with id " + boardGameId + " not found");
+        }
+        if( serialNumber == null || serialNumber.isEmpty() || state == null){
+            throw new ParametersException("Serial number or state is null");
+        }
+        try {
+            BoardGameState stateToTest = BoardGameState.valueOf(state.toString());
+        } catch (IllegalArgumentException e) {
+            throw new ParametersException("State is not valid");
         }
         BoardGameItem boardGameItem = new BoardGameItem();
         boardGameItem.setBoardGame(boardGame);
@@ -70,10 +79,18 @@ public class BoardGameItemService {
     }
 
 
-    public void updateBoardGameItemState(int gameId, BoardGameState state) {
+    public void updateBoardGameItemState(long gameId, BoardGameState state) {
         BoardGameItem boardGameToUpdate = boardGameItemRepository.getBoardGameItemById(gameId);
         if (boardGameToUpdate == null) {
             throw new EntityNotFoundException("Board game with id " + gameId + " not found");
+        }
+        if(state == null){
+            throw new ParametersException("State is null");
+        }
+        try {
+            BoardGameState stateToTest = BoardGameState.valueOf(state.toString());
+        } catch (IllegalArgumentException e) {
+            throw new ParametersException("State is not valid");
         }
         boardGameToUpdate.setState(state);
         boardGameItemRepository.save(boardGameToUpdate);

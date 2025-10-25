@@ -26,10 +26,10 @@ public class Review {
 
     //many to one has always foreign key -> owner side
     @ManyToOne
-    @JoinColumn(name="USER_ID", nullable = false)
+    @JoinColumn(name = "USER_ID", nullable = false)
     private User author;
 
     @ManyToOne
-    @JoinColumn(name="BOARD_GAME_ID", nullable = false)
+    @JoinColumn(name = "BOARD_GAME_ID", nullable = false)
     private BoardGame boardGame;
 }

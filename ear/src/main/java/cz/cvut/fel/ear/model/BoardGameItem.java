@@ -23,6 +23,6 @@ public class BoardGameItem {
     private BoardGameState state;
 
     @ManyToOne
-    @JoinColumn(name="BOARD_GAME_ID", nullable = false)
+    @JoinColumn(name = "BOARD_GAME_ID", nullable = false)
     private BoardGame boardGame;
 }

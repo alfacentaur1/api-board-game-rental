@@ -19,7 +19,7 @@ public class CategoryService {
     }
 
     public long addCategory(String name) {
-        if(categoryRepository.findAll().contains(name)){
+        if (categoryRepository.findAll().contains(name)) {
             throw new CategoryAlreadyExistsException("Category with name " + name + " already exists");
         }
         Category category = new Category();
@@ -32,13 +32,13 @@ public class CategoryService {
     public void addBoardGameToCategory(long gameId, long categoryId) {
         Category category = categoryRepository.findById(categoryId).get();
         BoardGame boardGame = boardGameRepository.findById(gameId).get();
-        if(category.getBoardGames().contains(boardGame)){
+        if (category.getBoardGames().contains(boardGame)) {
             throw new BoardGameAlreadyInCategoryException("Board game " + boardGame.getName() + " in Category " + category.getName() + " already exists");
         }
-        if(category.getName() == null){
+        if (category.getName() == null) {
             throw new EntityNotFoundException("Category with name " + category.getName() + " does not exist");
         }
-        if(boardGame.getName() == null){
+        if (boardGame.getName() == null) {
             throw new EntityNotFoundException("Board game with name " + boardGame.getName() + " does not exist");
         }
         category.getBoardGames().add(boardGame);
@@ -49,10 +49,9 @@ public class CategoryService {
     public void removeGameFromCategory(long gameId, long categoryId) {
         Category category = categoryRepository.findById(categoryId).get();
         BoardGame boardGame = boardGameRepository.findById(gameId).get();
-        if(category.getName() == null){
+        if (category.getName() == null) {
             throw new EntityNotFoundException("Category with id " + categoryId + " does not exist");
-        }
-        else if(boardGame.getName() == null){
+        } else if (boardGame.getName() == null) {
             throw new EntityNotFoundException("Board game with id " + gameId + " does not exist");
         }
         category.getBoardGames().remove(boardGame);
