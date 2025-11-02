@@ -7,6 +7,7 @@ import cz.cvut.fel.ear.exception.ParametersException;
 import cz.cvut.fel.ear.model.BoardGame;
 import cz.cvut.fel.ear.model.BoardGameItem;
 import cz.cvut.fel.ear.model.BoardGameState;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -56,7 +57,7 @@ public class BoardGameItemService {
         return boardGameAvailableItems;
     }
 
-
+    @Transactional
     public long addBoardGameItem(long boardGameId, String serialNumber, BoardGameState state) {
         BoardGame boardGame = boardGameRepository.findBoardGameById(boardGameId);
 
@@ -75,6 +76,8 @@ public class BoardGameItemService {
         boardGameItem.setBoardGame(boardGame);
         boardGameItem.setSerialNumber(serialNumber);
         boardGameItem.setState(state);
+        //fix - bidirectional approach
+        boardGame.getAvailableStockItems().add(boardGameItem);
         return boardGameItemRepository.save(boardGameItem).getId();
     }
 
@@ -95,6 +98,14 @@ public class BoardGameItemService {
         boardGameToUpdate.setState(state);
         boardGameItemRepository.save(boardGameToUpdate);
 
+    }
+
+    public void deleteBoardGameItem(long gameId) {
+        BoardGameItem boardGameItemToDelete = boardGameItemRepository.getBoardGameItemById(gameId);
+        if (boardGameItemToDelete == null) {
+            throw new EntityNotFoundException("Board game with id " + gameId + " not found");
+        }
+        boardGameItemRepository.delete(boardGameItemToDelete);
     }
 
 

@@ -2,17 +2,14 @@ package cz.cvut.fel.ear.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-@AllArgsConstructor
 @Entity
+@AllArgsConstructor
 @NoArgsConstructor
 public class Review {
-
     @Id
     @GeneratedValue
     private long id;
@@ -25,12 +22,12 @@ public class Review {
         this.id = id;
     }
 
-    public int getValue() {
-        return value;
+    public int getScore() {
+        return score;
     }
 
-    public void setValue(int value) {
-        this.value = value;
+    public void setScore(int value) {
+        this.score = value;
     }
 
     public String getComment() {
@@ -66,7 +63,7 @@ public class Review {
     }
 
     //rating
-    private int value;
+    private int score;
     private String comment;
     private LocalDateTime createdAt;
 

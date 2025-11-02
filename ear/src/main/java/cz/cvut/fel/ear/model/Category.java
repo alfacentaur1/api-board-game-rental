@@ -11,6 +11,7 @@ import java.util.List;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name="categories")
 public class Category {
     @Id
     @GeneratedValue
@@ -19,7 +20,7 @@ public class Category {
     @Column(nullable = false)
     private String name;
 
-    @ManyToMany(mappedBy = "categories")
+    @ManyToMany(mappedBy = "categories", cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     private List<BoardGame> boardGames;
 
     public long getId() {

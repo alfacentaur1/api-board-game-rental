@@ -13,8 +13,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class LoanService {
@@ -79,33 +79,58 @@ public class LoanService {
 
     @Transactional
     public long createBoardGameLoan(LocalDateTime dueDate, List<String> boardGameNames, long userId) {
+
         LocalDateTime now = LocalDateTime.now();
         if (dueDate.isBefore(now)) {
             throw new InvalidDateException("Due date is before current date");
         }
-        if (now.isAfter(dueDate)) {
-            throw new InvalidDateException("Borrowed date is after current date");
-        }
-        if (boardGameNames.isEmpty()) {
+        if (boardGameNames == null || boardGameNames.isEmpty()) {
             throw new ParametersException("BoardGameNames is empty");
         }
+
         BoardGameLoan boardGameLoan = new BoardGameLoan();
-        List<BoardGameItem> gamesToBeBorrowed = new ArrayList<>();
+        List<BoardGameItem> itemsToBorrow = new ArrayList<>();
+
         for (String name : boardGameNames) {
-            BoardGameItem item = boardGameItemRepository
-                    .findFirstByBoardGame_NameAndState(name, BoardGameState.FOR_LOAN);
-            if (item == null) {
-                throw new EntityNotFoundException("BoardGame has no " + name + " items");
+
+            // 1. ZAVOLÁME NAMED QUERY
+            List<BoardGameItem> availableItems =
+                    boardGameItemRepository.findAvailableByNameWithLock(name, BoardGameState.FOR_LOAN);
+
+            if (availableItems.isEmpty()) {
+                // Žádná položka se nenašla (ani zamčená)
+                throw new EntityNotFoundException("BoardGame has no available item: "+ name);
             }
-            gamesToBeBorrowed.add(item);
+
+            // 2. VEZMEME PRVNÍ POLOŽKU
+            // Tady je ten hlavní rozdíl - bereme první položku ze seznamu
+            // (a zbytek, pokud nějaký byl, zůstane zamčený až do konce transakce)
+            BoardGameItem item = availableItems.get(0);
+
+            // Pojistka, kdyby uživatel chtěl 2x stejnou hru, ale byl jen 1 kus
+            if (item.getState() == BoardGameState.BORROWED) {
+                throw new EntityNotFoundException("BoardGame item was already borrowed in this transaction: " + name);
+            }
+
             item.setState(BoardGameState.BORROWED);
+
+            // Zase žádné save() v cyklu, @Transactional to pořeší
+            itemsToBorrow.add(item);
         }
+
+        // 3. ZKOMPLETUJEME PŮJČKU
         boardGameLoan.setDueDate(dueDate);
         boardGameLoan.setBorrowedAt(now);
         boardGameLoan.setStatus(Status.pending);
-        boardGameLoan.setUser(registeredUserRepository.findRegisteredUserById(userId));
+        boardGameLoan.setUser(registeredUserRepository.getReferenceById(userId));
+
+        // Použijeme tvou metodu setGamesToBeBorrowed
+        boardGameLoan.setGamesToBeBorrowed(itemsToBorrow);
+
+        // 4. ULOŽÍME PŮJČKU AŽ NA KONCI
         return boardGameLoanRepository.save(boardGameLoan).getId();
     }
+
 
     public void returnBoardGameLoan(BoardGameLoan boardGameLoan) {
         if (boardGameLoan == null) {

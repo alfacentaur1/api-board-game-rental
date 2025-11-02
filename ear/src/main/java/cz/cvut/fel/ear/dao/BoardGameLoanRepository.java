@@ -13,7 +13,7 @@ import java.util.Optional;
 public interface BoardGameLoanRepository extends JpaRepository<BoardGameLoan, Long> {
     List<BoardGameLoan> findAllByUserId(long id);
 
-    Optional<BoardGameItem> findFirstByBoardGameNameAndStatus(String name, Status status);
+    Optional<BoardGameLoan> findFirstByGamesToBeBorrowed_BoardGame_NameAndStatus(String name, Status status);
 
     List<BoardGameItem> getBoardGameLoanById(long id);
 }

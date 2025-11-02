@@ -34,7 +34,7 @@ public class ReviewService {
         if (boardGame == null) {
             throw new EntityNotFoundException("Board game with id " + gameId + " not found");
         }
-        return reviewRepository.findAllByBoardGame(Collections.singletonList(gameId));
+        return reviewRepository.findAllByBoardGame_IdIn(Collections.singletonList(gameId));
     }
 
 
@@ -62,7 +62,7 @@ public class ReviewService {
         Review review = new Review();
         review.setBoardGame(boardGame);
         review.setComment(content);
-        review.setValue(rating);
+        review.setScore(rating);
         review.setCreatedAt(LocalDateTime.now());
         review.setAuthor(registeredUser);
 

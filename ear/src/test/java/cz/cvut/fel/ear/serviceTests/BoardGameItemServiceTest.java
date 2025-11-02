@@ -1,201 +1,194 @@
 package cz.cvut.fel.ear.serviceTests;
 
 import cz.cvut.fel.ear.dao.BoardGameItemRepository;
-import cz.cvut.fel.ear.dao.BoardGameRepository;
 import cz.cvut.fel.ear.exception.EntityNotFoundException;
 import cz.cvut.fel.ear.exception.ParametersException;
-import cz.cvut.fel.ear.model.BoardGame;
-import cz.cvut.fel.ear.model.BoardGameItem;
-import cz.cvut.fel.ear.model.BoardGameState;
+import cz.cvut.fel.ear.model.*;
 import cz.cvut.fel.ear.service.BoardGameItemService;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestEntityManager;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest
+@Transactional
+@AutoConfigureTestEntityManager
+@TestPropertySource(locations = "classpath:application-test.properties")
+@EntityScan("cz.cvut.fel.ear.model")
+@ActiveProfiles("test")
 public class BoardGameItemServiceTest {
 
-    @Mock
+    @Autowired
+    private TestEntityManager em;
+
+    @MockitoSpyBean
     private BoardGameItemRepository boardGameItemRepository;
 
-    @Mock
-    private BoardGameRepository boardGameRepository;
-
-    @InjectMocks
-    private BoardGameItemService boardGameItemService;
+    @Autowired
+    private BoardGameItemService sut;
 
     private BoardGame boardGame;
-    private BoardGameItem forLoanItem;
-    private BoardGameItem borrowedItem;
+    private BoardGameItem testItem; // item created in setUp
 
     @BeforeEach
-    public void setUp() {
-        // Initialize a sample board game
+    void setUp() {
+        // setup a user
+        RegisteredUser testUser = new RegisteredUser();
+        testUser.setKarma(100);
+        testUser.setEmail("test@test.com");
+        testUser.setUsername("test");
+        testUser.setFullName("Test User");
+        em.persist(testUser);
+
+        // setup a category
+        Category category = new Category();
+        category.setName("Kitten games");
+        em.persist(category);
+
+        // setup the main board game
         boardGame = new BoardGame();
-        boardGame.setId(1L);
-        boardGame.setName("Catan");
+        boardGame.setName("Exploding kittens");
+        boardGame.setDescription("Exploding game from kickstarter");
+        boardGame.getCategories().add(category);
 
-        // Create one item available for loan
-        forLoanItem = new BoardGameItem();
-        forLoanItem.setId(10L);
-        forLoanItem.setBoardGame(boardGame);
-        forLoanItem.setState(BoardGameState.FOR_LOAN);
+        // setup a review and link it
+        Review review = new Review();
+        review.setAuthor(testUser);
+        review.setComment("Test review text");
+        review.setScore(5);
+        review.setBoardGame(boardGame);
+        boardGame.getRatings().add(review);
+        em.persist(boardGame); // persist game (and review via cascade)
 
-        // Create one item that is borrowed
-        borrowedItem = new BoardGameItem();
-        borrowedItem.setId(11L);
-        borrowedItem.setBoardGame(boardGame);
-        borrowedItem.setState(BoardGameState.BORROWED);
+        // setup one item (borrowed) and link it
+        this.testItem = new BoardGameItem(); // assign to class variable
+        this.testItem.setBoardGame(boardGame);
+        this.testItem.setSerialNumber("ITEM-FROM-SETUP");
+        this.testItem.setState(BoardGameState.BORROWED);
 
-        // Assign all items to board game
-        boardGame.setAvailableStockItems(Arrays.asList(forLoanItem, borrowedItem));
-    }
+        boardGame.getAvailableStockItems().add(this.testItem); // link parent to child
 
-
-    // ----------------------------
-    // Tests for avalaibleItemsInStockNumber
-    // ----------------------------
-
-    @Test
-    public void avalaibleItemsInStockNumberThrowsEntityNotFoundExceptionWhenNameIsNull() {
-        BoardGame noNameGame = new BoardGame();
-        when(boardGameRepository.findById(1L)).thenReturn(Optional.of(noNameGame));
-
-        assertThrows(EntityNotFoundException.class, () ->
-                boardGameItemService.avalaibleItemsInStockNumber(1L));
+        em.persist(this.testItem);
+        em.merge(boardGame); // save the change to boardGame's item list
+        em.flush();
     }
 
     @Test
-    public void avalaibleItemsInStockNumberReturnsCorrectCount() {
-        when(boardGameRepository.findById(1L)).thenReturn(Optional.of(boardGame));
-        when(boardGameRepository.findBoardGameById(1L)).thenReturn(boardGame);
+    public void testAddBoardGameItem() {
+        Long boardGameId = boardGame.getId();
+        String serialNumber = "SN-TEST-12345";
 
-        int count = boardGameItemService.avalaibleItemsInStockNumber(1L);
+        // check state before (should have 1 item from setUp)
+        assertEquals(1, boardGame.getAvailableStockItems().size());
 
-        assertEquals(1, count); // only FOR_LOAN item is counted
-    }
+        sut.addBoardGameItem(boardGameId, serialNumber, BoardGameState.FOR_LOAN);
+        em.flush();
+        em.refresh(boardGame);
 
-    // ----------------------------
-    // Tests for getAllBoardGameItemsForBoardGame
-    // ----------------------------
+        // check state after (should have 2 items now)
+        assertEquals(2, boardGame.getAvailableStockItems().size());
 
-    @Test
-    public void getAllBoardGameItemsForBoardGameThrowsEntityNotFoundExceptionForInvalidId() {
-        when(boardGameRepository.findBoardGameById(99L)).thenReturn(null);
+        // get the newly added item (it's the last one)
+        BoardGameItem boardGameItem = boardGame.getAvailableStockItems().getLast();
 
-        assertThrows(EntityNotFoundException.class, () ->
-                boardGameItemService.getAllBoardGameItemsForBoardGame(99L));
-    }
-
-    @Test
-    public void getAllBoardGameItemsForBoardGameReturnsAllItems() {
-        when(boardGameRepository.findBoardGameById(1L)).thenReturn(boardGame);
-
-        List<BoardGameItem> result = boardGameItemService.getAllBoardGameItemsForBoardGame(1L);
-
-        assertEquals(2, result.size());
-        assertTrue(result.contains(forLoanItem));
-        assertTrue(result.contains(borrowedItem));
-    }
-
-    // ----------------------------
-    // Tests for getAllAvalableBoardGameItemsForBoardGame
-    // ----------------------------
-
-    @Test
-    public void getAllAvalableBoardGameItemsForBoardGameThrowsEntityNotFoundExceptionForNoName() {
-        BoardGame noNameGame = new BoardGame();
-        when(boardGameRepository.findById(1L)).thenReturn(Optional.of(noNameGame));
-
-        assertThrows(EntityNotFoundException.class, () ->
-                boardGameItemService.getAllAvalableBoardGameItemsForBoardGame(1L));
+        assertNotNull(boardGameItem);
+        assertEquals(serialNumber, boardGameItem.getSerialNumber());
+        assertEquals(boardGameId, boardGameItem.getBoardGame().getId());
     }
 
     @Test
-    public void getAllAvalableBoardGameItemsForBoardGameReturnsOnlyForLoanItems() {
-        when(boardGameRepository.findById(1L)).thenReturn(Optional.of(boardGame));
-        when(boardGameRepository.findBoardGameById(1L)).thenReturn(boardGame);
+    public void testUpdateBoardGameItemState(){
+        // arrange: get the ID of the item from setUp
+        Long testItemId = this.testItem.getId();
+        assertEquals(BoardGameState.BORROWED, testItem.getState()); // check initial state
 
-        List<BoardGameItem> availableItems = boardGameItemService.getAllAvalableBoardGameItemsForBoardGame(1L);
+        // act: call the service with the ITEM's ID
+        sut.updateBoardGameItemState(testItemId, BoardGameState.FOR_LOAN);
+        em.flush();
 
+        // assert: check if the state changed in the DB
+        BoardGameItem updatedItem = em.find(BoardGameItem.class, testItemId);
+        assertEquals(BoardGameState.FOR_LOAN, updatedItem.getState());
+
+        // exception test: item not found
+        assertThrows(EntityNotFoundException.class, () -> {
+            sut.updateBoardGameItemState(-1L, BoardGameState.BORROWED);
+        });
+
+        // exception test: null parameter
+        assertThrows(ParametersException.class, () -> {
+            sut.updateBoardGameItemState(testItemId, null);
+        });
+    }
+
+    @Test
+    public void testDeleteBoardGameItem(){
+        // arrange: get the ID from setUp
+        Long itemId = this.testItem.getId();
+
+        // check it exists before deleting
+        assertNotNull(em.find(BoardGameItem.class, itemId));
+        assertEquals(1, boardGame.getAvailableStockItems().size());
+
+        // act
+        sut.deleteBoardGameItem(itemId);
+        em.flush();
+
+        // assert: check it's gone from DB
+        assertNull(em.find(BoardGameItem.class, itemId));
+
+        // assert: check it's gone from the parent's list
+        em.refresh(boardGame);
+        assertTrue(boardGame.getAvailableStockItems().isEmpty());
+
+        // exception test: delete non-existing
+        assertThrows(EntityNotFoundException.class, () -> {
+            sut.deleteBoardGameItem(-1L);
+        });
+    }
+
+    /**
+     * new test for the 3 query methods
+     */
+    @Test
+    public void testGetItemQueries() {
+        // arrange: add one more item that IS available
+        BoardGameItem availableItem = new BoardGameItem();
+        availableItem.setBoardGame(boardGame);
+        availableItem.setSerialNumber("ITEM-FOR-LOAN");
+        availableItem.setState(BoardGameState.FOR_LOAN);
+
+        boardGame.getAvailableStockItems().add(availableItem);
+        em.persist(availableItem);
+        em.merge(boardGame);
+        em.flush();
+
+        Long boardGameId = boardGame.getId();
+
+        // --- Test 1: getAllBoardGameItemsForBoardGame ---
+        // should return 2 items (one BORROWED, one FOR_LOAN)
+        List<BoardGameItem> allItems = sut.getAllBoardGameItemsForBoardGame(boardGameId);
+        assertEquals(2, allItems.size());
+
+        // --- Test 2: getAllAvalableBoardGameItemsForBoardGame ---
+        // should return 1 item (only the FOR_LOAN one)
+        List<BoardGameItem> availableItems = sut.getAllAvalableBoardGameItemsForBoardGame(boardGameId);
         assertEquals(1, availableItems.size());
-        assertEquals(BoardGameState.FOR_LOAN, availableItems.get(0).getState());
-    }
+        assertEquals("ITEM-FOR-LOAN", availableItems.getFirst().getSerialNumber());
 
-    // ----------------------------
-    // Tests for addBoardGameItem
-    // ----------------------------
-
-    @Test
-    public void addBoardGameItemThrowsEntityNotFoundExceptionForInvalidGame() {
-        when(boardGameRepository.findBoardGameById(99L)).thenReturn(null);
-
-        assertThrows(EntityNotFoundException.class, () ->
-                boardGameItemService.addBoardGameItem(99L, "SN-01", BoardGameState.FOR_LOAN));
-    }
-
-    @Test
-    public void addBoardGameItemThrowsParametersExceptionForNullSerialOrState() {
-        when(boardGameRepository.findBoardGameById(1L)).thenReturn(boardGame);
-
-        assertThrows(ParametersException.class, () ->
-                boardGameItemService.addBoardGameItem(1L, null, BoardGameState.FOR_LOAN));
-
-        assertThrows(ParametersException.class, () ->
-                boardGameItemService.addBoardGameItem(1L, "SN-01", null));
-    }
-
-    @Test
-    public void addBoardGameItemSavesAndReturnsId() {
-        when(boardGameRepository.findBoardGameById(1L)).thenReturn(boardGame);
-
-        BoardGameItem saved = new BoardGameItem();
-        saved.setId(123L);
-        when(boardGameItemRepository.save(any(BoardGameItem.class))).thenReturn(saved);
-
-        long id = boardGameItemService.addBoardGameItem(1L, "SN-123", BoardGameState.FOR_LOAN);
-
-        verify(boardGameItemRepository, times(1)).save(any(BoardGameItem.class));
-        assertEquals(123L, id);
-    }
-
-    // ----------------------------
-    // Tests for updateBoardGameItemState
-    // ----------------------------
-
-    @Test
-    public void updateBoardGameItemStateThrowsEntityNotFoundExceptionWhenItemNotFound() {
-        when(boardGameItemRepository.getBoardGameItemById(42L)).thenReturn(null);
-
-        assertThrows(EntityNotFoundException.class, () ->
-                boardGameItemService.updateBoardGameItemState(42L, BoardGameState.BORROWED));
-    }
-
-    @Test
-    public void updateBoardGameItemStateThrowsParametersExceptionForInvalidState() {
-        // Repository returns existing item
-        when(boardGameItemRepository.getBoardGameItemById(forLoanItem.getId())).thenReturn(forLoanItem);
-
-        // Create fake state by null (since enum can't be invalid)
-        assertThrows(ParametersException.class, () ->
-                boardGameItemService.updateBoardGameItemState(forLoanItem.getId(), null));
-    }
-
-    @Test
-    public void updateBoardGameItemStateUpdatesSuccessfully() {
-        when(boardGameItemRepository.getBoardGameItemById(forLoanItem.getId())).thenReturn(forLoanItem);
-
-        boardGameItemService.updateBoardGameItemState(forLoanItem.getId(), BoardGameState.BORROWED);
-
-        verify(boardGameItemRepository, times(1)).save(any(BoardGameItem.class));
-        assertEquals(BoardGameState.BORROWED, forLoanItem.getState());
+        // --- Test 3: avalaibleItemsInStockNumber ---
+        // should return 1
+        int availableCount = sut.avalaibleItemsInStockNumber(boardGameId);
+        assertEquals(1, availableCount);
     }
 }

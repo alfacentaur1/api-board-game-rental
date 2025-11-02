@@ -12,6 +12,7 @@ import java.util.List;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name="board_game_loans")
 public class BoardGameLoan {
     @Id
     @GeneratedValue

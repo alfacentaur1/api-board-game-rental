@@ -19,6 +19,4 @@ public interface BoardGameRepository extends JpaRepository<BoardGame, Long> {
     List<String> getAllBoardGameNames();
 
     BoardGame findBoardGameById(long id);
-
-    Optional<BoardGameLoan> findFirstByBoardGame_NameAndStatus(String name, Status status);
 }

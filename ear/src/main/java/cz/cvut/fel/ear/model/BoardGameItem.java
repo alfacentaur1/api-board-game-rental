@@ -9,6 +9,15 @@ import lombok.Setter;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
+@NamedQuery(
+        name = "BoardGameItem.findAvailableByNameWithLock",
+        query = "SELECT e FROM BoardGameItem e " +
+                "WHERE e.boardGame.name = :name " +
+                "AND e.state = :state " +
+                "ORDER BY e.id ASC",
+        lockMode = LockModeType.PESSIMISTIC_WRITE
+)
+@Table(name = "board_game_items")
 public class BoardGameItem {
     @Id
     @GeneratedValue
