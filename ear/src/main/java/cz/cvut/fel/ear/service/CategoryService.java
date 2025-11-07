@@ -21,11 +21,12 @@ public class CategoryService implements CategoryServiceI {
 
     @Override
     public void addNewCategory(String name) {
-        if (categoryExists(name)) {
+        // TODO - check if category already exists
+        /*if (categoryExists()) {
             throw new EntityAlreadyExistsException(
                     String.format("Category with name %s already exists", name)
             );
-        }
+        }*/
 
         // Create new category
         Category category = new Category();
@@ -41,18 +42,18 @@ public class CategoryService implements CategoryServiceI {
     }
 
     @Override
-    public void removeCategory(String categoryName) {
+    public void removeCategory(long categoryId) {
         // Check if category with given name exists
         if (
-                !categoryExists(categoryName)
+                !categoryExists(categoryId)
         ) {
             throw new EntityNotFoundException(
-                    String.format("Category with name %s not found", categoryName)
+                    String.format("Category with id %d not found", categoryId)
             );
         }
 
         // Find the category
-        Category category = findCategory(categoryName);
+        Category category = findCategory(categoryId);
 
         categoryRepository.delete(category);
     }
@@ -89,8 +90,8 @@ public class CategoryService implements CategoryServiceI {
         removeGameFromCategory(game, category);
     }
 
-    private boolean categoryExists(String categoryName) {
-        return categoryRepository.findAll().contains(categoryName);
+    private boolean categoryExists(long categoryId) {
+        return categoryRepository.findAll().contains(categoryId);
     }
 
     private Category findCategory(long id) {

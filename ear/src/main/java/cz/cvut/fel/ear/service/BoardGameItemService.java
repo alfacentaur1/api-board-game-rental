@@ -3,11 +3,9 @@ package cz.cvut.fel.ear.service;
 import cz.cvut.fel.ear.dao.BoardGameItemRepository;
 import cz.cvut.fel.ear.dao.BoardGameRepository;
 import cz.cvut.fel.ear.exception.EntityNotFoundException;
-import cz.cvut.fel.ear.exception.ParametersException;
 import cz.cvut.fel.ear.model.BoardGame;
 import cz.cvut.fel.ear.model.BoardGameItem;
 import cz.cvut.fel.ear.model.BoardGameState;
-import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import cz.cvut.fel.ear.service.interfaces.BoardGameItemServiceI;
 
@@ -25,7 +23,7 @@ public class BoardGameItemService implements BoardGameItemServiceI{
     }
 
     @Override
-    public int gatAvailableItemsInStockNumber(long gameId) {
+    public int getAvailableItemsInStockNumber(long gameId) {
         // Check if game exists
         BoardGame game = findBoardGame(gameId);
 
@@ -34,7 +32,7 @@ public class BoardGameItemService implements BoardGameItemServiceI{
     }
 
     @Override
-    public int gatAvailableItemsInStockNumber(BoardGame game) {
+    public int getAvailableItemsInStockNumber(BoardGame game) {
         // Return the amount of available board game items
         return getAvailableGameItemsForBoardGame(game.getId()).size();
     }
@@ -78,7 +76,7 @@ public class BoardGameItemService implements BoardGameItemServiceI{
         newItem.setSerialNumber(serialNumber);
         newItem.setState(state);
 
-        return gameItemRepository.save(newItem).getId();
+        return boardGameItemRepository.save(newItem).getId();
     }
     // FILIP  ADD
    /* @Transactional
@@ -111,14 +109,14 @@ public class BoardGameItemService implements BoardGameItemServiceI{
         BoardGameItem gameItem = findBoardGameItem(gameItemId);
 
         // Remove it
-        gameItemRepository.delete(gameItem);
+        boardGameItemRepository.delete(gameItem);
 
     }
 
     @Override
     public void removeBoardGameItem(BoardGameItem gameItem) {
         // Remove it
-        gameItemRepository.delete(gameItem);
+        boardGameItemRepository.delete(gameItem);
     }
 
     @Override
@@ -156,7 +154,7 @@ public class BoardGameItemService implements BoardGameItemServiceI{
     @Override
     public List<BoardGameItem> getCurrentlyBorrowedItems() {
         // Get all game Items
-        List<BoardGameItem> allItems = gameItemRepository.findAll();
+        List<BoardGameItem> allItems = boardGameItemRepository.findAll();
 
         // Filter currently borrowed
         List<BoardGameItem> borrowedItems = new ArrayList<>();
@@ -176,7 +174,7 @@ public class BoardGameItemService implements BoardGameItemServiceI{
      * @throws EntityNotFoundException when board game with given id does not exists
      */
     private BoardGame findBoardGame(long gameId) {
-        BoardGame boardGame = gameRepository.findBoardGameById(gameId);
+        BoardGame boardGame = boardGameRepository.getBoardGameById(gameId);
 
         // Check if boardGame was found
         if (boardGame == null) {
@@ -195,7 +193,7 @@ public class BoardGameItemService implements BoardGameItemServiceI{
      * @throws EntityNotFoundException when board game item with given id does not exists
      */
     private BoardGameItem findBoardGameItem(long itemId) {
-        BoardGameItem gameItem = gameItemRepository.getBoardGameItemById(itemId);
+        BoardGameItem gameItem = boardGameItemRepository.getBoardGameItemById(itemId);
 
         // Check if the item was found
         if (gameItem == null) {

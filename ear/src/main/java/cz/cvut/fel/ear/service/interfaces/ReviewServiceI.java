@@ -16,7 +16,7 @@ public interface ReviewServiceI {
     List<Review> getBoardGameReviews(long gameId);
 
      @Transactional
-     void createReview(User user, long gameId, String content, Integer rating);
+     Review createReview(User user, long gameId, String content, Integer rating);
 
     /**
      * Updates review

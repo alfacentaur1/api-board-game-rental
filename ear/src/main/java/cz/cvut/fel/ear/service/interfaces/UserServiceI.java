@@ -1,7 +1,10 @@
 package cz.cvut.fel.ear.service.interfaces;
 
+import cz.cvut.fel.ear.model.BoardGame;
 import cz.cvut.fel.ear.model.LoanStatus;
 import cz.cvut.fel.ear.model.RegisteredUser;
+
+import java.util.List;
 
 public interface UserServiceI {
 
@@ -11,4 +14,6 @@ public interface UserServiceI {
      * @param status the loan status that determines how to update karma points
      */
     void updateKarma(RegisteredUser user, LoanStatus status);
+
+    public List<BoardGame> getAllFavouriteGames(long userId);
 }

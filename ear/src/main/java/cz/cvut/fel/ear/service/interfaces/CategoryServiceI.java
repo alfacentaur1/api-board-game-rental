@@ -29,11 +29,11 @@ public interface CategoryServiceI {
     /**
      * Transactional <br>
      * Removes a category by its name
-     * @param categoryName name of the category to remove
+     * @param categoryId id of the category to remove
      * @throws EntityNotFoundException when category does not exist
      */
     @Transactional
-    void removeCategory(String categoryName);
+    void removeCategory(long categoryId);
 
     /**
      * Transactional <br>
@@ -49,11 +49,11 @@ public interface CategoryServiceI {
      * Transactional <br>
      * Adds a board game to a category by their ids
      * @param gameId id of the board game to add
-     * @param categoryName name of the category
+     * @param categoryId id of the category
      * @throws EntityNotFoundException when category or game does not exist
      */
     @Transactional
-    void addBoardGameToCategory(long gameId, String categoryName);
+    void addBoardGameToCategory(long gameId, long categoryId);
 
     /**
      * Transactional <br>
@@ -69,9 +69,9 @@ public interface CategoryServiceI {
      * Transactional <br>
      * Removes a board game from a category by their ids
      * @param gameId id of the board game to remove
-     * @param categoryName name of the category
+     * @param categoryId id of the category
      * @throws EntityNotFoundException when category or game does not exist
      */
     @Transactional
-    void removeBoardGameFromCategory(long gameId, String categoryName);
+    void removeBoardGameFromCategory(long gameId, long categoryId);
 }

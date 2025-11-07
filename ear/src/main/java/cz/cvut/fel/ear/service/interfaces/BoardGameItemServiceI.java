@@ -17,7 +17,7 @@ public interface BoardGameItemServiceI {
      * @return the number of available items in stock for given board game
      * @throws EntityNotFoundException when board game with given id does not exists
      */
-    int gatAvailableItemsInStockNumber(long gameId);
+    int getAvailableItemsInStockNumber(long gameId);
 
     /**
      * Returns the number of available items in stock for a given board game
@@ -25,7 +25,7 @@ public interface BoardGameItemServiceI {
      * @param game game to check the available items in stock
      * @return the number of available items in stock for given board game
      */
-    int gatAvailableItemsInStockNumber(BoardGame game);
+    int getAvailableItemsInStockNumber(BoardGame game);
 
     /**
      * Returns all board game items for a given board game

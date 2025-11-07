@@ -2,9 +2,7 @@ package cz.cvut.fel.ear.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -88,12 +86,12 @@ public class BoardGameLoan {
         this.dueDate = dueDate;
     }
 
-    public Status getStatus() {
-        return status;
+    public LoanStatus getStatus() {
+        return loanStatus;
     }
 
-    public void setStatus(Status status) {
-        this.status = status;
+    public void setStatus(LoanStatus status) {
+        this.loanStatus = status;
     }
 
     public RegisteredUser getUser() {

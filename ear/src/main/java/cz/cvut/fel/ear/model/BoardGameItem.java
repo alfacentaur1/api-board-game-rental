@@ -2,9 +2,8 @@ package cz.cvut.fel.ear.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+
 
 /**
  * BoardGameItem entity representing a specific board game item in a loan.

@@ -6,10 +6,7 @@ import cz.cvut.fel.ear.exception.InvalidCommentRangeException;
 import cz.cvut.fel.ear.exception.InvalidRatingScoreException;
 import cz.cvut.fel.ear.exception.ParametersException;
 import cz.cvut.fel.ear.model.BoardGame;
-import cz.cvut.fel.ear.model.RegisteredUser;
 import cz.cvut.fel.ear.model.Review;
-import jakarta.transaction.Transactional;
-import org.springframework.stereotype.Service;
 
 import cz.cvut.fel.ear.model.User;
 import cz.cvut.fel.ear.service.interfaces.ReviewServiceI;
@@ -37,6 +34,7 @@ public class ReviewService implements ReviewServiceI {
         // Check if board game exists
         gameService.getBoardGame(gameId);
 
+        // TODO - fix type problems
         return reviewRepository.findAllByBoardGame_IdIn(Collections.singletonList(gameId));
     }
 
@@ -77,7 +75,7 @@ public class ReviewService implements ReviewServiceI {
         if (rating != null) {
             validateRating(rating);
             change = true;
-            review.setValue(rating);
+            review.setScore(rating);
         }
 
         // If anything changed update the dateCreated

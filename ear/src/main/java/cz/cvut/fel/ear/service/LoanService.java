@@ -5,8 +5,6 @@ import cz.cvut.fel.ear.dao.BoardGameLoanRepository;
 import cz.cvut.fel.ear.dao.RegisteredUserRepository;
 import cz.cvut.fel.ear.exception.EntityNotFoundException;
 import cz.cvut.fel.ear.exception.InvalidDateException;
-import cz.cvut.fel.ear.exception.NotAvalaibleInStockException;
-import cz.cvut.fel.ear.exception.InvalidStatusException;
 import cz.cvut.fel.ear.exception.ParametersException;
 import cz.cvut.fel.ear.model.*;
 import cz.cvut.fel.ear.service.interfaces.LoanServiceI;
@@ -14,7 +12,6 @@ import cz.cvut.fel.ear.service.interfaces.LoanServiceI;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class LoanService implements LoanServiceI {
     private final BoardGameLoanRepository loanRepository;
@@ -110,7 +107,7 @@ public class LoanService implements LoanServiceI {
         BoardGameLoan loan = new BoardGameLoan();
         loan.setBorrowedAt(startDate);
         loan.setDueDate(dueDate);
-        loan.setLoanStatus(LoanStatus.PENDING);
+        loan.setStatus(LoanStatus.PENDING);
         loan.setUser(userRepository.getReferenceById(user.getId()));
 
         // Set games to be borrowed // TODO - is necessary already doing in the loop
@@ -133,10 +130,10 @@ public class LoanService implements LoanServiceI {
 
         // Update Loan state and user karma
         if (now.isAfter(loan.getDueDate())) {
-            loan.setLoanStatus(LoanStatus.RETURNED_LATE);
+            loan.setStatus(LoanStatus.RETURNED_LATE);
             userService.updateKarma(user, LoanStatus.RETURNED_LATE);
         } else {
-            loan.setLoanStatus(LoanStatus.RETURNED_IN_TIME);
+            loan.setStatus(LoanStatus.RETURNED_IN_TIME);
             userService.updateKarma(user, LoanStatus.RETURNED_IN_TIME);
         }
 
@@ -157,7 +154,7 @@ public class LoanService implements LoanServiceI {
                     String.format("Loan with id %d not found", loanId)
             );
         }
-        loan.setLoanStatus(newState);
+        loan.setStatus(newState);
 
         loanRepository.save(loan);
     }

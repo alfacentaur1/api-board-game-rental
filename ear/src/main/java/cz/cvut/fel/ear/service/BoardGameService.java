@@ -1,6 +1,5 @@
 package cz.cvut.fel.ear.service;
 
-import cz.cvut.fel.ear.dao.BoardGameItemRepository;
 import cz.cvut.fel.ear.dao.BoardGameRepository;
 import cz.cvut.fel.ear.dao.RegisteredUserRepository;
 import cz.cvut.fel.ear.exception.EntityAlreadyExistsException;
@@ -10,19 +9,24 @@ import cz.cvut.fel.ear.exception.ParametersException;
 import cz.cvut.fel.ear.model.BoardGame;
 import cz.cvut.fel.ear.model.RegisteredUser;
 import cz.cvut.fel.ear.service.interfaces.BoardGameServiceI;
+import cz.cvut.fel.ear.service.interfaces.UserServiceI;
 
 import java.util.Collections;
 import java.util.List;
 
 public class BoardGameService implements BoardGameServiceI {
     private final BoardGameRepository boardGameRepository;
-    private final RegisteredUserRepository userRepository;
     private final BoardGameItemService boardGameItemService;
 
+    private final UserServiceI userService;
+    private final RegisteredUserRepository userRepository;
 
-    public BoardGameService(BoardGameRepository gameRepository, BoardGameItemService gameItemService, RegisteredUserRepository userRepository) {
+
+
+    public BoardGameService(BoardGameRepository gameRepository, BoardGameItemService gameItemService, UserService userService, RegisteredUserRepository userRepository) {
         this.boardGameRepository = gameRepository;
         this.boardGameItemService = gameItemService;
+        this.userService = userService;
         this.userRepository = userRepository;
 
     }
@@ -134,7 +138,7 @@ public class BoardGameService implements BoardGameServiceI {
 
     @Override
     public List<BoardGame> getFavouriteGamesList(long userId) {
-        return userRepository.findAllFavoriteGames(userId);
+        return userService.getAllFavouriteGames(userId);
     }
 
 
@@ -162,7 +166,7 @@ public class BoardGameService implements BoardGameServiceI {
     private void printDetail(BoardGame boardGame) {
         System.out.println(boardGame.getName());
         System.out.println(boardGame.getDescription());
-        System.out.println("Avalaible in stock: " + boardGameItemService.gatAvailableItemsInStockNumber(boardGame.getId()));
+        System.out.println("Avalaible in stock: " + boardGameItemService.getAvailableItemsInStockNumber(boardGame.getId()));
     }
 
     /**
@@ -208,12 +212,12 @@ public class BoardGameService implements BoardGameServiceI {
     /**
      * Checks whether a given board game is in a user's list of favourites
      *
-     * @param userID      ID of the user
+     * @param userId     ID of the user
      * @param gameToCheck board game to check for presence in favourites
      * @return {@code true} if the board game is in the user's favourites; {@code false} otherwise
      */
-    private boolean gameInFavouriteList(long userID, BoardGame gameToCheck) {
-        List<BoardGame> favouriteGames = userRepository.findAllFavoriteGames(userID);
+    private boolean gameInFavouriteList(long userId, BoardGame gameToCheck) {
+        List<BoardGame> favouriteGames = userService.getAllFavouriteGames(userId);
         return favouriteGames.contains(gameToCheck.getName());
     }
 }
