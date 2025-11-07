@@ -8,9 +8,26 @@ import org.springframework.stereotype.Repository;
 //annotation for spring - persistence layer, managed by spring
 @Repository
 public interface BoardGameItemRepository extends JpaRepository<BoardGameItem, Long> {
+
+    /**
+     * Finds a board game item by the name of the board game
+     * @param boardGameName name of the board game
+     * @return
+     */
     BoardGameItem findBoardGameItemByBoardGame_Name(String boardGameName);
 
+    /**
+     * Gets a board game item by its id
+     * @param id id of the board game item
+     * @return board game item
+     */
     BoardGameItem getBoardGameItemById(long id);
 
+    /**
+     * Finds the first board game item by the name of the board game and its state
+     * @param boardGameName name of the board game
+     * @param state state of the board game item
+     * @return board game item
+     */
     BoardGameItem findFirstByBoardGame_NameAndState(String boardGameName, BoardGameState state);
 }

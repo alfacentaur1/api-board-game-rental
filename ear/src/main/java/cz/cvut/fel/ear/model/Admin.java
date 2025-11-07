@@ -7,6 +7,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Admin entity representing administrative users in the system.
+ * Inherits from the User class.
+ */
 @Entity
 @Getter
 @Setter

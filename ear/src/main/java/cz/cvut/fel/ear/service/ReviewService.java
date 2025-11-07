@@ -1,84 +1,129 @@
 package cz.cvut.fel.ear.service;
 
-import cz.cvut.fel.ear.dao.BoardGameRepository;
 import cz.cvut.fel.ear.dao.ReviewRepository;
 import cz.cvut.fel.ear.exception.EntityNotFoundException;
+import cz.cvut.fel.ear.exception.InvalidCommentRangeException;
 import cz.cvut.fel.ear.exception.InvalidRatingScoreException;
 import cz.cvut.fel.ear.model.BoardGame;
 import cz.cvut.fel.ear.model.Review;
-import jakarta.transaction.Transactional;
-import org.springframework.stereotype.Service;
+import cz.cvut.fel.ear.model.User;
+import cz.cvut.fel.ear.service.interfaces.ReviewServiceI;
+
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
-@Service
-public class ReviewService {
+public class ReviewService implements ReviewServiceI {
+    private final int MAX_RATING = 5;
+    private final int MIN_RATING = 0;
+    private final int MAX_CONTENT_LENGTH = 200; // 200 characters
 
+    private final BoardGameService gameService;
     private final ReviewRepository reviewRepository;
-    private final BoardGameRepository boardGameRepository;
-    private final int maxRating = 5;
-    private final int minRating = 5;
-    private final int maxCommentRange = 200;
 
-    public ReviewService(ReviewRepository reviewRepository, BoardGameRepository boardGameRepository) {
+    public ReviewService(BoardGameService gameService, ReviewRepository reviewRepository) {
+        this.gameService = gameService;
         this.reviewRepository = reviewRepository;
-        this.boardGameRepository = boardGameRepository;
     }
 
-    /**
-     *
-     * @param gameId
-     * @return
-     */
-    public List<Review> getAllBoardGameReviewsById(int gameId){
-        BoardGame boardGame = boardGameRepository.getBoardGameById(gameId);
-        if(boardGame == null){
-            throw new EntityNotFoundException("Board game with id " + gameId + " not found");
-        }
-        return reviewRepository.findAllByBoardGame(Collections.singletonList(gameId));
+    @Override
+    public List<Review> getBoardGameReviews(long gameId) {
+        // Check if board game exists
+        gameService.getBoardGame(gameId);
+
+        return reviewRepository.findAllByBoardGame(gameId);
     }
 
-    /**
-     *
-     * @param gameId
-     * @param content
-     * @param rating
-     * @return
-     */
-    @Transactional
-    public Review createReview(long gameId, String content, int rating){
-        BoardGame boardGame = boardGameRepository.getBoardGameById(gameId);
-        if(boardGame == null){
-            throw new EntityNotFoundException("Board game with id " + gameId + " not found");
+    @Override
+    public void createReview(User user, long gameId, String content, Integer rating) {
+        // Check if board game exist
+        BoardGame game = gameService.getBoardGame(gameId);
+
+        // Validate rating input
+        validateRatingInput(content, rating);
+
+        // Create new review
+        Review newReview = new Review();
+        newReview.setBoardGame(game);
+        newReview.setComment(content);
+        newReview.setValue(rating);
+        newReview.setAuthor(user);
+        newReview.setCreatedAt(LocalDateTime.now());
+
+
+    }
+
+    @Override
+    public void updateReview(long id, String content, Integer rating) {
+        // Find the review
+        Review review = findReview(id).get();
+
+        boolean change = false;
+
+        // Check what to change and change it
+        if (content != null) {
+            validateContent(content);
+            change = true;
+            review.setComment(content);
+        }
+        if (rating != null) {
+            validateRating(rating);
+            change = true;
+            review.setValue(rating);
         }
 
-        if(rating > maxRating || rating < minRating){
-            throw new InvalidRatingScoreException("Rating must be between " + minRating + " and " + maxRating);
+        // If anything changed update the dateCreated
+        if (change) {
+            review.setCreatedAt(LocalDateTime.now());
         }
-
-        if(content.length() > maxCommentRange){
-            throw new InvalidRatingScoreException("Review content is limited to " + maxCommentRange + " characters");
-        }
-
-        Review review = new Review();
-        review.setBoardGame(boardGame);
-        review.setComment(content);
-        review.setValue(rating);
-        review.setCreatedAt(LocalDateTime.now());
 
         reviewRepository.save(review);
-        return review;
     }
 
+    @Override
+    public void deleteReview(long id) {
+        Review review = findReview(id).orElse(null);
 
-    public void deleteReview(long id){
-        Review review = reviewRepository.findById(id).orElse(null);
-        if(review == null){
-            throw new EntityNotFoundException("Review with id " + id + " not found");
-        }
         reviewRepository.delete(review);
+    }
+
+    private Optional<Review> findReview (long reviewId) {
+        Review review = reviewRepository.findById(reviewId).orElse(null);
+
+        // Check if review was found
+        if (review == null) {
+            throw new EntityNotFoundException(
+                    String.format("Review with id %d not found",reviewId)
+            );
+        }
+
+        return Optional.of(review);
 
     }
+
+
+    private void validateRatingInput(String content, int rating) {
+        validateContent(content);
+        validateRating(rating);
+    }
+
+    private void validateRating(int rating) {
+        // Check rating
+        if (rating > MAX_RATING || rating < MIN_RATING) {
+            throw new InvalidRatingScoreException(
+                    String.format("Rating must be between %d and %d", MAX_RATING,MIN_RATING)
+            );
+        }
+    }
+
+    private void validateContent(String content) {
+        // Check content
+        if (content.length() > MAX_CONTENT_LENGTH) {
+            throw new InvalidCommentRangeException(
+                    String.format("Review content is limited to %d characters", MAX_CONTENT_LENGTH)
+            );
+        }
+    }
+
 
 }

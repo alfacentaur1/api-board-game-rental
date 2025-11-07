@@ -1,129 +1,200 @@
 package cz.cvut.fel.ear.service;
 
-import ch.qos.logback.core.net.SyslogOutputStream;
-import cz.cvut.fel.ear.dao.BoardGameItemRepository;
 import cz.cvut.fel.ear.dao.BoardGameRepository;
 import cz.cvut.fel.ear.dao.RegisteredUserRepository;
-import cz.cvut.fel.ear.dao.UserRepository;
 import cz.cvut.fel.ear.exception.EntityAlreadyExistsException;
 import cz.cvut.fel.ear.exception.EntityNotFoundException;
 import cz.cvut.fel.ear.exception.GameAlreadyInFavoritesException;
 import cz.cvut.fel.ear.model.BoardGame;
-import cz.cvut.fel.ear.model.BoardGameLoan;
-import cz.cvut.fel.ear.model.BoardGameState;
 import cz.cvut.fel.ear.model.RegisteredUser;
-import jakarta.transaction.Transactional;
-import org.springframework.stereotype.Service;
+import cz.cvut.fel.ear.service.interfaces.BoardGameServiceI;
 
-import java.beans.Transient;
-import java.util.Collections;
 import java.util.List;
 
-@Service
-public class BoardGameService {
-    private final BoardGameRepository boardGameRepository;
+public class BoardGameService implements BoardGameServiceI {
+    private final BoardGameRepository gameRepository;
+    private final BoardGameItemService gameItemService;
     private final RegisteredUserRepository userRepository;
-    private final BoardGameItemRepository boardGameItemRepository;
-    private final BoardGameItemService boardGameItemService;
 
-    public BoardGameService(BoardGameRepository boardGameRepository, RegisteredUserRepository userRepository, BoardGameItemRepository boardGameItemRepository, BoardGameItemService boardGameItemService) {
-        this.boardGameRepository = boardGameRepository;
+
+    public BoardGameService(BoardGameRepository gameRepository, BoardGameItemService gameItemService, RegisteredUserRepository userRepository) {
+        this.gameRepository = gameRepository;
+        this.gameItemService = gameItemService;
         this.userRepository = userRepository;
-        this.boardGameItemRepository = boardGameItemRepository;
-        this.boardGameItemService = boardGameItemService;
+
     }
 
-    public BoardGame getBoardGame(int gameId) {
-        BoardGame boardGame = boardGameRepository.getBoardGameById(gameId);
+    @Override
+    public BoardGame getBoardGame(long id) {
+        BoardGame boardGame = gameRepository.getBoardGameById(id);
+
+        // Check if board game was found
         if (boardGame == null) {
-            throw new EntityNotFoundException("Board game not found");
+            throw new EntityNotFoundException(
+                    String.format("Board game with id : %d not found", id)
+            );
         }
         return boardGame;
     }
 
+    @Override
     public List<BoardGame> getAllBoardGames() {
-        List<BoardGame> boardGames = boardGameRepository.findAll();
-        if (boardGames == Collections.EMPTY_LIST) {
-            throw new EntityNotFoundException("There are no board games");
-        }
-        return boardGames;
+         return gameRepository.findAll();
     }
 
-    @Transactional
-    public long createBoardGame(String name, String description) {
-        List<String> allBoardGameNames = boardGameRepository.getAllBoardGameNames();
-        if (allBoardGameNames.contains(name)) {
-            throw new EntityAlreadyExistsException("Board game with title " + name + " already exists");
+    @Override
+    public long createBoardGame(String name, String description, int numberOfCopies) {
+        // Check if board game with the same name already exists
+        List<String> allBoardGamesNames = gameRepository.getAllBoardGameNames();
+        if (allBoardGamesNames.contains(name)) {
+            throw new EntityAlreadyExistsException(
+                    String.format("Board game with title : %s already exists", name)
+            );
         }
-        BoardGame boardGameToCreate = new BoardGame();
-        boardGameToCreate.setName(name);
-        boardGameToCreate.setDescription(description);
-        boardGameRepository.save(boardGameToCreate);
-        return boardGameToCreate.getId();
+
+        // Create new board Game
+        BoardGame newBoardGame = new BoardGame();
+        newBoardGame.setName(name);
+        newBoardGame.setDescription(description);
+        gameRepository.save(newBoardGame);
+
+        return newBoardGame.getId();
     }
 
-    public void removeBoardGame(int gameId) {
-        BoardGame boardGameToRemove = boardGameRepository.getBoardGameById(gameId);
+    @Override
+    public void removeBoardGame(long id) {
+        // Get the board game
+        BoardGame boardGameToRemove = getBoardGame(id);
 
-        if (boardGameToRemove == null) {
-            throw new EntityNotFoundException("Board game with id " + gameId + " not found");
-
-        }
-        boardGameRepository.delete(boardGameToRemove);
+        // Remove it
+        gameRepository.delete(boardGameToRemove);
     }
 
-    public void updateBoardGameDescription(int gameId, String newDescription) {
-        BoardGame boardGameToUpdate = boardGameRepository.getBoardGameById(gameId);
-        if (boardGameToUpdate == null) {
-            throw new EntityNotFoundException("Board game with id " + gameId + " not found");
-        }
-        boardGameToUpdate.setDescription(newDescription);
+    @Override
+    public void updateBoardGameDescription(long id, String description) {
+        BoardGame boardGameToUpdate = getBoardGame(id);
+
+        updateDescription(boardGameToUpdate, description);
     }
 
-    public void addGameToFavorites(RegisteredUser user, int gameId) {
-        BoardGame boardGameToAdd = boardGameRepository.getBoardGameById(gameId);
-        if (boardGameToAdd == null) {
-            throw new EntityNotFoundException("Board game with id " + gameId + " not found");
-        }
-        else if (userRepository.findAllFavoriteGames(gameId).contains(boardGameToAdd.getName()) ){
-            throw new GameAlreadyInFavoritesException("Game with name " + boardGameToAdd.getName() + " already in favorites");
-        }
-       user.getFavoriteBoardGames().add(boardGameToAdd);
-       userRepository.save(user);
-
+    @Override
+    public void updateBoardGameDescription(BoardGame boardGame, String description) {
+        updateDescription(boardGame, description);
     }
 
-    public void removeGameFromFavorites(RegisteredUser user, int gameId) {
-        BoardGame boardGameToRemove = boardGameRepository.getBoardGameById(gameId);
-        if (boardGameToRemove == null) {
-            throw new EntityNotFoundException("Board game with id " + gameId + " not found");
-        }
-        if(!userRepository.findAllFavoriteGames(gameId).contains(boardGameToRemove.getName())){
-            throw new EntityNotFoundException("Game with name " + boardGameToRemove.getName() + " not in favorites");
-        }
-        user.getFavoriteBoardGames().remove(boardGameToRemove);
-        userRepository.save(user);
+    @Override
+    public void printBoardGameDetail(long id) {
+        BoardGame boardGame = getBoardGame(id);
+
+        printDetail(boardGame);
     }
 
-
-
-    public void viewBoardGameDetails(BoardGame boardGame) {
-        if (boardGame == null) {
-            throw new EntityNotFoundException("Board game not found");
-        }
-        System.out.println(boardGame.getName());
-        System.out.println(boardGame.getDescription());
-        System.out.println("Avalaible in stock: " + boardGameItemService.avalaibleItemsInStockNumber(boardGame.getId()));
-
+    @Override
+    public void printBoardGameDetail(BoardGame boardGame) {
+        printDetail(boardGame);
     }
 
-    public List<String> listAllFavoriteBoardGame(long userId){
+    @Override
+    public void addBoardGameToFavourites(RegisteredUser user, long id) {
+        BoardGame boardGameToAdd = getBoardGame(id);
+
+        // Add the boardGame
+        addGameToFavourites(user, boardGameToAdd);
+    }
+
+    @Override
+    public void addBoardGameToFavourites(RegisteredUser user, BoardGame boardGame) {
+        addGameToFavourites(user, boardGame);
+    }
+
+    @Override
+    public void removeBoardGameFromFavourites(RegisteredUser user, long id) {
+        BoardGame boardGameToRemove = getBoardGame(id);
+
+        // Remove the boardGame
+        removeGameFromFavourites(user, boardGameToRemove);
+    }
+
+    @Override
+    public void removeBoardGameFromFavourites(RegisteredUser user, BoardGame boardGame) {
+        removeGameFromFavourites(user, boardGame);
+    }
+
+    public List<BoardGame> getFavouriteGamesList(long userId) {
         return userRepository.findAllFavoriteGames(userId);
     }
 
+    /**
+     * Updates the description of the given board game and persists the change
+     *
+     * @param boardGame   board game whose description should be updated
+     * @param description new description to set
+     */
+    private void updateDescription(BoardGame boardGame, String description) {
+        boardGame.setDescription(description);
+        gameRepository.save(boardGame);
+    }
 
+    /**
+     * Prints detailed information about a board game to the terminal, including its name, description, and the number of available copies in stock
+     *
+     * @param boardGame board game to print details for
+     */
+    private void printDetail(BoardGame boardGame) {
+        System.out.println(boardGame.getName());
+        System.out.println(boardGame.getDescription());
+        System.out.println("Avalaible in stock: " + gameItemService.gatAvailableItemsInStockNumber(boardGame.getId()));
+    }
 
+    /**
+     * Adds a board game to the user's favourites list if it is not already present
+     *
+     * @param user      user to add the board game to
+     * @param boardGame board game to add
+     * @throws GameAlreadyInFavoritesException if the board game is already in the user's favourites
+     */
+    private void addGameToFavourites(RegisteredUser user, BoardGame boardGame) {
+        // Check if user's favourite board game list already contains this board game
+        if (gameInFavouriteList(user.getId(), boardGame)) {
+            throw new GameAlreadyInFavoritesException(
+                    String.format("Game with name %s is already if favourites", boardGame.getName())
+            );
+        }
 
+        // Add the game
+        user.getFavoriteBoardGames().add(boardGame);
+        userRepository.save(user);
+    }
 
+    /**
+     * Removes a board game from the user's favourites list if it is currently present
+     *
+     * @param user      user whose favourites will be modified
+     * @param boardGame board game to remove
+     * @throws EntityNotFoundException if the game is not found in the user's favourites
+     */
+    private void removeGameFromFavourites(RegisteredUser user, BoardGame boardGame) {
+        // Check if game is in the user's favourite board games list
+        if (!(gameInFavouriteList(user.getId(), boardGame))) {
+            throw new EntityNotFoundException(
+                    String.format("Game with name %s is not in favourites", boardGame.getName())
+            );
+        }
 
+        // Remove the game
+        user.getFavoriteBoardGames().remove(boardGame);
+        userRepository.save(user);
+    }
+
+    /**
+     * Checks whether a given board game is in a user's list of favourites
+     *
+     * @param userID      ID of the user
+     * @param gameToCheck board game to check for presence in favourites
+     * @return {@code true} if the board game is in the user's favourites; {@code false} otherwise
+     */
+    private boolean gameInFavouriteList(long userID, BoardGame gameToCheck) {
+        List<BoardGame> favouriteGames = userRepository.findAllFavoriteGames(userID);
+        return favouriteGames.contains(gameToCheck.getName());
+    }
 }

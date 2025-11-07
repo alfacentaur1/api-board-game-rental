@@ -8,5 +8,10 @@ import java.util.List;
 
 @Repository
 public interface ReviewRepository extends JpaRepository<Review, Long> {
-    List<Review> findAllByBoardGame(List<Integer> integers);
+    /**
+     * Finds all reviews for a given board game
+     * @param gameId id of the board game to find reviews for
+     * @return list of reviews belonging to the given board game
+     */
+    List<Review>findAllByBoardGame(long gameId);
 }
