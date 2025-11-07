@@ -14,7 +14,7 @@ public interface BoardGameRepository extends JpaRepository<BoardGame, Long> {
      * @param gameName name of the board game
      * @return ID of the board game
      */
-    public int findBoardGameIdByGameName(String gameName);
+     int findBoardGameIdByGameName(String gameName);
 
     /**
      * Gets a board game by its ID

@@ -12,7 +12,7 @@ public interface BoardGameItemRepository extends JpaRepository<BoardGameItem, Lo
     /**
      * Finds a board game item by the name of the board game
      * @param boardGameName name of the board game
-     * @return
+     * @return found board game item
      */
     BoardGameItem findBoardGameItemByBoardGame_Name(String boardGameName);
 
