@@ -8,5 +8,7 @@ import java.util.List;
 
 @Repository
 public interface ReviewRepository extends JpaRepository<Review, Long> {
-    List<Review> findAllByBoardGame_IdIn(List<Integer> integers);
+    // TODO - add comment
+    List<Review> findAllByBoardGame_IdIn(List<Long> integers);
+
 }
