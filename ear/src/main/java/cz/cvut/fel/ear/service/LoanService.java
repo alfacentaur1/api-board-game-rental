@@ -49,12 +49,12 @@ public class LoanService implements LoanServiceI {
 
     @Override
     public void approveLoan(long loanId) {
-        setLoanState(loanId, LoanStatus.APPROVED);
+        setLoanState(loanId, Status.APPROVED);
     }
 
     @Override
     public void rejectLoan(long loanId) {
-        setLoanState(loanId, LoanStatus.REJECTED);
+        setLoanState(loanId, Status.REJECTED);
 
         // Update board game items state back to for loan
         List<BoardGameItem> loanBoardGameItems = loanRepository.getBoardGameLoanById(loanId);
@@ -107,7 +107,7 @@ public class LoanService implements LoanServiceI {
         BoardGameLoan loan = new BoardGameLoan();
         loan.setBorrowedAt(startDate);
         loan.setDueDate(dueDate);
-        loan.setStatus(LoanStatus.PENDING);
+        loan.setStatus(Status.PENDING);
         loan.setUser(userRepository.getReferenceById(user.getId()));
 
         // Set games to be borrowed // TODO - is necessary already doing in the loop
@@ -130,11 +130,11 @@ public class LoanService implements LoanServiceI {
 
         // Update Loan state and user karma
         if (now.isAfter(loan.getDueDate())) {
-            loan.setStatus(LoanStatus.RETURNED_LATE);
-            userService.updateKarma(user, LoanStatus.RETURNED_LATE);
+            loan.setStatus(Status.RETURNED_LATE);
+            userService.updateKarma(user, Status.RETURNED_LATE);
         } else {
-            loan.setStatus(LoanStatus.RETURNED_IN_TIME);
-            userService.updateKarma(user, LoanStatus.RETURNED_IN_TIME);
+            loan.setStatus(Status.RETURNED_IN_TIME);
+            userService.updateKarma(user, Status.RETURNED_IN_TIME);
         }
 
         loanRepository.save(loan);
@@ -146,7 +146,7 @@ public class LoanService implements LoanServiceI {
         }
     }
 
-    private void setLoanState(long loanId, LoanStatus newState) {
+    private void setLoanState(long loanId, Status newState) {
         BoardGameLoan loan = getBoardGameLoan(loanId);
 
         if (loan == null) {

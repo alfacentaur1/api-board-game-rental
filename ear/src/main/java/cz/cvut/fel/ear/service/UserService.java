@@ -2,7 +2,7 @@ package cz.cvut.fel.ear.service;
 
 import cz.cvut.fel.ear.dao.RegisteredUserRepository;
 import cz.cvut.fel.ear.model.BoardGame;
-import cz.cvut.fel.ear.model.LoanStatus;
+import cz.cvut.fel.ear.model.Status;
 import cz.cvut.fel.ear.model.RegisteredUser;
 import cz.cvut.fel.ear.service.interfaces.BoardGameServiceI;
 import cz.cvut.fel.ear.service.interfaces.UserServiceI;
@@ -24,10 +24,10 @@ public class UserService implements UserServiceI {
     }
 
     @Override
-    public void updateKarma(RegisteredUser user, LoanStatus status) {
-        if (status == LoanStatus.RETURNED_LATE && (user.getKarma() > 4)) {
+    public void updateKarma(RegisteredUser user, Status status) {
+        if (status == Status.RETURNED_LATE && (user.getKarma() > 4)) {
             user.setKarma(user.getKarma() - KARMA_DOWN);
-        } else if (status == LoanStatus.RETURNED_IN_TIME && (user.getKarma() < 91)) {
+        } else if (status == Status.RETURNED_IN_TIME && (user.getKarma() < 91)) {
             user.setKarma(user.getKarma() + KARMA_UP);
         } else {
             user.setKarma(KARMA_MAX);

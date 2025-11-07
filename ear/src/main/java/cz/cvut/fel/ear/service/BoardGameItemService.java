@@ -3,6 +3,7 @@ package cz.cvut.fel.ear.service;
 import cz.cvut.fel.ear.dao.BoardGameItemRepository;
 import cz.cvut.fel.ear.dao.BoardGameRepository;
 import cz.cvut.fel.ear.exception.EntityNotFoundException;
+import cz.cvut.fel.ear.exception.ParametersException;
 import cz.cvut.fel.ear.model.BoardGame;
 import cz.cvut.fel.ear.model.BoardGameItem;
 import cz.cvut.fel.ear.model.BoardGameState;
@@ -11,6 +12,7 @@ import cz.cvut.fel.ear.service.interfaces.BoardGameItemServiceI;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class BoardGameItemService implements BoardGameItemServiceI{
@@ -122,6 +124,7 @@ public class BoardGameItemService implements BoardGameItemServiceI{
     @Override
     public void updateBoardGameItemState(long itemId, BoardGameState newState) {
         // Find board game item
+        if(itemId == null )
         BoardGameItem gameItem = findBoardGameItem(itemId);
 
         // update the state
@@ -232,6 +235,9 @@ public class BoardGameItemService implements BoardGameItemServiceI{
      */
     private void updateState(BoardGameItem gameItem, BoardGameState newState) {
         // Update the state
+        if (gameItem == null || newState == null) {
+            throw new ParametersException("Board game item or new state cannot be null.");
+        }
         gameItem.setState(newState);
 
         // Save the state

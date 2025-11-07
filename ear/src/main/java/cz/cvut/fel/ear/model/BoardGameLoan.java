@@ -39,7 +39,7 @@ public class BoardGameLoan {
      * Status of the loan.
      */
     @Enumerated(EnumType.STRING)
-    private LoanStatus loanStatus;
+    private Status status;
 
     /**
      * The registered user who borrowed the board games.
@@ -86,12 +86,12 @@ public class BoardGameLoan {
         this.dueDate = dueDate;
     }
 
-    public LoanStatus getStatus() {
-        return loanStatus;
+    public Status getStatus() {
+        return status;
     }
 
-    public void setStatus(LoanStatus status) {
-        this.loanStatus = status;
+    public void setStatus(Status status) {
+        this.status = status;
     }
 
     public RegisteredUser getUser() {
