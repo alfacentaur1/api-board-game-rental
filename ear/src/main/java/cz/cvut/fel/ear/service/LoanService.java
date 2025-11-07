@@ -5,163 +5,163 @@ import cz.cvut.fel.ear.dao.BoardGameLoanRepository;
 import cz.cvut.fel.ear.dao.RegisteredUserRepository;
 import cz.cvut.fel.ear.exception.EntityNotFoundException;
 import cz.cvut.fel.ear.exception.InvalidDateException;
-import cz.cvut.fel.ear.exception.InvalidStatusException;
 import cz.cvut.fel.ear.exception.ParametersException;
 import cz.cvut.fel.ear.model.*;
-import jakarta.transaction.Transactional;
-import org.springframework.stereotype.Service;
+import cz.cvut.fel.ear.service.interfaces.LoanServiceI;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
-@Service
-public class LoanService {
-
-    private final BoardGameLoanRepository boardGameLoanRepository;
+public class LoanService implements LoanServiceI {
+    private final BoardGameLoanRepository loanRepository;
     private final BoardGameItemRepository boardGameItemRepository;
-    private final RegisteredUserRepository registeredUserRepository;
+    private final RegisteredUserRepository userRepository;
+    private final UserService userService;
 
-    public LoanService(BoardGameLoanRepository boardGameLoanRepository, BoardGameItemRepository boardGameItemRepository, RegisteredUserRepository registeredUserRepository) {
-        this.boardGameLoanRepository = boardGameLoanRepository;
+
+    public LoanService(BoardGameLoanRepository boardGameLoanRepository, BoardGameItemRepository boardGameItemRepository, RegisteredUserRepository registeredUserRepository, UserService userService) {
+        this.loanRepository = boardGameLoanRepository;
         this.boardGameItemRepository = boardGameItemRepository;
-        this.registeredUserRepository = registeredUserRepository;
+        this.userRepository = registeredUserRepository;
+        this.userService = userService;
     }
 
+    @Override
     public BoardGameLoan getBoardGameLoan(long loanId) {
-        return boardGameLoanRepository.findById(loanId)
+        return loanRepository.findById(loanId)
                 .orElseThrow(() -> new EntityNotFoundException(
                         "BoardGameLoan with id " + loanId + " not found"
                 ));
+
     }
 
-    public List<BoardGameLoan> getBoardGameLoans() {
-        return boardGameLoanRepository.findAll();
+    @Override
+    public List<BoardGameLoan> getLoans() {
+        return  loanRepository.findAll();
     }
 
-    public List<BoardGameLoan> getAllBoardGameLoansByUser(long userId) {
-        return boardGameLoanRepository.findAllByUserId(userId);
+    @Override
+    public List<BoardGameLoan> getUserLoans(long userId) {
+        // Check if user exists
+        return loanRepository.findAllByUserId(userId);
     }
 
-    public void approveGameLoan(long loanId) {
-        BoardGameLoan boardGameLoan = getBoardGameLoan(loanId);
-        if (boardGameLoan == null) {
-            throw new EntityNotFoundException("BoardGameLoan with id " + loanId + " not found");
-        }
-        boardGameLoan.setStatus(Status.approved);
+    @Override
+    public void approveLoan(long loanId) {
+        setLoanState(loanId, LoanStatus.APPROVED);
     }
 
-    public void rejectGameLoan(long loanId) {
-        BoardGameLoan boardGameLoan = getBoardGameLoan(loanId);
-        if (boardGameLoan == null) {
-            throw new EntityNotFoundException("BoardGameLoan with id " + loanId + " not found");
-        }
-        List<BoardGameItem> loanBoardGameItems = boardGameLoanRepository.getBoardGameLoanById(loanId);
+    @Override
+    public void rejectLoan(long loanId) {
+        setLoanState(loanId, LoanStatus.REJECTED);
+
+        // Update board game items state back to for loan
+        List<BoardGameItem> loanBoardGameItems = loanRepository.getBoardGameLoanById(loanId);
         for (BoardGameItem boardGameItem : loanBoardGameItems) {
             boardGameItem.setState(BoardGameState.FOR_LOAN);
         }
-        boardGameLoan.setStatus(Status.rejected);
     }
 
-    public void changeLoanStatus(long loanId, Status newStatus) {
-        BoardGameLoan boardGameLoan = getBoardGameLoan(loanId);
-        try {
-            Status.valueOf(newStatus.name());
-        } catch (IllegalArgumentException e) {
-            throw new InvalidStatusException("Invalid status " + newStatus.name());
-        }
-        if (boardGameLoan == null) {
-            throw new EntityNotFoundException("BoardGameLoan with id " + loanId + " not found");
-        }
-        boardGameLoan.setStatus(newStatus);
-    }
+    @Override
+    public long createLoan(LocalDateTime dueDate, List<String> gameNames, User user) {
+        LocalDateTime startDate = LocalDateTime.now();
+        // Validate dueDate
+        validateDueDate(dueDate, startDate);
 
-    @Transactional
-    public long createBoardGameLoan(LocalDateTime dueDate, List<String> boardGameNames, long userId) {
-
-        LocalDateTime now = LocalDateTime.now();
-        if (dueDate.isBefore(now)) {
-            throw new InvalidDateException("Due date is before current date");
-        }
-        if (boardGameNames == null || boardGameNames.isEmpty()) {
+        // Check if user wants to borrow something
+        if (gameNames == null || gameNames.isEmpty()) {
             throw new ParametersException("BoardGameNames is empty");
         }
 
-        BoardGameLoan boardGameLoan = new BoardGameLoan();
+        // Create a list of borrowed Items
         List<BoardGameItem> itemsToBorrow = new ArrayList<>();
 
-        for (String name : boardGameNames) {
+        // For each requested game name find an available item and mark it as borrowed
+        for (String gameName : gameNames) {
+            // Find all available items
+            List<BoardGameItem> allAvailableItems = boardGameItemRepository.findAvailableByNameWithLock(gameName, BoardGameState.FOR_LOAN);
 
-            // 1. ZAVOLÁME NAMED QUERY
-            List<BoardGameItem> availableItems =
-                    boardGameItemRepository.findAvailableByNameWithLock(name, BoardGameState.FOR_LOAN);
-
-            if (availableItems.isEmpty()) {
-                // Žádná položka se nenašla (ani zamčená)
-                throw new EntityNotFoundException("BoardGame has no available item: "+ name);
+            // Check if item in stock
+            if (allAvailableItems.isEmpty()) {
+                throw  new EntityNotFoundException(
+                        String.format("Board game %s has no available items in stock", gameName)
+                );
             }
 
-            // 2. VEZMEME PRVNÍ POLOŽKU
-            // Tady je ten hlavní rozdíl - bereme první položku ze seznamu
-            // (a zbytek, pokud nějaký byl, zůstane zamčený až do konce transakce)
-            BoardGameItem item = availableItems.get(0);
+            // Take the first item in stock
+            BoardGameItem newItem = allAvailableItems.get(0);
 
-            // Pojistka, kdyby uživatel chtěl 2x stejnou hru, ale byl jen 1 kus
-            if (item.getState() == BoardGameState.BORROWED) {
-                throw new EntityNotFoundException("BoardGame item was already borrowed in this transaction: " + name);
+            // Make sure user borrows same game only once
+            if (newItem.getState() == BoardGameState.BORROWED) {
+                throw new EntityNotFoundException(
+                        String.format("Board game with name %s was already borrowed in this transaction", gameName)
+                );
             }
 
-            item.setState(BoardGameState.BORROWED);
-
-            // Zase žádné save() v cyklu, @Transactional to pořeší
-            itemsToBorrow.add(item);
+            newItem.setState(BoardGameState.BORROWED);
+            itemsToBorrow.add(newItem);
         }
 
-        // 3. ZKOMPLETUJEME PŮJČKU
-        boardGameLoan.setDueDate(dueDate);
-        boardGameLoan.setBorrowedAt(now);
-        boardGameLoan.setStatus(Status.pending);
-        boardGameLoan.setUser(registeredUserRepository.getReferenceById(userId));
+        // Create and persist loan with PENDING status
+        BoardGameLoan loan = new BoardGameLoan();
+        loan.setBorrowedAt(startDate);
+        loan.setDueDate(dueDate);
+        loan.setStatus(LoanStatus.PENDING);
+        loan.setUser(userRepository.getReferenceById(user.getId()));
 
-        // Použijeme tvou metodu setGamesToBeBorrowed
-        boardGameLoan.setGamesToBeBorrowed(itemsToBorrow);
+        // Set games to be borrowed // TODO - is necessary already doing in the loop
+        loan.setGamesToBeBorrowed(itemsToBorrow);
 
-        // 4. ULOŽÍME PŮJČKU AŽ NA KONCI
-        return boardGameLoanRepository.save(boardGameLoan).getId();
+        // Save new loan
+        loanRepository.save(loan);
+
+        return loan.getId();
     }
 
-
-    public void returnBoardGameLoan(BoardGameLoan boardGameLoan) {
-        if (boardGameLoan == null) {
-            throw new ParametersException("BoardGameLoan with id " + boardGameLoan.getId() + " not found");
-        }
-        RegisteredUser user = boardGameLoan.getUser();
+    @Override
+    public void returnLoan(BoardGameLoan loan) {
+        // set return time
         LocalDateTime now = LocalDateTime.now();
-        if (now.isAfter(boardGameLoan.getDueDate())) {
-            if (user.getKarma() > 4) user.setKarma(user.getKarma() - 5);
+        loan.setReturnedAt(now);
+
+        // Get the user
+        RegisteredUser user = loan.getUser();
+
+        // Update Loan state and user karma
+        if (now.isAfter(loan.getDueDate())) {
+            loan.setStatus(LoanStatus.RETURNED_LATE);
+            userService.updateKarma(user, LoanStatus.RETURNED_LATE);
         } else {
-            if (user.getKarma() < 91) {
-                user.setKarma(user.getKarma() + 10);
-            }
-        }
-        for (BoardGameItem boardGameItem : boardGameLoan.getGamesToBeBorrowed()) {
-            boardGameItem.setState(BoardGameState.FOR_LOAN);
+            loan.setStatus(LoanStatus.RETURNED_IN_TIME);
+            userService.updateKarma(user, LoanStatus.RETURNED_IN_TIME);
         }
 
+        loanRepository.save(loan);
+
+        // Update game items status
+        for (BoardGameItem loanItem : loan.getGamesToBeBorrowed()) {
+            loanItem.setState(BoardGameState.FOR_LOAN);
+            boardGameItemRepository.save(loanItem);
+        }
     }
 
-    public List<BoardGameItem> currentlyBorrowedBoardGameItems() {
-        List<BoardGameItem> boardGameItems = boardGameItemRepository.findAll();
-        List<BoardGameItem> currentlyBorrowedBoardGameItems = new ArrayList<>();
-        ;
-        for (BoardGameItem boardGameItem : boardGameItems) {
-            if (boardGameItem.getState().equals(BoardGameState.BORROWED)) {
-                currentlyBorrowedBoardGameItems.add(boardGameItem);
-            }
+    private void setLoanState(long loanId, LoanStatus newState) {
+        BoardGameLoan loan = getBoardGameLoan(loanId);
+
+        if (loan == null) {
+            throw new EntityNotFoundException(
+                    String.format("Loan with id %d not found", loanId)
+            );
         }
-        return currentlyBorrowedBoardGameItems;
+        loan.setStatus(newState);
+
+        loanRepository.save(loan);
     }
 
-
+    private void validateDueDate(LocalDateTime dueDate, LocalDateTime now) {
+        if(dueDate.isBefore(now)){
+            throw new InvalidDateException("Due date is before current date");
+        }
+    }
 }
