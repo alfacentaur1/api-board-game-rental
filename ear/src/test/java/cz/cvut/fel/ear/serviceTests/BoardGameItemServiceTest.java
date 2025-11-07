@@ -141,7 +141,7 @@ public class BoardGameItemServiceTest {
         assertEquals(1, boardGame.getAvailableStockItems().size());
 
         // act
-        sut.removeBoardGameItem(itemId);
+        sut.deleteBoardGameItem(itemId);
         em.flush();
 
         // assert: check it's gone from DB
@@ -153,7 +153,7 @@ public class BoardGameItemServiceTest {
 
         // exception test: delete non-existing
         assertThrows(EntityNotFoundException.class, () -> {
-            sut.removeBoardGameItem(-1L);
+            sut.deleteBoardGameItem(-1L);
         });
     }
 
@@ -177,18 +177,18 @@ public class BoardGameItemServiceTest {
 
         // --- Test 1: getAllBoardGameItemsForBoardGame ---
         // should return 2 items (one BORROWED, one FOR_LOAN)
-        List<BoardGameItem> allItems = sut.getGameItemsForBoardGame(boardGameId);
+        List<BoardGameItem> allItems = sut.getAllBoardGameItemsForBoardGame(boardGameId);
         assertEquals(2, allItems.size());
 
         // --- Test 2: getAllAvalableBoardGameItemsForBoardGame ---
         // should return 1 item (only the FOR_LOAN one)
-        List<BoardGameItem> availableItems = sut.getAvailableGameItemsForBoardGame(boardGameId);
+        List<BoardGameItem> availableItems = sut.getAllAvalableBoardGameItemsForBoardGame(boardGameId);
         assertEquals(1, availableItems.size());
         assertEquals("ITEM-FOR-LOAN", availableItems.getFirst().getSerialNumber());
 
         // --- Test 3: avalaibleItemsInStockNumber ---
         // should return 1
-        int availableCount = sut.getAvailableItemsInStockNumber(boardGameId);
+        int availableCount = sut.avalaibleItemsInStockNumber(boardGameId);
         assertEquals(1, availableCount);
     }
 }

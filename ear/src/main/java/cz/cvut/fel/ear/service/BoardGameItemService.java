@@ -7,15 +7,15 @@ import cz.cvut.fel.ear.exception.ParametersException;
 import cz.cvut.fel.ear.model.BoardGame;
 import cz.cvut.fel.ear.model.BoardGameItem;
 import cz.cvut.fel.ear.model.BoardGameState;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
-import cz.cvut.fel.ear.service.interfaces.BoardGameItemServiceI;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 @Service
-public class BoardGameItemService implements BoardGameItemServiceI{
+public class BoardGameItemService {
     private final BoardGameItemRepository boardGameItemRepository;
     private final BoardGameRepository boardGameRepository;
 
@@ -24,64 +24,40 @@ public class BoardGameItemService implements BoardGameItemServiceI{
         this.boardGameRepository = boardGameRepository;
     }
 
-    @Override
-    public int getAvailableItemsInStockNumber(long gameId) {
-        // Check if game exists
-        BoardGame game = findBoardGame(gameId);
-
-        // Return the amount of available board game items
-        return getAvailableGameItemsForBoardGame(game.getId()).size();
+    public int avalaibleItemsInStockNumber(long boardGameId) {
+        BoardGame boardGame = boardGameRepository.findById(boardGameId).get();
+        if (boardGame.getName() == null) {
+            throw new EntityNotFoundException("Board game with id " + boardGameId + " not found");
+        }
+        return getAllAvalableBoardGameItemsForBoardGame(boardGameId).size();
     }
 
-    @Override
-    public int getAvailableItemsInStockNumber(BoardGame game) {
-        // Return the amount of available board game items
-        return getAvailableGameItemsForBoardGame(game.getId()).size();
-    }
+    public List<BoardGameItem> getAllBoardGameItemsForBoardGame(long boardGameId) {
+        BoardGame boardGame = boardGameRepository.findBoardGameById(boardGameId);
 
-    @Override
-    public List<BoardGameItem> getGameItemsForBoardGame(long gameId) {
-        // Find the board game
-        BoardGame boardGame = findBoardGame(gameId);
-
-        // Return the list of board game items
+        if (boardGame == null) {
+            throw new EntityNotFoundException("Board game with id " + boardGameId + " not found");
+        }
         return boardGame.getAvailableStockItems();
     }
 
-    @Override
-    public List<BoardGameItem> getGameItemsForBoardGame(BoardGame game) {
-        return  game.getAvailableStockItems();
+    public List<BoardGameItem> getAllAvalableBoardGameItemsForBoardGame(long boardGameId) {
+        BoardGame boardGame = boardGameRepository.findById(boardGameId).get();
+        if(boardGame.getName() == null) {
+            throw new EntityNotFoundException("Board game with id " + boardGameId + " not found");
+        }
+
+        List<BoardGameItem> boardGameItems = getAllBoardGameItemsForBoardGame(boardGameId);
+        List<BoardGameItem> boardGameAvailableItems = new ArrayList<>();;
+        for (BoardGameItem boardGameItem : boardGameItems) {
+            if(boardGameItem.getState() != BoardGameState.NOT_FOR_LOAN && boardGameItem.getState() != BoardGameState.BORROWED){
+                boardGameAvailableItems.add(boardGameItem);
+            }
+    }
+        return boardGameAvailableItems;
     }
 
-    @Override
-    public List<BoardGameItem> getAvailableGameItemsForBoardGame(long gameId) {
-        // Find the board game
-        BoardGame game = findBoardGame(gameId);
-
-        return filterAvailableItems(game.getId());
-
-    }
-
-    @Override
-    public List<BoardGameItem> getAvailableGameItemsForBoardGame(BoardGame boardGame) {
-        return filterAvailableItems(boardGame.getId());
-    }
-
-    @Override
-    public long addBoardGameItem(long gameId, String serialNumber, BoardGameState state) {
-        // Check if game exists
-        BoardGame game = findBoardGame(gameId);
-
-        // Create new board game item
-        BoardGameItem newItem = new BoardGameItem();
-        newItem.setBoardGame(game);
-        newItem.setSerialNumber(serialNumber);
-        newItem.setState(state);
-
-        return boardGameItemRepository.save(newItem).getId();
-    }
-    // FILIP  ADD
-   /* @Transactional
+    @Transactional
     public long addBoardGameItem(long boardGameId, String serialNumber, BoardGameState state) {
         BoardGame boardGame = boardGameRepository.findBoardGameById(boardGameId);
 
@@ -103,40 +79,10 @@ public class BoardGameItemService implements BoardGameItemServiceI{
         //fix - bidirectional approach
         boardGame.getAvailableStockItems().add(boardGameItem);
         return boardGameItemRepository.save(boardGameItem).getId();
-    }*/
-
-    @Override
-    public void removeBoardGameItem(long gameItemId) {
-        // Find board game item
-        BoardGameItem gameItem = findBoardGameItem(gameItemId);
-
-        // Remove it
-        boardGameItemRepository.delete(gameItem);
-
     }
 
-    @Override
-    public void removeBoardGameItem(BoardGameItem gameItem) {
-        // Remove it
-        boardGameItemRepository.delete(gameItem);
-    }
 
-    @Override
-    public void updateBoardGameItemState(long itemId, BoardGameState newState) {
-        // Find board game item
-        if(itemId == null )
-        BoardGameItem gameItem = findBoardGameItem(itemId);
-
-        // update the state
-        updateState(gameItem, newState);
-    }
-
-    @Override
-    public void updateBoardGameItemState(BoardGameItem gameItem, BoardGameState newState) {
-        updateState(gameItem, newState);
-    }
-    // FILIP UPDATE
-    /*    public void updateBoardGameItemState(long gameId, BoardGameState state) {
+    public void updateBoardGameItemState(long gameId, BoardGameState state) {
         BoardGameItem boardGameToUpdate = boardGameItemRepository.getBoardGameItemById(gameId);
         if (boardGameToUpdate == null) {
             throw new EntityNotFoundException("Board game with id " + gameId + " not found");
@@ -152,95 +98,16 @@ public class BoardGameItemService implements BoardGameItemServiceI{
         boardGameToUpdate.setState(state);
         boardGameItemRepository.save(boardGameToUpdate);
 
-    }*/
-
-    @Override
-    public List<BoardGameItem> getCurrentlyBorrowedItems() {
-        // Get all game Items
-        List<BoardGameItem> allItems = boardGameItemRepository.findAll();
-
-        // Filter currently borrowed
-        List<BoardGameItem> borrowedItems = new ArrayList<>();
-        for (BoardGameItem gameItem : allItems) {
-            if (gameItem.getState() == BoardGameState.BORROWED) {
-                borrowedItems.add(gameItem);
-            }
-        }
-        return borrowedItems;
     }
 
-    /**
-     * Finds a board game by its id
-     *
-     * @param gameId id of the board game to find
-     * @return the board game with the given id
-     * @throws EntityNotFoundException when board game with given id does not exists
-     */
-    private BoardGame findBoardGame(long gameId) {
-        BoardGame boardGame = boardGameRepository.getBoardGameById(gameId);
-
-        // Check if boardGame was found
-        if (boardGame == null) {
-            throw new EntityNotFoundException(
-                    String.format("Board game with id %d not found", boardGame.getId())
-            );
+    public void deleteBoardGameItem(long gameId) {
+        BoardGameItem boardGameItemToDelete = boardGameItemRepository.getBoardGameItemById(gameId);
+        if (boardGameItemToDelete == null) {
+            throw new EntityNotFoundException("Board game with id " + gameId + " not found");
         }
-        return boardGame;
+        boardGameItemRepository.delete(boardGameItemToDelete);
     }
 
-    /**
-     * Finds a board game item by its id
-     *
-     * @param itemId id of the board game item to find
-     * @return the board game item with the given id
-     * @throws EntityNotFoundException when board game item with given id does not exists
-     */
-    private BoardGameItem findBoardGameItem(long itemId) {
-        BoardGameItem gameItem = boardGameItemRepository.getBoardGameItemById(itemId);
 
-        // Check if the item was found
-        if (gameItem == null) {
-            throw new EntityNotFoundException(
-                    String.format("Board game item with id %d not found", itemId)
-            );
-        }
-        return gameItem;
-    }
 
-    /**
-     * Filters the available items for a given board game
-     *
-     * @param gameId id of the board game to filter items for
-     * @return list of available board game items for the given board game
-     */
-    private List<BoardGameItem> filterAvailableItems(long gameId) {
-        // Get all board game items
-        List<BoardGameItem> allItems = getGameItemsForBoardGame(gameId);
-        List<BoardGameItem> availableItems = new ArrayList<>();
-
-        // Filter available items
-        for (BoardGameItem gameItem : allItems) {
-            if (gameItem.getState() == BoardGameState.FOR_LOAN) {
-                availableItems.add(gameItem);
-            }
-        }
-        return availableItems;
-    }
-
-    /**
-     * Updates the state of a board game item
-     *
-     * @param gameItem board game item to update
-     * @param newState new state to set for the board game item
-     */
-    private void updateState(BoardGameItem gameItem, BoardGameState newState) {
-        // Update the state
-        if (gameItem == null || newState == null) {
-            throw new ParametersException("Board game item or new state cannot be null.");
-        }
-        gameItem.setState(newState);
-
-        // Save the state
-        boardGameItemRepository.save(gameItem);
-    }
 }

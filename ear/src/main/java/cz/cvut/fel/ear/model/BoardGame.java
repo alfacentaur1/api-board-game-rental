@@ -2,14 +2,13 @@ package cz.cvut.fel.ear.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * BoardGame entity representing a board game in the system.
- */
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
@@ -71,44 +70,23 @@ public class BoardGame {
         this.categories = categories;
     }
 
-    /**
-     * Unique identifier for the board game.
-     */
     @Id
     @GeneratedValue
     private long id;
 
-    /**
-     * Name of the board game.
-     */
     @Column(nullable = false, unique = true)
     private String name;
 
-    /**
-     * Description of the board game.
-     */
     private String description = "";
-
-    /**
-     * The amount of available copies of the board game.
-     */
     private int availableCopies = 0;
 
-    /**
-     * List of reviews associated with the board game.
-     */
+    //mapping composition here
     @OneToMany(mappedBy = "boardGame", cascade = CascadeType.ALL)
     private List<Review> ratings = new ArrayList<>();
 
-    /**
-     * List of available board game items in stock.
-     */
     @OneToMany(mappedBy = "boardGame")
     private List<BoardGameItem> availableStockItems = new ArrayList<>();
 
-    /**
-     * List of categories associated with the board game.
-     */
     @ManyToMany
     @JoinTable(
             name = "BOARDGAME_CATEGORY",
