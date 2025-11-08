@@ -30,7 +30,7 @@ public class BoardGameLoan {
     private RegisteredUser user;
 
     @ManyToMany
-    private List<BoardGameItem> gamesToBeBorrowed;
+    private List<BoardGameItem> itemsInLoan;
 
     public long getId() {
         return id;
@@ -80,11 +80,11 @@ public class BoardGameLoan {
         this.user = user;
     }
 
-    public List<BoardGameItem> getGamesToBeBorrowed() {
-        return gamesToBeBorrowed;
+    public List<BoardGameItem> getItems() {
+        return itemsInLoan;
     }
 
     public void setGamesToBeBorrowed(List<BoardGameItem> gamesToBeBorrowed) {
-        this.gamesToBeBorrowed = gamesToBeBorrowed;
+        this.itemsInLoan = gamesToBeBorrowed;
     }
 }
