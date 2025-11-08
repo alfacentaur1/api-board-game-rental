@@ -2,13 +2,10 @@ package cz.cvut.fel.ear.service;
 
 import cz.cvut.fel.ear.dao.BoardGameItemRepository;
 import cz.cvut.fel.ear.dao.BoardGameLoanRepository;
-import cz.cvut.fel.ear.dao.RegisteredUserRepository;
-import cz.cvut.fel.ear.exception.EntityNotFoundException;
-import cz.cvut.fel.ear.exception.InvalidDateException;
-import cz.cvut.fel.ear.exception.InvalidStatusException;
-import cz.cvut.fel.ear.exception.ParametersException;
+import cz.cvut.fel.ear.exception.*;
 import cz.cvut.fel.ear.model.*;
 import jakarta.transaction.Transactional;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -20,12 +17,12 @@ public class LoanService {
 
     private final BoardGameLoanRepository boardGameLoanRepository;
     private final BoardGameItemRepository boardGameItemRepository;
-    private final RegisteredUserRepository registeredUserRepository;
+    private final UserService userService;
 
-    public LoanService(BoardGameLoanRepository boardGameLoanRepository, BoardGameItemRepository boardGameItemRepository, RegisteredUserRepository registeredUserRepository) {
+    public LoanService(BoardGameLoanRepository boardGameLoanRepository, BoardGameItemRepository boardGameItemRepository, @Lazy UserService userService) {
         this.boardGameLoanRepository = boardGameLoanRepository;
         this.boardGameItemRepository = boardGameItemRepository;
-        this.registeredUserRepository = registeredUserRepository;
+        this.userService = userService;
     }
 
     public BoardGameLoan getBoardGameLoan(long loanId) {
@@ -108,7 +105,7 @@ public class LoanService {
 
             // Check if any items were found
             if (allAvailableItems.isEmpty()) {
-                throw new EntityNotFoundException(
+                throw new NotAvalaibleInStockException(
                         String.format("Board game %s has no available items to borrow", name)
                 );
             }
@@ -116,13 +113,8 @@ public class LoanService {
             // Borrow the first item in items list
             BoardGameItem itemToBorrow = allAvailableItems.getFirst();
 
-            // Check if user wants tp borrow the same game twice
-            if (itemsToBorrow.contains(itemToBorrow)) {
-                throw new EntityNotFoundException(
-                        String.format("Board game %s was already borrowed in this transaction", name)
-                );
-            }
-
+            // Set the state of the item to borrowed
+            itemToBorrow.setState(BoardGameState.BORROWED);
             itemsToBorrow.add(itemToBorrow);
         }
 
@@ -130,10 +122,13 @@ public class LoanService {
         newLoan.setDueDate(dueDate);
         newLoan.setBorrowedAt(now);
         newLoan.setStatus(Status.pending);
-        newLoan.setUser(registeredUserRepository.getReferenceById(userId));
+        newLoan.setUser(userService.findById(userId));
         newLoan.setGamesToBeBorrowed(itemsToBorrow);
 
         boardGameLoanRepository.save(newLoan);
+
+        // Bind loan to the user
+        userService.linkLoanToUser(userId, newLoan.getId());
 
         return newLoan.getId();
     }

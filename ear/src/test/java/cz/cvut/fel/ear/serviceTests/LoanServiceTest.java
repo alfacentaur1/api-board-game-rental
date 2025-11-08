@@ -2,10 +2,7 @@ package cz.cvut.fel.ear.serviceTests;
 
 import cz.cvut.fel.ear.dao.BoardGameItemRepository;
 import cz.cvut.fel.ear.dao.BoardGameLoanRepository;
-import cz.cvut.fel.ear.exception.EntityNotFoundException;
-import cz.cvut.fel.ear.exception.InvalidDateException;
-import cz.cvut.fel.ear.exception.InvalidStatusException;
-import cz.cvut.fel.ear.exception.ParametersException;
+import cz.cvut.fel.ear.exception.*;
 import cz.cvut.fel.ear.model.*;
 import cz.cvut.fel.ear.service.LoanService;
 import jakarta.transaction.Transactional;
@@ -47,7 +44,8 @@ public class LoanServiceTest {
 
     private RegisteredUser testUser;
     private BoardGameLoan testLoan;
-
+    private BoardGame testGame;
+    private BoardGameItem availableItem;
 
     @BeforeEach
     void SetUp() {
@@ -59,12 +57,12 @@ public class LoanServiceTest {
         testUser.setKarma(100);
 
         // SetUp game
-        BoardGame testGame = new BoardGame();
+        testGame = new BoardGame();
         testGame.setName("Game1");
         testGame.setDescription("Description for game1");
 
         // SetUp items
-        BoardGameItem availableItem = new BoardGameItem();
+        availableItem = new BoardGameItem();
         availableItem.setSerialNumber("ITEM-FROM-SETUP");
         availableItem.setBoardGame(testGame);
         availableItem.setState(BoardGameState.FOR_LOAN);
@@ -81,8 +79,8 @@ public class LoanServiceTest {
         testLoan.setUser(testUser);
         testLoan.setDueDate(LocalDateTime.now().plusDays(10));
         testLoan.setStatus(Status.pending);
-        testLoan.getItems().add(availableItem2);
-        availableItem2.setState(BoardGameState.BORROWED);
+        testLoan.getItems().add(availableItem);
+        availableItem.setState(BoardGameState.BORROWED);
 
 
 
@@ -208,6 +206,9 @@ public class LoanServiceTest {
         assertEquals(1, foundLoan.getItems().size());
         assertEquals(testUser.getId(), foundLoan.getUser().getId());
 
+        // Check user has loan binded to him
+        assertTrue(testUser.getBoardGameLoans().contains(foundLoan));
+
         // Check if correct exception is thrown when incorrect dueDate, empty Names list are given
         assertThrows(
                 InvalidDateException.class,
@@ -243,5 +244,58 @@ public class LoanServiceTest {
         List<BoardGameItem> borrowedItems = sut.currentlyBorrowedBoardGameItems();
         assertFalse(borrowedItems.isEmpty());
         assertEquals(BoardGameState.BORROWED, borrowedItems.getFirst().getState());
+    }
+
+    // BUSINESS TESTS
+
+    @Test
+    public void testRentedGameItemCantBeRented() {
+        // Create a loan for the available item
+        LocalDateTime dueDate = LocalDateTime.now().plusDays(5);
+        List<String> gameNames = List.of(testGame.getName());
+
+        sut.createLoan(dueDate, gameNames, testUser.getId());
+        em.flush();
+
+        // Confirm the item is now borrowed
+        BoardGameItem borrowedItem = em.find(BoardGameItem.class, availableItem.getId());
+        assertEquals(BoardGameState.BORROWED, borrowedItem.getState());
+
+        // Try creating second loan for the same item
+        assertThrows(
+                NotAvalaibleInStockException.class,
+                () -> sut.createLoan(dueDate.plusDays(2), gameNames, testUser.getId())
+        );
+    }
+
+    @Test
+    public void testCanBorrowTheSameGameTwice() {
+        // Add new item for a game
+        availableItem = new BoardGameItem();
+        availableItem.setSerialNumber("ITEM-FROM-SETUP");
+        availableItem.setBoardGame(testGame);
+        availableItem.setState(BoardGameState.FOR_LOAN);
+        testGame.getAvailableStockItems().add(availableItem);
+
+        em.persist(availableItem);
+        em.persist(testGame);
+        em.flush();
+
+        // Create new loan
+        LocalDateTime dueDate = LocalDateTime.now().plusDays(7);
+        List<String> gameNames = List.of("Game1", "Game1");
+        long newLoanId = sut.createLoan(dueDate, gameNames, testUser.getId());
+
+        // Find the loan and check it properties
+        BoardGameLoan foundLoan = em.find(BoardGameLoan.class, newLoanId);
+        assertNotNull(foundLoan);
+        assertEquals(Status.pending, foundLoan.getStatus());
+        assertEquals(2, foundLoan.getItems().size());
+        assertEquals(testUser.getId(), foundLoan.getUser().getId());
+
+        // Check user has loan bound to him
+        assertTrue(testUser.getBoardGameLoans().contains(foundLoan));
+
+
     }
 }
