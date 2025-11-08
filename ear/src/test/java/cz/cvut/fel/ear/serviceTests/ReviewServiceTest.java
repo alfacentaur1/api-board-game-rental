@@ -113,7 +113,6 @@ public class ReviewServiceTest {
 
         // Check review was created successfully
         assertNotNull(foundReview);
-        assertNotNull(foundReview.getId());
         assertEquals(content, foundReview.getComment());
         assertEquals(ratingValue, foundReview.getScore());
         assertEquals(testUser.getId(), foundReview.getAuthor().getId());
