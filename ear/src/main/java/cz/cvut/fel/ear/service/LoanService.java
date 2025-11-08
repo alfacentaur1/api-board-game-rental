@@ -93,41 +93,31 @@ public class LoanService {
 
         for (String name : boardGameNames) {
 
-            // 1. ZAVOLÁME NAMED QUERY
             List<BoardGameItem> availableItems =
                     boardGameItemRepository.findAvailableByNameWithLock(name, BoardGameState.FOR_LOAN);
 
             if (availableItems.isEmpty()) {
-                // Žádná položka se nenašla (ani zamčená)
                 throw new EntityNotFoundException("BoardGame has no available item: "+ name);
             }
 
-            // 2. VEZMEME PRVNÍ POLOŽKU
-            // Tady je ten hlavní rozdíl - bereme první položku ze seznamu
-            // (a zbytek, pokud nějaký byl, zůstane zamčený až do konce transakce)
             BoardGameItem item = availableItems.get(0);
 
-            // Pojistka, kdyby uživatel chtěl 2x stejnou hru, ale byl jen 1 kus
             if (item.getState() == BoardGameState.BORROWED) {
                 throw new EntityNotFoundException("BoardGame item was already borrowed in this transaction: " + name);
             }
 
             item.setState(BoardGameState.BORROWED);
 
-            // Zase žádné save() v cyklu, @Transactional to pořeší
             itemsToBorrow.add(item);
         }
 
-        // 3. ZKOMPLETUJEME PŮJČKU
         boardGameLoan.setDueDate(dueDate);
         boardGameLoan.setBorrowedAt(now);
         boardGameLoan.setStatus(Status.pending);
         boardGameLoan.setUser(registeredUserRepository.getReferenceById(userId));
 
-        // Použijeme tvou metodu setGamesToBeBorrowed
         boardGameLoan.setGamesToBeBorrowed(itemsToBorrow);
 
-        // 4. ULOŽÍME PŮJČKU AŽ NA KONCI
         return boardGameLoanRepository.save(boardGameLoan).getId();
     }
 
