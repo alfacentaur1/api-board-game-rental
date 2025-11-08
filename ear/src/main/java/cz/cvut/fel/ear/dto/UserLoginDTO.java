@@ -1,4 +1,4 @@
 package cz.cvut.fel.ear.dto;
 
-public class UserLoginDTO {
+public record UserLoginDTO {
 }
