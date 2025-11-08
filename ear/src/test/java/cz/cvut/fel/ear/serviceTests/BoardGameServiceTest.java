@@ -1,14 +1,11 @@
 package cz.cvut.fel.ear.serviceTests;
-
-// Import models, DAOs, and services
 import cz.cvut.fel.ear.model.BoardGame;
 import cz.cvut.fel.ear.model.RegisteredUser;
 import cz.cvut.fel.ear.dao.BoardGameRepository;
 import cz.cvut.fel.ear.dao.RegisteredUserRepository;
 import cz.cvut.fel.ear.service.BoardGameService;
-import cz.cvut.fel.ear.exception.*; // All your custom exceptions
+import cz.cvut.fel.ear.exception.*;
 
-// Imports for testing
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -16,21 +13,21 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestEntityManager;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager; // Use TestEntityManager
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.ComponentScan; // Import ComponentScan
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.dao.DataIntegrityViolationException; // For checking DB constraints
+import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.ArrayList;
 import java.util.List;
 
-// Imports for assertions
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-// --- Annotations from your CategoryServiceTest ---
+
 @SpringBootTest
 @Transactional
 @AutoConfigureTestEntityManager
@@ -39,18 +36,17 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @ActiveProfiles("test")
 public class BoardGameServiceTest {
 
-    // --- We inject real beans, not mocks ---
     @Autowired
-    private TestEntityManager em; // To prepare data in the database
+    private TestEntityManager em;
 
     @Autowired
-    private BoardGameService sut; // The real service bean
+    private BoardGameService sut;
 
     @Autowired
-    private BoardGameRepository boardGameRepo; // The real repository bean
+    private BoardGameRepository boardGameRepo;
 
     @Autowired
-    private RegisteredUserRepository userRepo; // The real repository bean
+    private RegisteredUserRepository userRepo;
 
     // --- Test Data Entities ---
     private RegisteredUser testUser;
@@ -62,7 +58,6 @@ public class BoardGameServiceTest {
 
     @BeforeEach
     void setUp() {
-        // We use TestEntityManager to set up the DB state
 
         // 1. Create a user
         testUser = new RegisteredUser();
