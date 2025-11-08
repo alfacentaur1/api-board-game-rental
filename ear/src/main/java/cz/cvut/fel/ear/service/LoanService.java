@@ -114,7 +114,7 @@ public class LoanService {
             }
 
             // Borrow the first item in items list
-            BoardGameItem itemToBorrow = allAvailableItems.get(0);
+            BoardGameItem itemToBorrow = allAvailableItems.getFirst();
 
             // Check if user wants tp borrow the same game twice
             if (itemsToBorrow.contains(itemToBorrow)) {

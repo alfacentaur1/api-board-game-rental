@@ -9,7 +9,6 @@ import cz.cvut.fel.ear.exception.ParametersException;
 import cz.cvut.fel.ear.model.*;
 import cz.cvut.fel.ear.service.LoanService;
 import jakarta.transaction.Transactional;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +46,6 @@ public class LoanServiceTest {
     private LoanService sut;
 
     private RegisteredUser testUser;
-    private BoardGame testGame;
     private BoardGameItem availableItem;
     private BoardGameLoan testLoan;
 
@@ -62,7 +60,7 @@ public class LoanServiceTest {
         testUser.setKarma(100);
 
         // SetUp game
-        testGame = new BoardGame();
+        BoardGame testGame = new BoardGame();
         testGame.setName("Game1");
         testGame.setDescription("Description for game1");
 
