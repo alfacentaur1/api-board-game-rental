@@ -11,6 +11,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -84,6 +85,23 @@ public class CategoryService {
 
         boardGameRepository.save(boardGame);
     }
+
+    public List<Long> getCategories(long gameId) {
+        List<Long> categories = new ArrayList<>();
+        BoardGame boardGame = boardGameRepository.findBoardGameById(gameId);
+        List<Category> categoriesList = boardGame.getCategories();
+        for (Category category : categoriesList) {
+            categories.add(category.getId());
+        }
+        return categories;
+    }
+
+    public List<Category> getAllCategories(){
+        return categoryRepository.findAll();
+    }
+
+
+
 
 
 }
