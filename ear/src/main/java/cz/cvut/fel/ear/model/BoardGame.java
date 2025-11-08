@@ -94,4 +94,11 @@ public class BoardGame {
             inverseJoinColumns = @JoinColumn(name = "CATEGORY_ID")
     )
     private List<Category> categories = new ArrayList<>();
+
+    public BoardGame(String name) {
+        this.name = name;
+        this.ratings = new ArrayList<>();
+        this.availableStockItems = new ArrayList<>();
+        this.categories = new ArrayList<>();
+    }
 }

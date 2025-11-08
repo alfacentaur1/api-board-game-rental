@@ -7,6 +7,7 @@ import cz.cvut.fel.ear.model.*;
 import cz.cvut.fel.ear.service.BoardGameItemService;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName; // Import DisplayName
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestEntityManager;
@@ -84,6 +85,7 @@ public class BoardGameItemServiceTest {
     }
 
     @Test
+    @DisplayName("Should add a new board game item")
     public void testAddBoardGameItem() {
         Long boardGameId = boardGame.getId();
         String serialNumber = "SN-TEST-12345";
@@ -107,6 +109,7 @@ public class BoardGameItemServiceTest {
     }
 
     @Test
+    @DisplayName("Should update an item's state and throw exceptions for invalid cases")
     public void testUpdateBoardGameItemState(){
         // arrange: get the ID of the item from setUp
         Long testItemId = this.testItem.getId();
@@ -132,6 +135,7 @@ public class BoardGameItemServiceTest {
     }
 
     @Test
+    @DisplayName("Should delete an item and throw exception for non-existing item")
     public void testDeleteBoardGameItem(){
         // arrange: get the ID from setUp
         Long itemId = this.testItem.getId();
@@ -161,6 +165,7 @@ public class BoardGameItemServiceTest {
      * new test for the 3 query methods
      */
     @Test
+    @DisplayName("Should correctly query for all, available, and count of items")
     public void testGetItemQueries() {
         // arrange: add one more item that IS available
         BoardGameItem availableItem = new BoardGameItem();
