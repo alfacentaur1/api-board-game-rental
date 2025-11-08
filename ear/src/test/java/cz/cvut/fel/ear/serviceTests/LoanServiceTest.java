@@ -46,7 +46,6 @@ public class LoanServiceTest {
     private LoanService sut;
 
     private RegisteredUser testUser;
-    private BoardGameItem availableItem;
     private BoardGameLoan testLoan;
 
 
@@ -65,7 +64,7 @@ public class LoanServiceTest {
         testGame.setDescription("Description for game1");
 
         // SetUp items
-        availableItem = new BoardGameItem();
+        BoardGameItem availableItem = new BoardGameItem();
         availableItem.setSerialNumber("ITEM-FROM-SETUP");
         availableItem.setBoardGame(testGame);
         availableItem.setState(BoardGameState.FOR_LOAN);
