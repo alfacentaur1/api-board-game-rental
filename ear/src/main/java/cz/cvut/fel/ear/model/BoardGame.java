@@ -10,8 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@AllArgsConstructor
-@NoArgsConstructor
 @Table(name="board_games")
 public class BoardGame {
     public long getId() {
@@ -101,4 +99,5 @@ public class BoardGame {
         this.availableStockItems = new ArrayList<>();
         this.categories = new ArrayList<>();
     }
+    public BoardGame(){}
 }
