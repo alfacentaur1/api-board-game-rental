@@ -2,6 +2,7 @@ package cz.cvut.fel.ear.model;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -63,7 +64,7 @@ public abstract class User {
 
     //mapping composition here
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
-    protected List<Review> ratings;
+    protected List<Review> ratings = new ArrayList<>();
 
 
 }

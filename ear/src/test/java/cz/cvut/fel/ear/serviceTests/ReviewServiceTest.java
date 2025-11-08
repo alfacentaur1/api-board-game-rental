@@ -18,7 +18,6 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 
 import java.util.List;
 
@@ -35,7 +34,7 @@ public class ReviewServiceTest {
     @Autowired
     private TestEntityManager em;
 
-    @MockitoSpyBean
+    @Autowired
     private ReviewService sut;
 
     private RegisteredUser testUser;

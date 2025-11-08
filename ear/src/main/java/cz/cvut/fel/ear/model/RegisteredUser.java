@@ -2,10 +2,9 @@ package cz.cvut.fel.ear.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -16,10 +15,10 @@ public class RegisteredUser extends User {
     private int karma;
 
     @ManyToMany
-    private List<BoardGame> favoriteBoardGames;
+    private List<BoardGame> favoriteBoardGames = new ArrayList<>();
 
     @OneToMany(mappedBy = "user")
-    private List<BoardGameLoan> boardGameLoans;
+    private List<BoardGameLoan> boardGameLoans = new ArrayList<>();
 
     public int getKarma() {
         return karma;
