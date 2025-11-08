@@ -14,4 +14,6 @@ public interface RegisteredUserRepository extends JpaRepository<RegisteredUser, 
 
     @Query("SELECT g.name FROM RegisteredUser r JOIN r.favoriteBoardGames g WHERE r.id = :userId")
     public List<String> findAllFavoriteGames(@Param("userId") long userId);
+
+    RegisteredUser findByUsername(String username);
 }
