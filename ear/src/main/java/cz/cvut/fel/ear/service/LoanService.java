@@ -71,6 +71,70 @@ public class LoanService {
         boardGameLoan.setStatus(newStatus);
     }
 
+    @Transactional
+    public long createBoardGameLoan(LocalDateTime dueDate, List<String> boardGameNames, long userId) {
+
+        LocalDateTime now = LocalDateTime.now();
+        if (dueDate.isBefore(now)) {
+            throw new InvalidDateException("Due date is before current date");
+        }
+        if (boardGameNames == null || boardGameNames.isEmpty()) {
+            throw new ParametersException("BoardGameNames is empty");
+        }
+
+        BoardGameLoan boardGameLoan = new BoardGameLoan();
+        List<BoardGameItem> itemsToBorrow = new ArrayList<>();
+
+        for (String name : boardGameNames) {
+
+            List<BoardGameItem> availableItems =
+                    boardGameItemRepository.findAvailableByNameWithLock(name, BoardGameState.FOR_LOAN);
+
+            if (availableItems.isEmpty()) {
+                throw new EntityNotFoundException("BoardGame has no available item: "+ name);
+            }
+
+            BoardGameItem item = availableItems.get(0);
+
+            if (item.getState() == BoardGameState.BORROWED) {
+                throw new EntityNotFoundException("BoardGame item was already borrowed in this transaction: " + name);
+            }
+
+            item.setState(BoardGameState.BORROWED);
+
+            itemsToBorrow.add(item);
+        }
+
+        boardGameLoan.setDueDate(dueDate);
+        boardGameLoan.setBorrowedAt(now);
+        boardGameLoan.setStatus(Status.pending);
+        boardGameLoan.setUser(registeredUserRepository.getReferenceById(userId));
+
+        boardGameLoan.setGamesToBeBorrowed(itemsToBorrow);
+
+        return boardGameLoanRepository.save(boardGameLoan).getId();
+    }
+
+
+    public void returnBoardGameLoan(BoardGameLoan boardGameLoan) {
+        if (boardGameLoan == null) {
+            throw new ParametersException("BoardGameLoan with id " + boardGameLoan.getId() + " not found");
+        }
+        RegisteredUser user = boardGameLoan.getUser();
+        LocalDateTime now = LocalDateTime.now();
+        if (now.isAfter(boardGameLoan.getDueDate())) {
+            if (user.getKarma() > 4) user.setKarma(user.getKarma() - 5);
+        } else {
+            if (user.getKarma() < 91) {
+                user.setKarma(user.getKarma() + 10);
+            }
+        }
+        for (BoardGameItem boardGameItem : boardGameLoan.getGamesToBeBorrowed()) {
+            boardGameItem.setState(BoardGameState.FOR_LOAN);
+        }
+
+    }
+
     public List<BoardGameItem> currentlyBorrowedBoardGameItems() {
         List<BoardGameItem> boardGameItems = boardGameItemRepository.findAll();
         List<BoardGameItem> currentlyBorrowedBoardGameItems = new ArrayList<>();

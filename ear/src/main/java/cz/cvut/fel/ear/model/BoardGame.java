@@ -10,8 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@AllArgsConstructor
-@NoArgsConstructor
 @Table(name="board_games")
 public class BoardGame {
     public long getId() {
@@ -94,4 +92,12 @@ public class BoardGame {
             inverseJoinColumns = @JoinColumn(name = "CATEGORY_ID")
     )
     private List<Category> categories = new ArrayList<>();
+
+    public BoardGame(String name) {
+        this.name = name;
+        this.ratings = new ArrayList<>();
+        this.availableStockItems = new ArrayList<>();
+        this.categories = new ArrayList<>();
+    }
+    public BoardGame(){}
 }
