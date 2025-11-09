@@ -71,6 +71,9 @@ public class ReviewService {
     public void deleteReview(long reviewId) {
         Review review = findReviewById(reviewId);
 
+        // Unlink the review from the user
+        userService.unlinkReviewFromUser(review.getAuthor().getId(), reviewId);
+
         reviewRepository.delete(review);
     }
 

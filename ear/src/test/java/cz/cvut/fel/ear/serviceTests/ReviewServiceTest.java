@@ -7,7 +7,9 @@ import cz.cvut.fel.ear.exception.ParametersException;
 import cz.cvut.fel.ear.model.BoardGame;
 import cz.cvut.fel.ear.model.RegisteredUser;
 import cz.cvut.fel.ear.model.Review;
+import cz.cvut.fel.ear.model.User;
 import cz.cvut.fel.ear.service.ReviewService;
+import cz.cvut.fel.ear.service.UserService;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,6 +20,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 
 import java.util.List;
 
@@ -36,6 +39,9 @@ public class ReviewServiceTest {
 
     @Autowired
     private ReviewService sut;
+
+    @MockitoSpyBean
+    private UserService userService;
 
     private RegisteredUser testUser;
     private BoardGame testGame;
@@ -63,6 +69,10 @@ public class ReviewServiceTest {
         testReview.setComment("Amazing game!");
         testReview.setScore(5);
         em.persist(testReview);
+
+
+        // Link review to user
+        testUser.getRatings().add(testReview);
 
         em.flush();
     }
@@ -116,6 +126,9 @@ public class ReviewServiceTest {
         assertEquals(ratingValue, foundReview.getScore());
         assertEquals(testUser.getId(), foundReview.getAuthor().getId());
         assertEquals(testGame.getId(), foundReview.getBoardGame().getId());
+
+        // Check that user has review linked to him
+        assertTrue(testUser.getRatings().contains(foundReview));
     }
 
     @Test
@@ -178,5 +191,30 @@ public class ReviewServiceTest {
         // Check if both reviews are saved
         List<Review> foundReviews = sut.getReviewsForBoardGame(testGame.getId());
         assertEquals(2, foundReviews.size());
+    }
+
+    @Test
+    public void testDeletingReviewUnlinksFromUser() {
+        // Check that user has linked review
+        User foundUser = userService.findById(testUser.getId());
+
+        long reviewId = foundUser.getRatings().getFirst().getId();
+        Review foundReview = sut.findReviewById(reviewId);
+
+        assertEquals(foundUser.getId(), foundReview.getAuthor().getId());
+
+        // Delete the review
+        sut.deleteReview(foundReview.getId());
+
+        // Check that review cant be found
+        assertThrows(
+                EntityNotFoundException.class,
+                () -> sut.findReviewById(foundReview.getId())
+        );
+
+        // Check that user doesnt have the link to the review
+        User newUser = userService.findById(testUser.getId());
+
+        assertFalse(newUser.getRatings().contains(foundReview));
     }
 }

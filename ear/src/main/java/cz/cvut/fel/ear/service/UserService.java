@@ -28,6 +28,7 @@ public class UserService {
                 );
     }
 
+    // TODO - implement for admin too?
     public RegisteredUser getRegisteredUserByUsername(String username) {
         RegisteredUser user = registeredUserRepository.findByUsername(username);
 
@@ -44,15 +45,34 @@ public class UserService {
         BoardGameLoan loanToAdd = loanService.getBoardGameLoan(loanId);
         RegisteredUser user = findById(userId);
 
+        // TODO - implement for admin -> update whose repository to use
         user.getBoardGameLoans().add(loanToAdd);
         registeredUserRepository.save(user);
     }
 
-    public void linkReviewToUser(long userId, long loanId) {
-        Review reviewToAdd = reviewService.findReviewById(loanId);
+    public void linkReviewToUser(long userId, long reviewId) {
+        Review reviewToAdd = reviewService.findReviewById(reviewId);
         RegisteredUser user = findById(userId);
 
+        // TODO - implement for admin -> update whose repository to use
         user.getRatings().add(reviewToAdd);
+        registeredUserRepository.save(user);
+    }
+
+    public void unlinkReviewFromUser(long userId, long reviewId) {
+        Review reviewToRemove = reviewService.findReviewById(reviewId);
+        RegisteredUser user = findById(userId);
+
+        // TODO - implement for admin -> update whose repository to use
+        // Check that user has this review linked to him
+        if (!user.getRatings().contains(reviewToRemove)) {
+            throw new EntityNotFoundException(
+                    String.format("User %d doenst have review %d linked to him", userId, reviewId)
+            );
+        }
+
+        // Remove it
+        user.getRatings().remove(reviewToRemove);
         registeredUserRepository.save(user);
     }
 
