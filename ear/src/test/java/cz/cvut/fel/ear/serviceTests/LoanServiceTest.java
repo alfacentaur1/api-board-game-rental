@@ -18,6 +18,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -295,7 +296,58 @@ public class LoanServiceTest {
 
         // Check user has loan bound to him
         assertTrue(testUser.getBoardGameLoans().contains(foundLoan));
+    }
+
+    @Test
+    public void testLoanLifeCycle_approved() {
+        // Check that items are in state borrowed
+        List<BoardGameItem> borrowedItems = testLoan.getItems();
+
+        for (BoardGameItem gameItem : borrowedItems) {
+            assertEquals(BoardGameState.BORROWED, gameItem.getState());
+        }
+        // Check that loan has correct state
+        assertEquals(Status.pending, testLoan.getStatus());
+
+        // Approve loan
+        sut.approveGameLoan(testLoan.getId());
 
 
+        BoardGameLoan foundLoan = sut.getBoardGameLoan(testLoan.getId());
+
+        // Check that loan has correct state
+        assertEquals(Status.approved, foundLoan.getStatus());
+
+        // Check that items in loan are still borrowed
+        List<BoardGameItem> foundItems = foundLoan.getItems();
+        for (BoardGameItem foundItem : foundItems) {
+            assertEquals(BoardGameState.BORROWED, foundItem.getState());
+        }
+    }
+
+    @Test
+    public void testLoanLifeCycle_rejected() {
+        // Check that items are in state borrowed
+        List<BoardGameItem> borrowedItems = testLoan.getItems();
+
+        for (BoardGameItem gameItem : borrowedItems) {
+            assertEquals(BoardGameState.BORROWED, gameItem.getState());
+        }
+
+        // Check that order has correct state
+        assertEquals(Status.pending, testLoan.getStatus());
+
+        // Reject loan
+        sut.rejectGameLoan(testLoan.getId());
+
+        BoardGameLoan foundLoan = sut.getBoardGameLoan(testLoan.getId());
+        // Check that loan has correct state
+        assertEquals(Status.rejected, foundLoan.getStatus());
+
+        // Check that items have correct state
+        List<BoardGameItem> foundItems = foundLoan.getItems();
+        for (BoardGameItem foundItem : foundItems) {
+            assertEquals(BoardGameState.FOR_LOAN, foundItem.getState());
+        }
     }
 }
