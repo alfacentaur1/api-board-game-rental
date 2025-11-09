@@ -7,6 +7,7 @@ import cz.cvut.fel.ear.service.UserService;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.DisplayName;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestEntityManager;
@@ -49,6 +50,7 @@ public class UserServiceTest {
 
 
     @Test
+    @DisplayName("Should find a user by id and throw when not found")
     public void testFindById() {
         RegisteredUser userFound = sut.findById(testUser.getId());
 
@@ -65,6 +67,7 @@ public class UserServiceTest {
     }
 
     @Test
+    @DisplayName("Should get a registered user by username and throw when invalid")
     public void testGetRegisteredUserByUsername() {
         RegisteredUser userFound = sut.getRegisteredUserByUsername(testUser.getUsername());
 

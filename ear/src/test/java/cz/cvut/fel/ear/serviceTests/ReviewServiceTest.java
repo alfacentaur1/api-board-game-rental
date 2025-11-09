@@ -13,6 +13,7 @@ import cz.cvut.fel.ear.service.UserService;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.DisplayName;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestEntityManager;
@@ -78,6 +79,7 @@ public class ReviewServiceTest {
     }
 
     @Test
+    @DisplayName("retrieve a review by id and verify exception when missing")
     public void testFindReviewById() {
         Review foundReview = sut.findReviewById(testReview.getId());
 
@@ -93,6 +95,7 @@ public class ReviewServiceTest {
     }
 
     @Test
+    @DisplayName("get all reviews for a board game and return empty for none")
     public void testGetReviewsForBoardGame() {
         List<Review> reviews = sut.getReviewsForBoardGame(testGame.getId());
         assertFalse(reviews.isEmpty());
@@ -110,6 +113,7 @@ public class ReviewServiceTest {
     }
 
     @Test
+    @DisplayName("create a review and ensure it is persisted and linked")
     public void testCreateReview_successful() {
         String content = "New game review content";
         int ratingValue = 4;
@@ -132,6 +136,7 @@ public class ReviewServiceTest {
     }
 
     @Test
+    @DisplayName("validate parameters when creating a review and expect exceptions")
     public void testCreateReview_invalidParameters() {
         // Check if correct exception is thrown when incorrect content is given
         assertThrows(
@@ -165,6 +170,7 @@ public class ReviewServiceTest {
     }
 
     @Test
+    @DisplayName("delete a review and ensure it is removed from the database")
     public void testDeleteReview() {
         sut.deleteReview(testReview.getId());
         em.flush();
@@ -183,6 +189,7 @@ public class ReviewServiceTest {
     // Business tests
 
     @Test
+    @DisplayName("creating review for the same game increases the review count")
     public void testMoreReviewsForSameGame() {
         // Create new review
         sut.createReview(testUser.getId(), testGame.getId(), "Second review content", 4);
@@ -194,6 +201,7 @@ public class ReviewServiceTest {
     }
 
     @Test
+    @DisplayName("deleting a review removes the link from the user and the review cannot be found")
     public void testDeletingReviewUnlinksFromUser() {
         // Check that user has linked review
         User foundUser = userService.findById(testUser.getId());

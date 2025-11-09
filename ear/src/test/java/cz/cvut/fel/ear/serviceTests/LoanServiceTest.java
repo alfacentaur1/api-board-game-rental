@@ -8,6 +8,7 @@ import cz.cvut.fel.ear.service.LoanService;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.DisplayName;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestEntityManager;
@@ -18,7 +19,6 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -96,7 +96,8 @@ public class LoanServiceTest {
 
 
     @Test
-    public void testGetBoardGameLoan() {
+    @DisplayName("Should retrieve a board game loan by id and throw when not found")
+    void testGetBoardGameLoan() {
         BoardGameLoan loanFound = sut.getBoardGameLoan(testLoan.getId());
 
         // Check if loan was found
@@ -112,7 +113,8 @@ public class LoanServiceTest {
     }
 
     @Test
-    public void testGetBoardGameLoans() {
+    @DisplayName("Should retrieve all board game loans")
+    void testGetBoardGameLoans() {
         List<BoardGameLoan> allLoans = sut.getBoardGameLoans();
         // Check if there is testLoan existing
         assertFalse(allLoans.isEmpty());
@@ -122,7 +124,8 @@ public class LoanServiceTest {
     }
 
     @Test
-    public void testGetAllBoardGameLoansByUser() {
+    @DisplayName("Should retrieve all board game loans for a specific user")
+    void testGetAllBoardGameLoansByUser() {
         List<BoardGameLoan> foundLoans = sut.getAllBoardGameLoansByUser(testUser.getId());
 
         // Check if loan is found and is the same as when defined
@@ -131,7 +134,8 @@ public class LoanServiceTest {
     }
 
     @Test
-    public void testApproveBoardGameLoan() {
+    @DisplayName("Should approve a pending loan and throw when loan id is invalid")
+    void testApproveBoardGameLoan() {
         sut.approveGameLoan(testLoan.getId());
         em.flush();
 
@@ -147,7 +151,8 @@ public class LoanServiceTest {
     }
 
     @Test
-    public void testRejectGameLoan() {
+    @DisplayName("Should reject a pending loan and throw when loan id is invalid")
+    void testRejectGameLoan() {
         sut.rejectGameLoan(testLoan.getId());
         em.flush();
 
@@ -163,7 +168,8 @@ public class LoanServiceTest {
     }
 
     @Test
-    public void testChangeLoanStatus() {
+    @DisplayName("Should change a loan's status and throw exception for incorrect input")
+    void testChangeLoanStatus() {
         // Status 1
         sut.changeLoanStatus(testLoan.getId(), Status.returnedLate);
         em.flush();
@@ -193,7 +199,8 @@ public class LoanServiceTest {
     }
 
     @Test
-    public void testCreateBoardGameLoan() {
+    @DisplayName("Should create a loan with valid data and validate parameters")
+    void testCreateBoardGameLoan() {
         LocalDateTime dueDate = LocalDateTime.now().plusDays(7);
         List<String> gameNames = List.of("Game1");
 
@@ -222,7 +229,8 @@ public class LoanServiceTest {
     }
 
     @Test
-    public void testReturnBoardGameLoan() {
+    @DisplayName("Should return a loan and set items back to FOR_LOAN; validate loan id")
+    void testReturnBoardGameLoan() {
         // Return loan
         sut.returnBoardGameLoan(testLoan.getId());
         em.flush();
@@ -240,7 +248,8 @@ public class LoanServiceTest {
     }
 
     @Test
-    public void testCurrentlyBorrowedBoardGameItems() {
+    @DisplayName("Should list currently borrowed board game items")
+    void testCurrentlyBorrowedBoardGameItems() {
         // Find all borrowed items and check their state
         List<BoardGameItem> borrowedItems = sut.currentlyBorrowedBoardGameItems();
         assertFalse(borrowedItems.isEmpty());
@@ -250,7 +259,8 @@ public class LoanServiceTest {
     // BUSINESS TESTS
 
     @Test
-    public void testRentedGameItemCantBeRented() {
+    @DisplayName("Should prevent creating a loan for an already borrowed item")
+    void testRentedGameItemCantBeRented() {
         // Create a loan for the available item
         LocalDateTime dueDate = LocalDateTime.now().plusDays(5);
         List<String> gameNames = List.of(testGame.getName());
@@ -270,7 +280,8 @@ public class LoanServiceTest {
     }
 
     @Test
-    public void testCanBorrowTheSameGameTwice() {
+    @DisplayName("Should allow borrowing the same game twice if multiple items exist")
+    void testCanBorrowTheSameGameTwice() {
         // Add new item for a game
         availableItem = new BoardGameItem();
         availableItem.setSerialNumber("ITEM-FROM-SETUP");
@@ -299,6 +310,7 @@ public class LoanServiceTest {
     }
 
     @Test
+    @DisplayName("Test positive loan lifecycle")
     public void testLoanLifeCycle_approved() {
         // Check that items are in state borrowed
         List<BoardGameItem> borrowedItems = testLoan.getItems();
@@ -326,6 +338,7 @@ public class LoanServiceTest {
     }
 
     @Test
+    @DisplayName("Test negative loan lifecycle")
     public void testLoanLifeCycle_rejected() {
         // Check that items are in state borrowed
         List<BoardGameItem> borrowedItems = testLoan.getItems();
