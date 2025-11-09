@@ -2,11 +2,10 @@ package cz.cvut.fel.ear.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -30,7 +29,7 @@ public class BoardGameLoan {
     private RegisteredUser user;
 
     @ManyToMany
-    private List<BoardGameItem> gamesToBeBorrowed;
+    private List<BoardGameItem> itemsInLoan = new ArrayList<>();
 
     public long getId() {
         return id;
@@ -80,11 +79,11 @@ public class BoardGameLoan {
         this.user = user;
     }
 
-    public List<BoardGameItem> getGamesToBeBorrowed() {
-        return gamesToBeBorrowed;
+    public List<BoardGameItem> getItems() {
+        return itemsInLoan;
     }
 
     public void setGamesToBeBorrowed(List<BoardGameItem> gamesToBeBorrowed) {
-        this.gamesToBeBorrowed = gamesToBeBorrowed;
+        this.itemsInLoan = gamesToBeBorrowed;
     }
 }
