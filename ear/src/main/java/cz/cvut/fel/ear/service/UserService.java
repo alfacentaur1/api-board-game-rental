@@ -67,7 +67,7 @@ public class UserService {
         // Check that user has this review linked to him
         if (!user.getRatings().contains(reviewToRemove)) {
             throw new EntityNotFoundException(
-                    String.format("User %d doenst have review %d linked to him", userId, reviewId)
+                    String.format("User %d doesn't have review %d linked to him", userId, reviewId)
             );
         }
 
