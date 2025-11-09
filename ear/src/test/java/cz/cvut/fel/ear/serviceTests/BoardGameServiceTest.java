@@ -61,7 +61,6 @@ public class BoardGameServiceTest {
 
         // 1. Create a user
         testUser = new RegisteredUser();
-        // (Assuming you have setters for username, karma, etc.)
         // testUser.setUsername("tester");
         em.persist(testUser);
 
@@ -76,7 +75,6 @@ public class BoardGameServiceTest {
         em.persist(testGame2_Wingspan);
 
         // 4. Link 'Wingspan' as a favorite to the user
-        // (Assumes RegisteredUser is the owner of the relationship)
         if (testUser.getFavoriteBoardGames() == null) {
             testUser.setFavoriteBoardGames(new ArrayList<>());
         }
@@ -207,7 +205,6 @@ public class BoardGameServiceTest {
 
         // Assert
         BoardGame updated = em.find(BoardGame.class, catanId);
-        // This test will FAIL if your service is missing 'boardGameRepository.save()'
         assertThat(updated.getDescription()).isEqualTo(newDescription);
     }
 
