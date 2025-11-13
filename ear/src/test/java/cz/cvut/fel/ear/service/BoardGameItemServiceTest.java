@@ -1,6 +1,5 @@
 package cz.cvut.fel.ear.serviceTests;
 
-import cz.cvut.fel.ear.dao.BoardGameItemRepository;
 import cz.cvut.fel.ear.exception.EntityNotFoundException;
 import cz.cvut.fel.ear.exception.ParametersException;
 import cz.cvut.fel.ear.model.*;
@@ -15,7 +14,6 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import java.util.*;
 
@@ -31,9 +29,6 @@ public class BoardGameItemServiceTest {
 
     @Autowired
     private TestEntityManager em;
-
-    @MockitoSpyBean
-    private BoardGameItemRepository boardGameItemRepository;
 
     @Autowired
     private BoardGameItemService sut;
@@ -185,15 +180,15 @@ public class BoardGameItemServiceTest {
         List<BoardGameItem> allItems = sut.getAllBoardGameItemsForBoardGame(boardGameId);
         assertEquals(2, allItems.size());
 
-        // --- Test 2: getAllAvalableBoardGameItemsForBoardGame ---
+        // --- Test 2: getAllAvailableBoardGameItemsForBoardGame ---
         // should return 1 item (only the FOR_LOAN one)
-        List<BoardGameItem> availableItems = sut.getAllAvalableBoardGameItemsForBoardGame(boardGameId);
+        List<BoardGameItem> availableItems = sut.getAllAvailableBoardGameItemsForBoardGame(boardGameId);
         assertEquals(1, availableItems.size());
         assertEquals("ITEM-FOR-LOAN", availableItems.getFirst().getSerialNumber());
 
-        // --- Test 3: avalaibleItemsInStockNumber ---
+        // --- Test 3: availableItemsInStockNumber ---
         // should return 1
-        int availableCount = sut.avalaibleItemsInStockNumber(boardGameId);
+        int availableCount = sut.availableItemsInStockNumber(boardGameId);
         assertEquals(1, availableCount);
     }
 }
