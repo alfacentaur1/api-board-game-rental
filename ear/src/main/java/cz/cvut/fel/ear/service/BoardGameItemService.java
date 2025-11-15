@@ -11,8 +11,8 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class BoardGameItemService {
@@ -24,12 +24,12 @@ public class BoardGameItemService {
         this.boardGameRepository = boardGameRepository;
     }
 
-    public int avalaibleItemsInStockNumber(long boardGameId) {
+    public int availableItemsInStockNumber(long boardGameId) {
         BoardGame boardGame = boardGameRepository.findById(boardGameId).get();
         if (boardGame.getName() == null) {
             throw new EntityNotFoundException("Board game with id " + boardGameId + " not found");
         }
-        return getAllAvalableBoardGameItemsForBoardGame(boardGameId).size();
+        return getAllAvailableBoardGameItemsForBoardGame(boardGameId).size();
     }
 
     public List<BoardGameItem> getAllBoardGameItemsForBoardGame(long boardGameId) {
@@ -41,14 +41,15 @@ public class BoardGameItemService {
         return boardGame.getAvailableStockItems();
     }
 
-    public List<BoardGameItem> getAllAvalableBoardGameItemsForBoardGame(long boardGameId) {
-        BoardGame boardGame = boardGameRepository.findById(boardGameId).get();
-        if(boardGame.getName() == null) {
+    public List<BoardGameItem> getAllAvailableBoardGameItemsForBoardGame(long boardGameId) {
+        Optional<BoardGame> optionalBoardGame = boardGameRepository.findById(boardGameId);
+
+        if (optionalBoardGame.isEmpty()) {
             throw new EntityNotFoundException("Board game with id " + boardGameId + " not found");
         }
 
         List<BoardGameItem> boardGameItems = getAllBoardGameItemsForBoardGame(boardGameId);
-        List<BoardGameItem> boardGameAvailableItems = new ArrayList<>();;
+        List<BoardGameItem> boardGameAvailableItems = new ArrayList<>();
         for (BoardGameItem boardGameItem : boardGameItems) {
             if(boardGameItem.getState() != BoardGameState.NOT_FOR_LOAN && boardGameItem.getState() != BoardGameState.BORROWED){
                 boardGameAvailableItems.add(boardGameItem);

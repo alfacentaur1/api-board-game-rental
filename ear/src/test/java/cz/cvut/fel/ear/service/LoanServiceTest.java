@@ -1,10 +1,9 @@
-package cz.cvut.fel.ear.serviceTests;
+package cz.cvut.fel.ear.service;
 
 import cz.cvut.fel.ear.dao.BoardGameItemRepository;
 import cz.cvut.fel.ear.dao.BoardGameLoanRepository;
 import cz.cvut.fel.ear.exception.*;
 import cz.cvut.fel.ear.model.*;
-import cz.cvut.fel.ear.service.LoanService;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

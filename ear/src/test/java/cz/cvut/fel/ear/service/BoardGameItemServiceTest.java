@@ -1,9 +1,8 @@
-package cz.cvut.fel.ear.serviceTests;
+package cz.cvut.fel.ear.service;
 
 import cz.cvut.fel.ear.exception.EntityNotFoundException;
 import cz.cvut.fel.ear.exception.ParametersException;
 import cz.cvut.fel.ear.model.*;
-import cz.cvut.fel.ear.service.BoardGameItemService;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

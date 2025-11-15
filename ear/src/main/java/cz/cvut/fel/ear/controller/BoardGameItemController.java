@@ -26,7 +26,7 @@ public class BoardGameItemController {
 
     @GetMapping("/boardgames/{id}/items/stock")
     public ResponseEntity<Integer> numberOfStockItemsForGame(@PathVariable int id) {
-        int stockCount = boardGameItemService.avalaibleItemsInStockNumber(id);
+        int stockCount = boardGameItemService.availableItemsInStockNumber(id);
         return new ResponseEntity<>(stockCount, HttpStatus.OK);
     }
 
@@ -45,7 +45,7 @@ public class BoardGameItemController {
 
     @GetMapping("/boardgames/{id}/items/available")
     public ResponseEntity<List<BoardGameItemDTO>> availableItemsForGame(@PathVariable Long id) {
-        List<BoardGameItem> boardGameItems = boardGameItemService.getAllAvalableBoardGameItemsForBoardGame(id);
+        List<BoardGameItem> boardGameItems = boardGameItemService.getAllAvailableBoardGameItemsForBoardGame(id);
         List<BoardGameItemDTO> boardGameItemDTOS = boardGameItems.stream()
                 .map(boardGameItem -> new BoardGameItemDTO(
                         boardGameItem.getId(),
