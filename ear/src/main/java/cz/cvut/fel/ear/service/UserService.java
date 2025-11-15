@@ -76,4 +76,21 @@ public class UserService {
         registeredUserRepository.save(user);
     }
 
+    public void createUser(RegisteredUser user) {
+        if(registeredUserRepository.findByUsername(user.getUsername()) != null) {
+            throw new IllegalArgumentException("Username already exists");
+        }
+        registeredUserRepository.save(user);
+    }
+
+    public void deleteUser(long userId) {
+        if(!loanService.getAllBoardGameLoansByUser(userId).isEmpty()) {
+            throw new IllegalStateException("Cannot delete user with active loans");
+        }
+        RegisteredUser user = findById(userId);
+        registeredUserRepository.delete(user);
+    }
+
+    //TODO login, logout, update user details
+
 }

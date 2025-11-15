@@ -1,6 +1,7 @@
 package cz.cvut.fel.ear.service;
 
 import cz.cvut.fel.ear.dao.BoardGameItemRepository;
+import cz.cvut.fel.ear.dao.BoardGameLoanRepository;
 import cz.cvut.fel.ear.dao.BoardGameRepository;
 import cz.cvut.fel.ear.dao.RegisteredUserRepository;
 import cz.cvut.fel.ear.exception.EntityAlreadyExistsException;
@@ -8,12 +9,14 @@ import cz.cvut.fel.ear.exception.EntityNotFoundException;
 import cz.cvut.fel.ear.exception.GameAlreadyInFavoritesException;
 import cz.cvut.fel.ear.exception.ParametersException;
 import cz.cvut.fel.ear.model.BoardGame;
+import cz.cvut.fel.ear.model.BoardGameItem;
+import cz.cvut.fel.ear.model.BoardGameLoan;
 import cz.cvut.fel.ear.model.RegisteredUser;
 import jakarta.transaction.Transactional; // Import this
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class BoardGameService {
@@ -21,12 +24,14 @@ public class BoardGameService {
     private final RegisteredUserRepository userRepository;
     private final BoardGameItemRepository boardGameItemRepository;
     private final BoardGameItemService boardGameItemService;
+    private final BoardGameLoanRepository boardGameLoanRepository;
 
-    public BoardGameService(BoardGameRepository boardGameRepository, RegisteredUserRepository userRepository, BoardGameItemRepository boardGameItemRepository, BoardGameItemService boardGameItemService) {
+    public BoardGameService(BoardGameRepository boardGameRepository, RegisteredUserRepository userRepository, BoardGameItemRepository boardGameItemRepository, BoardGameItemService boardGameItemService, BoardGameLoanRepository boardGameLoanRepository) {
         this.boardGameRepository = boardGameRepository;
         this.userRepository = userRepository;
         this.boardGameItemRepository = boardGameItemRepository;
         this.boardGameItemService = boardGameItemService;
+        this.boardGameLoanRepository = boardGameLoanRepository;
     }
 
     public BoardGame getBoardGame(Long gameId) {
@@ -134,5 +139,32 @@ public class BoardGameService {
 
     public List<String> listAllFavoriteBoardGame(long userId) {
         return userRepository.findAllFavoriteGames(userId);
+    }
+
+    public List<BoardGame> getTopXBorrowedGames(int x) {
+        if(x <= 0) {
+            throw new ParametersException("Parameter x must be greater than 0");
+        }
+
+        List<BoardGameLoan> allLoans = boardGameLoanRepository.findAll();
+
+        Map<BoardGame, Integer> gameCounts = new HashMap<>();
+
+        for (BoardGameLoan loan : allLoans) {
+            for (BoardGameItem item : loan.getItems()) {
+
+                BoardGame game = item.getBoardGame();
+
+                if (game != null) {
+                    gameCounts.put(game, gameCounts.getOrDefault(game, 0) + 1);
+                }
+            }
+        }
+
+        return gameCounts.entrySet().stream()
+                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                .map(Map.Entry::getKey)
+                .limit(x)
+                .collect(Collectors.toList());
     }
 }

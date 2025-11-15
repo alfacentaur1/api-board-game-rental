@@ -99,5 +99,19 @@ public class BoardGameController {
 //
 //    }
 
+    @GetMapping("/topBorrowed/{count}")
+    public ResponseEntity<List<BoardGameDTO>> getTopBorrowedBoardGames(@PathVariable int count) {
+        List<BoardGame> topBorrowedGames = boardGameService.getTopXBorrowedGames(count);
+        List<BoardGameDTO> topBorrowedGameDTOs = topBorrowedGames.stream()
+                .map(boardGame -> new BoardGameDTO(
+                        boardGame.getId(),
+                        boardGame.getAvailableCopies(),
+                        boardGame.getDescription(),
+                        boardGame.getName()
+                ))
+                .collect(Collectors.toList());
+        return new ResponseEntity<>(topBorrowedGameDTOs, HttpStatus.OK);
+
+    }
 
 }
