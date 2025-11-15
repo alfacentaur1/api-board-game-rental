@@ -37,7 +37,9 @@ public class BoardGameItemController {
                 .map(boardGameItem -> new BoardGameItemDTO(
                         boardGameItem.getId(),
                         boardGameItem.getSerialNumber(),
-                        boardGameItem.getState()
+                        boardGameItem.getState(),
+                        boardGameItem.getBoardGame().getName()
+
                 ))
                 .toList();
         return new ResponseEntity<>(boardGameItemDTOS, HttpStatus.OK);
@@ -50,7 +52,8 @@ public class BoardGameItemController {
                 .map(boardGameItem -> new BoardGameItemDTO(
                         boardGameItem.getId(),
                         boardGameItem.getSerialNumber(),
-                        boardGameItem.getState()
+                        boardGameItem.getState(),
+                        boardGameItem.getBoardGame().getName()
                 ))
                 .toList();
         return new ResponseEntity<>(boardGameItemDTOS, HttpStatus.OK);
