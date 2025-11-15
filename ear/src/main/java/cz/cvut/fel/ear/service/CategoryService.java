@@ -17,7 +17,7 @@ import java.util.Optional;
 @Service
 public class CategoryService {
     private final CategoryRepository categoryRepository;
-    private BoardGameRepository boardGameRepository;
+    private final BoardGameRepository boardGameRepository;
 
     public CategoryService(CategoryRepository categoryRepository, BoardGameRepository boardGameRepository) {
         this.categoryRepository = categoryRepository;
@@ -48,7 +48,7 @@ public class CategoryService {
         if (boardGame.getName() == null) {
             throw new EntityNotFoundException("Board game with name " + boardGame.getName() + " does not exist");
         }
-        if (boardGame.getCategories() == null) { // Pro jistotu
+        if (boardGame.getCategories() == null) {
             boardGame.setCategories(new ArrayList<>());
         }
 

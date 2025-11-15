@@ -1,5 +1,6 @@
-package cz.cvut.fel.ear.exception;
+package cz.cvut.fel.ear.controller.handler;
 
+import cz.cvut.fel.ear.exception.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;

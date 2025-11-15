@@ -1,12 +1,10 @@
-package cz.cvut.fel.ear.serviceTests;
+package cz.cvut.fel.ear.service;
 
 import cz.cvut.fel.ear.exception.CategoryAlreadyExistsException;
 import cz.cvut.fel.ear.model.BoardGame;
 import cz.cvut.fel.ear.model.Category;
 import cz.cvut.fel.ear.dao.BoardGameRepository;
 import cz.cvut.fel.ear.dao.CategoryRepository;
-import cz.cvut.fel.ear.service.CategoryService;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -16,7 +14,6 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestEntityManager;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 

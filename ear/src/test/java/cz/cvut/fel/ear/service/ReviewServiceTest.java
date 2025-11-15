@@ -1,4 +1,4 @@
-package cz.cvut.fel.ear.serviceTests;
+package cz.cvut.fel.ear.service;
 
 import cz.cvut.fel.ear.exception.EntityNotFoundException;
 import cz.cvut.fel.ear.exception.InvalidCommentRangeException;
@@ -8,8 +8,6 @@ import cz.cvut.fel.ear.model.BoardGame;
 import cz.cvut.fel.ear.model.RegisteredUser;
 import cz.cvut.fel.ear.model.Review;
 import cz.cvut.fel.ear.model.User;
-import cz.cvut.fel.ear.service.ReviewService;
-import cz.cvut.fel.ear.service.UserService;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

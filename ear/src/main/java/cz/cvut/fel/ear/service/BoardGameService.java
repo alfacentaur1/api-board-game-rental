@@ -129,7 +129,7 @@ public class BoardGameService {
         }
         System.out.println(boardGame.getName());
         System.out.println(boardGame.getDescription());
-        System.out.println("Available in stock: " + boardGameItemService.avalaibleItemsInStockNumber(boardGame.getId()));
+        System.out.println("Available in stock: " + boardGameItemService.availableItemsInStockNumber(boardGame.getId()));
     }
 
     public List<String> listAllFavoriteBoardGame(long userId) {
