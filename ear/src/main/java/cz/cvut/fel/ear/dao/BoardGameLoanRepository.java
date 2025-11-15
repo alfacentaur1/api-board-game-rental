@@ -19,4 +19,6 @@ public interface BoardGameLoanRepository extends JpaRepository<BoardGameLoan, Lo
 
     @Query("select b.itemsInLoan from BoardGameLoan b where b.id = :id")
     List<BoardGameItem> getBoardGameLoanById(@Param("id") long id);
+
+    List<BoardGameLoan> findAllByStatus(Status status);
 }

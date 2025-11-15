@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class LoanService {
+public class  LoanService {
 
     private final BoardGameLoanRepository boardGameLoanRepository;
     private final BoardGameItemRepository boardGameItemRepository;
@@ -51,7 +51,7 @@ public class LoanService {
 
     public void rejectGameLoan(long loanId) {
         BoardGameLoan boardGameLoan = getBoardGameLoan(loanId);
-        List<BoardGameItem> loanBoardGameItems = boardGameLoanRepository.getBoardGameLoanById(loanId);
+        List<BoardGameItem> loanBoardGameItems = boardGameLoan.getItems();
         for (BoardGameItem boardGameItem : loanBoardGameItems) {
             boardGameItem.setState(BoardGameState.FOR_LOAN);
         }
@@ -135,18 +135,45 @@ public class LoanService {
 
     public void returnBoardGameLoan(long loanId) {
         BoardGameLoan loanToReturn = getBoardGameLoan(loanId);
+        if(loanToReturn.getStatus() != Status.approved){
+            throw new InvalidLoanReturnException("Loan with id " + loanId + " is not approved and cannot be returned");
+        }
+        if(loanToReturn.getReturnedAt() != null){
+            throw new InvalidLoanReturnException("Loan with id " + loanId + " has already been returned");
+        }
 
         RegisteredUser user = loanToReturn.getUser();
         LocalDateTime now = LocalDateTime.now();
+        loanToReturn.setReturnedAt(now);
         if (now.isAfter(loanToReturn.getDueDate())) {
-            if (user.getKarma() > 4) user.setKarma(user.getKarma() - 5);
+            if (user.getKarma() > 4) {
+                user.setKarma(user.getKarma() - 5);
+                loanToReturn.setStatus(Status.returnedLate);
+            }
+
         } else {
             if (user.getKarma() < 91) {
                 user.setKarma(user.getKarma() + 10);
+                loanToReturn.setStatus(Status.returnedInTime);
             }
         }
         for (BoardGameItem boardGameItem : loanToReturn.getItems()) {
             boardGameItem.setState(BoardGameState.FOR_LOAN);
         }
     }
-}
+
+    public List<BoardGameItem> getBoardGameItemsInLoan(long loanId) {
+        if(!boardGameLoanRepository.existsById(loanId)) {
+            throw new EntityNotFoundException("Loan with id " + loanId + " does not exist");
+        }
+        BoardGameLoan loan = getBoardGameLoan(loanId);
+        return loan.getItems();
+    }
+
+    public List<BoardGameLoan> getAllPendingLoans() {
+        return boardGameLoanRepository.findAllByStatus(Status.pending);
+    }
+
+    public List<BoardGameLoan> getAllApprovedLoans() {
+        return boardGameLoanRepository.findAllByStatus(Status.approved);
+}}

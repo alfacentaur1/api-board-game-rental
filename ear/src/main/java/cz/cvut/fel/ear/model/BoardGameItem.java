@@ -64,4 +64,8 @@ public class BoardGameItem {
     public void setBoardGame(BoardGame boardGame) {
         this.boardGame = boardGame;
     }
+
+    public String getName() {
+        return boardGame.getName();
+    }
 }

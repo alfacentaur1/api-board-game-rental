@@ -72,5 +72,10 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(exception.getMessage(),HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(InvalidStatusException.class)
+    public ResponseEntity<Map<String,String>> handleInvalidStatusException(InvalidStatusException exception){
+        return buildErrorResponse(exception.getMessage(),HttpStatus.BAD_REQUEST);
+    }
+
 
 }
