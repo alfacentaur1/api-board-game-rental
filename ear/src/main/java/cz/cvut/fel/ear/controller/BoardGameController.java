@@ -77,7 +77,7 @@ public class BoardGameController {
         return new ResponseEntity<>(boardGameDTOList, HttpStatus.OK);
     }
 
-
+    //user is registered user, admin cant have favorite games - thats why we cast it (JFYI)
     @PostMapping("/users/{username}/favorites/{gameId}")
     public ResponseEntity<?> addFavoriteBoardGame(@PathVariable String username, @PathVariable Long gameId) {
         RegisteredUser user = (RegisteredUser) userService.getUserByUsername(username);
