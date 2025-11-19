@@ -96,11 +96,19 @@ public class BoardGameController {
     }
 
     @GetMapping("/users/{username}/favorites/")
-    public ResponseEntity<List<String>> getFavorites(@PathVariable String username) {
+    public ResponseEntity<List<BoardGameDTO>> getFavorites(@PathVariable String username) {
         RegisteredUser user = (RegisteredUser) userService.getUserByUsername(username);
-          List<String> gameNames = boardGameService.listAllFavoriteBoardGame(user.getId());
-    return new ResponseEntity<>(gameNames, HttpStatus.OK);
-
+        List<BoardGameDTO> favoriteGameDTOs = new ArrayList<>();
+        for (BoardGame boardGame : user.getFavoriteBoardGames()) {
+            BoardGameDTO boardGameDTO = new BoardGameDTO(
+                    boardGame.getId(),
+                    boardGame.getAvailableCopies(),
+                    boardGame.getDescription(),
+                    boardGame.getName()
+            );
+            favoriteGameDTOs.add(boardGameDTO);
+        }
+        return new ResponseEntity<>(favoriteGameDTOs, HttpStatus.OK);
     }
 
     @GetMapping("/topBorrowed/{count}")

@@ -6,6 +6,8 @@ import cz.cvut.fel.ear.model.Review;
 import cz.cvut.fel.ear.service.ReviewService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.access.prepost.PreFilter;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -40,6 +42,7 @@ public class ReviewController {
 
     }
 
+    @PreAuthorize("hasRole('USER')")
     @PostMapping("/games/{gameId}/users/{userId}")
     public ResponseEntity<?> createReview(@PathVariable("gameId") Long gameId,
                                                         @PathVariable("userId") Long userId,
@@ -53,6 +56,8 @@ public class ReviewController {
         return ResponseEntity.created(location).headers(responseHeaders).body(reviewDetailDTO);
     }
 
+    // delete review only if the user is the owner of the review
+    @PreAuthorize("hasRole('USER') and @reviewSecurity.isOwner(#id, authentication)")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteReview(@PathVariable("id") Long id) {
         reviewService.deleteReview(id);
