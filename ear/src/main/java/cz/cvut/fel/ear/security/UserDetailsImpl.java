@@ -6,6 +6,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.io.Serial;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -13,8 +14,6 @@ import java.util.Objects;
 
 //class for wrapping User entity to UserDetails required by Spring Security
 public class UserDetailsImpl implements UserDetails {
-    private static final long serialVersionUID = 1L;
-
     private final Long id;
     private final String username;
     private final String email;

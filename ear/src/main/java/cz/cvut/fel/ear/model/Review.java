@@ -8,7 +8,6 @@ import java.time.LocalDateTime;
 
 @Entity
 @AllArgsConstructor
-@NoArgsConstructor
 public class Review {
     @Id
     @GeneratedValue
@@ -83,6 +82,7 @@ public class Review {
         this.author = author;
         this.boardGame = boardGame;
     }
+    public Review(){}
 
     public RegisteredUser getAuthorAsRegisteredUser() {
         if (author instanceof RegisteredUser) {
