@@ -100,7 +100,6 @@ public class LoanController {
         return ResponseEntity.created(location).body(newLoanDto);
     }
 
-    // je ok to poslat bez tela? jak jinak? - @ondro
     @PostMapping("/{loanId}/return")
     public ResponseEntity<?> returnLoan(@PathVariable long loanId) {
         loanService.returnBoardGameLoan(loanId);
