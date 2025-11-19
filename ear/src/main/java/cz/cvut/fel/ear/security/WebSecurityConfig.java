@@ -63,7 +63,6 @@ public class WebSecurityConfig {
                         //security is now handled by @PreAuthorize annotations
                         //so we can permit all requests here
                         .anyRequest().permitAll()
-                        .anyRequest().authenticated()
                 );
 
         http.authenticationProvider(authenticationProvider());
