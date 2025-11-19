@@ -2,7 +2,9 @@ package cz.cvut.fel.ear.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,9 +12,12 @@ import java.util.List;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
 @DiscriminatorValue("REGISTERED_USER")
 public class RegisteredUser extends User {
-    private int karma;
+
+    private int karma = 100;
 
     @ManyToMany
     private List<BoardGame> favoriteBoardGames = new ArrayList<>();
@@ -42,5 +47,10 @@ public class RegisteredUser extends User {
 
     public void setBoardGameLoans(List<BoardGameLoan> boardGameLoans) {
         this.boardGameLoans = boardGameLoans;
+    }
+
+    @Override
+    public UserRole getRole() {
+        return UserRole.ROLE_USER;
     }
 }

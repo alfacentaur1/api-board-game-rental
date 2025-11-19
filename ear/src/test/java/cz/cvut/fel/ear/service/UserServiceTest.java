@@ -2,6 +2,7 @@ package cz.cvut.fel.ear.service;
 
 import cz.cvut.fel.ear.exception.EntityNotFoundException;
 import cz.cvut.fel.ear.model.RegisteredUser;
+import cz.cvut.fel.ear.model.User;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -67,7 +68,7 @@ public class UserServiceTest {
     @Test
     @DisplayName("Should get a registered user by username and throw when invalid")
     public void testGetRegisteredUserByUsername() {
-        RegisteredUser userFound = sut.getRegisteredUserByUsername(testUser.getUsername());
+        User userFound = sut.getUserByUsername(testUser.getUsername());
 
         // Check if user was found
         assertNotNull(userFound);
@@ -77,7 +78,7 @@ public class UserServiceTest {
         // Check if correct exception is thrown when user is not found
         assertThrows(
                 EntityNotFoundException.class,
-                () -> sut.getRegisteredUserByUsername(null)
+                () -> sut.getUserByUsername(null)
         );
     }
 }

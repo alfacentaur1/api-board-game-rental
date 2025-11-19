@@ -14,4 +14,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @DiscriminatorValue("ADMIN")
 public class Admin extends User {
+    @Override
+    public UserRole getRole() {
+        return UserRole.ROLE_ADMIN;
+    }
 }
