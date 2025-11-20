@@ -6,7 +6,6 @@ import cz.cvut.fel.ear.dto.UserRegistrationDTO;
 import cz.cvut.fel.ear.exception.EntityNotFoundException;
 import cz.cvut.fel.ear.model.*;
 import jakarta.transaction.Transactional;
-import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service

@@ -13,7 +13,6 @@ import cz.cvut.fel.ear.model.BoardGameItem;
 import cz.cvut.fel.ear.model.BoardGameLoan;
 import cz.cvut.fel.ear.model.RegisteredUser;
 import jakarta.transaction.Transactional;
-import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -23,14 +22,12 @@ import java.util.stream.Collectors;
 public class BoardGameService {
     private final BoardGameRepository boardGameRepository;
     private final UserRepository userRepository;
-    private final BoardGameItemRepository boardGameItemRepository;
     private final BoardGameItemService boardGameItemService;
     private final BoardGameLoanRepository boardGameLoanRepository;
 
     public BoardGameService(BoardGameRepository boardGameRepository, UserRepository userRepository, BoardGameItemRepository boardGameItemRepository, BoardGameItemService boardGameItemService, BoardGameLoanRepository boardGameLoanRepository) {
         this.boardGameRepository = boardGameRepository;
         this.userRepository = userRepository;
-        this.boardGameItemRepository = boardGameItemRepository;
         this.boardGameItemService = boardGameItemService;
         this.boardGameLoanRepository = boardGameLoanRepository;
     }
