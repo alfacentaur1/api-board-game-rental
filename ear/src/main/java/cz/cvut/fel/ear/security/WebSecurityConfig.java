@@ -46,6 +46,8 @@ public class WebSecurityConfig {
         return authConfig.getAuthenticationManager();
     }
 
+    //this is password encoder bean declaration, that will be used for encoding passwords
+    //bcrypt algorithm is used here
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

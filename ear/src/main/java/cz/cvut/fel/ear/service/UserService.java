@@ -7,6 +7,7 @@ import cz.cvut.fel.ear.dto.UserRegistrationDTO;
 import cz.cvut.fel.ear.exception.EntityNotFoundException;
 import cz.cvut.fel.ear.model.*;
 import jakarta.transaction.Transactional;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 //we are not implementing logout here
@@ -17,13 +18,14 @@ public class UserService {
     private final LoanService loanService;
     private final ReviewService reviewService;
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(AdminRepository adminRepository, RegisteredUserRepository registeredUserRepository, LoanService loanService, ReviewService reviewService, UserRepository userRepository) {
-        this.adminRepository = adminRepository;
+    public UserService(RegisteredUserRepository registeredUserRepository, LoanService loanService, ReviewService reviewService, UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.registeredUserRepository = registeredUserRepository;
         this.loanService = loanService;
         this.reviewService = reviewService;
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public RegisteredUser findById(long userId) {
@@ -95,7 +97,8 @@ public class UserService {
         }
         RegisteredUser newUser = new RegisteredUser();
         newUser.setUsername(registrationDTO.username());
-        newUser.setPassword(registrationDTO.password());
+        String encodedPassword = passwordEncoder.encode(registrationDTO.password());
+        newUser.setPassword(encodedPassword);
         newUser.setEmail(registrationDTO.email());
         newUser.setFullName(registrationDTO.fullName());
         registeredUserRepository.save(newUser);
@@ -108,7 +111,8 @@ public class UserService {
         }
         Admin newAdmin = new Admin();
         newAdmin.setUsername(registrationDTO.username());
-        newAdmin.setPassword(registrationDTO.password());
+        String encodedPassword = passwordEncoder.encode(registrationDTO.password());
+        newAdmin.setPassword(encodedPassword);
         newAdmin.setEmail(registrationDTO.email());
         newAdmin.setFullName(registrationDTO.fullName());
         adminRepository.save(newAdmin);
