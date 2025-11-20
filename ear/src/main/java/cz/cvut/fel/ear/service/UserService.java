@@ -1,25 +1,25 @@
 package cz.cvut.fel.ear.service;
 
+import cz.cvut.fel.ear.dao.AdminRepository;
 import cz.cvut.fel.ear.dao.RegisteredUserRepository;
 import cz.cvut.fel.ear.dao.UserRepository;
 import cz.cvut.fel.ear.dto.UserRegistrationDTO;
 import cz.cvut.fel.ear.exception.EntityNotFoundException;
-import cz.cvut.fel.ear.model.BoardGameLoan;
-import cz.cvut.fel.ear.model.RegisteredUser;
-import cz.cvut.fel.ear.model.Review;
-import cz.cvut.fel.ear.model.User;
+import cz.cvut.fel.ear.model.*;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 //we are not implementing logout here
 @Service
 public class UserService {
+    private final AdminRepository adminRepository;
     private final RegisteredUserRepository registeredUserRepository;
     private final LoanService loanService;
     private final ReviewService reviewService;
     private final UserRepository userRepository;
 
-    public UserService(RegisteredUserRepository registeredUserRepository, LoanService loanService, ReviewService reviewService, UserRepository userRepository) {
+    public UserService(AdminRepository adminRepository, RegisteredUserRepository registeredUserRepository, LoanService loanService, ReviewService reviewService, UserRepository userRepository) {
+        this.adminRepository = adminRepository;
         this.registeredUserRepository = registeredUserRepository;
         this.loanService = loanService;
         this.reviewService = reviewService;
@@ -51,7 +51,6 @@ public class UserService {
         BoardGameLoan loanToAdd = loanService.getBoardGameLoan(loanId);
         RegisteredUser user = findById(userId);
 
-        // TODO - implement for admin -> update whose repository to use
         user.getBoardGameLoans().add(loanToAdd);
         registeredUserRepository.save(user);
     }
@@ -60,7 +59,6 @@ public class UserService {
         Review reviewToAdd = reviewService.findReviewById(reviewId);
         RegisteredUser user = findById(userId);
 
-        // TODO - implement for admin -> update whose repository to use
         user.getRatings().add(reviewToAdd);
         registeredUserRepository.save(user);
     }
@@ -69,7 +67,6 @@ public class UserService {
         Review reviewToRemove = reviewService.findReviewById(reviewId);
         RegisteredUser user = findById(userId);
 
-        // TODO - implement for admin -> update whose repository to use
         // Check that user has this review linked to him
         if (!user.getRatings().contains(reviewToRemove)) {
             throw new EntityNotFoundException(
@@ -79,13 +76,6 @@ public class UserService {
 
         // Remove it
         user.getRatings().remove(reviewToRemove);
-        registeredUserRepository.save(user);
-    }
-
-    public void createUser(RegisteredUser user) {
-        if(registeredUserRepository.findByUsername(user.getUsername()) != null) {
-            throw new IllegalArgumentException("Username already exists");
-        }
         registeredUserRepository.save(user);
     }
 
@@ -111,16 +101,17 @@ public class UserService {
         registeredUserRepository.save(newUser);
     }
 
+    @Transactional
     public void registerAdmin(UserRegistrationDTO registrationDTO) {
         if(userRepository.findByUsername(registrationDTO.username()) != null) {
             throw new IllegalArgumentException("Username already exists");
         }
-        RegisteredUser newAdmin = new RegisteredUser();
+        Admin newAdmin = new Admin();
         newAdmin.setUsername(registrationDTO.username());
         newAdmin.setPassword(registrationDTO.password());
         newAdmin.setEmail(registrationDTO.email());
         newAdmin.setFullName(registrationDTO.fullName());
-        registeredUserRepository.save(newAdmin);
+        adminRepository.save(newAdmin);
     }
 
 
