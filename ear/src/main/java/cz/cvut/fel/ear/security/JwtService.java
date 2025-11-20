@@ -44,17 +44,12 @@ public class JwtService {
 
     //generates token with extra claims - can be used to add roles or other info
     public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
-        //builds the token
         return Jwts.builder()
-                //adds map if any
-                .setClaims(extraClaims)
-                //sets the subject - username in our case - IMPORTANT
-                .setSubject(userDetails.getUsername())
-                //sets issued at time - to calculate expiration
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration))
-                //signs the token with the secret key and algorithm HS256
-                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                .claims(extraClaims)
+                .subject(userDetails.getUsername())
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + jwtExpiration))
+                .signWith(getSigningKey(), Jwts.SIG.HS256)
                 .compact();
     }
 
