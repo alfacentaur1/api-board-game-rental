@@ -9,6 +9,7 @@ import cz.cvut.fel.ear.service.BoardGameItemService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -60,6 +61,7 @@ public class BoardGameItemController {
     }
 
     @PostMapping("/items")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> addBoardGameItem( @RequestBody BoardGameItemCreationDTO boardGameItemCreationDTO) {
         Long idItem = boardGameItemService.addBoardGameItem(boardGameItemCreationDTO.getBoardGameId(),boardGameItemCreationDTO.getSerialNumber(),boardGameItemCreationDTO.getState());
         URI location = URI.create("/api/items/" + idItem);
@@ -68,6 +70,7 @@ public class BoardGameItemController {
     }
 
     @PatchMapping("/items/{itemId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> updateBoardGameItemState(@PathVariable Long itemId,
             @RequestBody BoardGameItemStateDTO boardGameItemStateDTO) {
 
@@ -78,6 +81,7 @@ public class BoardGameItemController {
     }
 
     @DeleteMapping("/items/{itemId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> deleteBoardGameItem( @PathVariable Long itemId) {
         boardGameItemService.deleteBoardGameItem(itemId);
         return ResponseEntity.noContent().build();

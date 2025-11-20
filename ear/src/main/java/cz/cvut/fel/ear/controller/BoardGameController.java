@@ -10,6 +10,7 @@ import cz.cvut.fel.ear.service.UserService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -39,6 +40,7 @@ public class BoardGameController {
     }
 
     @PostMapping("/")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> addBoardGame(@RequestBody BoardGameToCreateDTO boardGameToCreateDTO) {
         Long id = boardGameService.createBoardGame(boardGameToCreateDTO.getName(),
                 boardGameToCreateDTO.getDescription());
@@ -50,12 +52,14 @@ public class BoardGameController {
     }
 
     @DeleteMapping("/{gameId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> deleteBoardGame(@PathVariable Long gameId) {
         boardGameService.removeBoardGame(gameId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @PutMapping("/")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> updateBoardGame(@RequestBody BoardGameDTO boardGameDTO) {
         boardGameService.updateBoardGameDescription(boardGameDTO.getId(),
                 boardGameDTO.getDescription());
@@ -79,6 +83,7 @@ public class BoardGameController {
 
     //user is registered user, admin cant have favorite games - thats why we cast it (JFYI)
     @PostMapping("/users/{username}/favorites/{gameId}")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> addFavoriteBoardGame(@PathVariable String username, @PathVariable Long gameId) {
         RegisteredUser user = (RegisteredUser) userService.getUserByUsername(username);
         boardGameService.addGameToFavorites(user, gameId);
@@ -89,6 +94,7 @@ public class BoardGameController {
     }
 
     @DeleteMapping("/users/{username}/favorites/{gameId}")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> deleteGameFromFavorites(@PathVariable String username, @PathVariable Long gameId) {
     RegisteredUser user = (RegisteredUser) userService.getUserByUsername(username);
     boardGameService.removeBoardGame(gameId);
@@ -96,6 +102,7 @@ public class BoardGameController {
     }
 
     @GetMapping("/users/{username}/favorites/")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<List<BoardGameDTO>> getFavorites(@PathVariable String username) {
         RegisteredUser user = (RegisteredUser) userService.getUserByUsername(username);
         List<BoardGameDTO> favoriteGameDTOs = new ArrayList<>();
@@ -112,6 +119,7 @@ public class BoardGameController {
     }
 
     @GetMapping("/topBorrowed/{count}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<BoardGameDTO>> getTopBorrowedBoardGames(@PathVariable int count) {
         List<BoardGame> topBorrowedGames = boardGameService.getTopXBorrowedGames(count);
         List<BoardGameDTO> topBorrowedGameDTOs = topBorrowedGames.stream()
