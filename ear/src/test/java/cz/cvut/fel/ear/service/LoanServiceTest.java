@@ -230,6 +230,8 @@ public class LoanServiceTest {
     @Test
     @DisplayName("Should return a loan and set items back to FOR_LOAN; validate loan id")
     void testReturnBoardGameLoan() {
+        // Approve the loan
+        sut.approveGameLoan(testLoan.getId());
         // Return loan
         sut.returnBoardGameLoan(testLoan.getId());
         em.flush();
