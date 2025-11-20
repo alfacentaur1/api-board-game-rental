@@ -50,8 +50,8 @@ public class UserServiceTest {
 
     @Test
     @DisplayName("Should find a user by id and throw when not found")
-    public void testFindById() {
-        RegisteredUser userFound = sut.findById(testUser.getId());
+    void testFindById() {
+        RegisteredUser userFound = (RegisteredUser)sut.findById(testUser.getId());
 
         // Check if user was found
         assertNotNull(userFound);
@@ -67,7 +67,7 @@ public class UserServiceTest {
 
     @Test
     @DisplayName("Should get a registered user by username and throw when invalid")
-    public void testGetRegisteredUserByUsername() {
+    void testGetRegisteredUserByUsername() {
         User userFound = sut.getUserByUsername(testUser.getUsername());
 
         // Check if user was found

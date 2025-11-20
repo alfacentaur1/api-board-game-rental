@@ -1,8 +1,8 @@
 package cz.cvut.fel.ear.service;
+import cz.cvut.fel.ear.dao.UserRepository;
 import cz.cvut.fel.ear.model.BoardGame;
 import cz.cvut.fel.ear.model.RegisteredUser;
 import cz.cvut.fel.ear.dao.BoardGameRepository;
-import cz.cvut.fel.ear.dao.RegisteredUserRepository;
 import cz.cvut.fel.ear.exception.*;
 
 import jakarta.transaction.Transactional;
@@ -43,7 +43,7 @@ public class BoardGameServiceTest {
     private BoardGameRepository boardGameRepo;
 
     @Autowired
-    private RegisteredUserRepository userRepo;
+    private UserRepository userRepo;
 
     // --- Test Data Entities ---
     private RegisteredUser testUser;
@@ -92,7 +92,7 @@ public class BoardGameServiceTest {
 
     @Test
     @DisplayName("getBoardGame() should return game when exists")
-    public void getBoardGame_shouldReturnGame_whenExists() {
+    void getBoardGame_shouldReturnGame_whenExists() {
         // Act
         BoardGame found = sut.getBoardGame(catanId);
         // Assert
@@ -102,7 +102,7 @@ public class BoardGameServiceTest {
 
     @Test
     @DisplayName("getBoardGame() should throw EntityNotFoundException when game not found")
-    public void getBoardGame_shouldThrowException_whenNotFound() {
+    void getBoardGame_shouldThrowException_whenNotFound() {
         // Act & Assert
         assertThrows(EntityNotFoundException.class, () -> {
             sut.getBoardGame(-99L);
@@ -113,7 +113,7 @@ public class BoardGameServiceTest {
 
     @Test
     @DisplayName("getAllBoardGames() should return list of games")
-    public void getAllBoardGames_shouldReturnList() {
+    void getAllBoardGames_shouldReturnList() {
         // Act
         List<BoardGame> games = sut.getAllBoardGames();
         // Assert
@@ -123,7 +123,7 @@ public class BoardGameServiceTest {
 
     @Test
     @DisplayName("getAllBoardGames() should throw EntityNotFoundException when list is empty")
-    public void getAllBoardGames_shouldThrowException_whenEmpty() {
+    void getAllBoardGames_shouldThrowException_whenEmpty() {
         // Arrange
         RegisteredUser user = em.find(RegisteredUser.class, userId);
 
@@ -144,7 +144,7 @@ public class BoardGameServiceTest {
 
     @Test
     @DisplayName("createBoardGame() should successfully create a game")
-    public void createBoardGame_shouldCreateGame_whenValid() {
+    void createBoardGame_shouldCreateGame_whenValid() {
         // Act
         long newId = sut.createBoardGame("New Game", "Description");
         em.flush(); // Make sure the save is executed
@@ -157,7 +157,7 @@ public class BoardGameServiceTest {
 
     @Test
     @DisplayName("createBoardGame() should throw EntityAlreadyExistsException for duplicate")
-    public void createBoardGame_shouldThrowException_whenDuplicate() {
+    void createBoardGame_shouldThrowException_whenDuplicate() {
         // Act & Assert
         assertThrows(EntityAlreadyExistsException.class, () -> {
             sut.createBoardGame("Catan", "Another description");
@@ -166,7 +166,7 @@ public class BoardGameServiceTest {
 
     @Test
     @DisplayName("createBoardGame() should throw ParametersException for empty name")
-    public void createBoardGame_shouldThrowException_whenNameIsEmpty() {
+    void createBoardGame_shouldThrowException_whenNameIsEmpty() {
         // Act & Assert
         assertThrows(ParametersException.class, () -> {
             sut.createBoardGame("", "Description");
@@ -177,7 +177,7 @@ public class BoardGameServiceTest {
 
     @Test
     @DisplayName("removeBoardGame() should delete game when exists")
-    public void removeBoardGame_shouldCallDelete_whenExists() {
+    void removeBoardGame_shouldCallDelete_whenExists() {
         // Act
         sut.removeBoardGame(catanId);
         em.flush(); // Ensure delete is committed
@@ -191,7 +191,7 @@ public class BoardGameServiceTest {
 
     @Test
     @DisplayName("updateBoardGameDescription() should save the new description")
-    public void updateBoardGameDescription_shouldChangeDescription() {
+    void updateBoardGameDescription_shouldChangeDescription() {
         // Arrange
         String newDescription = "New Description";
 
@@ -209,7 +209,7 @@ public class BoardGameServiceTest {
 
     @Test
     @DisplayName("addGameToFavorites() should add game and save user")
-    public void addGameToFavorites_shouldAddGameAndSaveUser() {
+    void addGameToFavorites_shouldAddGameAndSaveUser() {
         // Arrange
         RegisteredUser user = em.find(RegisteredUser.class, userId);
 
@@ -226,7 +226,7 @@ public class BoardGameServiceTest {
 
     @Test
     @DisplayName("addGameToFavorites() should throw GameAlreadyInFavoritesException for duplicate")
-    public void addGameToFavorites_shouldThrowException_whenDuplicate() {
+    void addGameToFavorites_shouldThrowException_whenDuplicate() {
         // Arrange
         RegisteredUser user = em.find(RegisteredUser.class, userId);
 
@@ -241,7 +241,7 @@ public class BoardGameServiceTest {
 
     @Test
     @DisplayName("removeGameFromFavorites() should remove game and save user")
-    public void removeGameFromFavorites_shouldRemoveGameAndSaveUser() {
+    void removeGameFromFavorites_shouldRemoveGameAndSaveUser() {
         // Arrange
         RegisteredUser user = em.find(RegisteredUser.class, userId);
         assertThat(user.getFavoriteBoardGames()).hasSize(1); // Check pre-condition
@@ -258,7 +258,7 @@ public class BoardGameServiceTest {
 
     @Test
     @DisplayName("removeGameFromFavorites() should throw EntityNotFoundException when not a favorite")
-    public void removeGameFromFavorites_shouldThrowException_whenNotFavorite() {
+    void removeGameFromFavorites_shouldThrowException_whenNotFavorite() {
         // Arrange
         RegisteredUser user = em.find(RegisteredUser.class, userId);
 
@@ -273,7 +273,7 @@ public class BoardGameServiceTest {
 
     @Test
     @DisplayName("viewBoardGameDetails() should run without exception")
-    public void viewBoardGameDetails_shouldRunAndCallMock() {
+    void viewBoardGameDetails_shouldRunAndCallMock() {
         // Arrange
         BoardGame game = em.find(BoardGame.class, catanId);
 
@@ -286,7 +286,7 @@ public class BoardGameServiceTest {
 
     @Test
     @DisplayName("viewBoardGameDetails() should throw EntityNotFoundException for null")
-    public void viewBoardGameDetails_shouldThrowException_whenNull() {
+    void viewBoardGameDetails_shouldThrowException_whenNull() {
         // Act & Assert
         assertThrows(EntityNotFoundException.class, () -> {
             sut.viewBoardGameDetails(null);
@@ -297,7 +297,7 @@ public class BoardGameServiceTest {
 
     @Test
     @DisplayName("listAllFavoriteBoardGame() should return list of names")
-    public void listAllFavoriteBoardGame_shouldReturnNameList() {
+    void listAllFavoriteBoardGame_shouldReturnNameList() {
         // Act
         List<String> favoriteNames = sut.listAllFavoriteBoardGame(userId);
 

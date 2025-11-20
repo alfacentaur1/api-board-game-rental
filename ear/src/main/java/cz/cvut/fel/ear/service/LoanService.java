@@ -122,7 +122,7 @@ public class  LoanService {
         newLoan.setDueDate(dueDate);
         newLoan.setBorrowedAt(now);
         newLoan.setStatus(Status.pending);
-        newLoan.setUser(userService.findById(userId));
+        newLoan.setUser((RegisteredUser) userService.findById(userId));
         newLoan.setGamesToBeBorrowed(itemsToBorrow);
 
         boardGameLoanRepository.save(newLoan);
