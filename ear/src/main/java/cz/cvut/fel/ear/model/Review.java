@@ -8,7 +8,6 @@ import java.time.LocalDateTime;
 
 @Entity
 @AllArgsConstructor
-@NoArgsConstructor
 public class Review {
     @Id
     @GeneratedValue
@@ -75,4 +74,21 @@ public class Review {
     @ManyToOne
     @JoinColumn(name = "BOARD_GAME_ID", nullable = false)
     private BoardGame boardGame;
+
+    public Review(int score, String comment, LocalDateTime createdAt, User author, BoardGame boardGame) {
+        this.score = score;
+        this.comment = comment;
+        this.createdAt = createdAt;
+        this.author = author;
+        this.boardGame = boardGame;
+    }
+    public Review(){}
+
+    public RegisteredUser getAuthorAsRegisteredUser() {
+        if (author instanceof RegisteredUser) {
+            return (RegisteredUser) author;
+        } else {
+            throw new IllegalStateException("Author is not a RegisteredUser");
+        }
+    }
 }

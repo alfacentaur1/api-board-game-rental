@@ -7,6 +7,8 @@ import cz.cvut.fel.ear.model.BoardGameLoan;
 import cz.cvut.fel.ear.model.Status;
 import cz.cvut.fel.ear.service.LoanService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.access.prepost.PreFilter;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -25,6 +27,7 @@ public class LoanController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or @loanSecurity.isLoanOwner(#id, authentication)")
     public ResponseEntity<BoardGameLoanDetailDTO> getLoanById(@PathVariable long id) {
         BoardGameLoan boardGameLoan = loanService.getBoardGameLoan(id);
         BoardGameLoanDetailDTO loanDetailDTO = loanMapper.toDetailDto(boardGameLoan);
@@ -32,6 +35,7 @@ public class LoanController {
     }
 
     @GetMapping("/pending")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<BoardGameLoanDetailDTO>> getAllPendingLoans() {
         List<BoardGameLoan> pendingLoans = loanService.getAllPendingLoans();
         List<BoardGameLoanDetailDTO> pendingLoanDTOs = pendingLoans.stream()
@@ -41,6 +45,7 @@ public class LoanController {
     }
 
     @GetMapping("/")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<BoardGameLoanDetailDTO>> getAllLoans() {
         List<BoardGameLoan> allLoans = loanService.getBoardGameLoans();
         List<BoardGameLoanDetailDTO> allLoanDTOs = allLoans.stream()
@@ -50,6 +55,7 @@ public class LoanController {
     }
 
     @GetMapping("/user/{userId}")
+    @PreAuthorize("hasRole('ADMIN') or #userId == authentication.principal.id")
     public ResponseEntity<List<BoardGameLoanDetailDTO>> getLoansByUserId(@PathVariable long userId) {
         List<BoardGameLoan> userLoans = loanService.getAllBoardGameLoansByUser(userId);
         List<BoardGameLoanDetailDTO> userLoanDTOs = userLoans.stream()
@@ -59,24 +65,28 @@ public class LoanController {
     }
 
     @PatchMapping("/{id}/approve")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> approveLoan(@PathVariable long id) {
         loanService.approveGameLoan(id);
         return ResponseEntity.ok().build();
     }
 
     @PatchMapping("/{id}/reject")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> rejectLoan(@PathVariable long id) {
         loanService.rejectGameLoan(id);
         return ResponseEntity.ok().build();
     }
 
     @PatchMapping("/{id}/status")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> changeLoanStatus(@PathVariable long id, @RequestParam Status status) {
         loanService.changeLoanStatus(id, status);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/borrowed")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<BoardGameLoanDetailDTO>> getAllBorrowedLoans() {
         List<BoardGameLoan> borrowedLoans = loanService.getAllApprovedLoans();
         List<BoardGameLoanDetailDTO> borrowedLoanDTOs = borrowedLoans.stream()
@@ -86,6 +96,7 @@ public class LoanController {
     }
 
     @PostMapping("/")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<BoardGameLoanDetailDTO> createLoan(@RequestBody BoardGameLoanToCreateDTO loanDetailDTO) {
         long loanId = loanService.createLoan(
                 loanDetailDTO.getDueDate(),
@@ -100,8 +111,8 @@ public class LoanController {
         return ResponseEntity.created(location).body(newLoanDto);
     }
 
-    // je ok to poslat bez tela? jak jinak? - @ondro
     @PostMapping("/{loanId}/return")
+    @PreAuthorize("hasRole('USER') and @loanSecurity.isLoanOwner(#loanId, authentication)")
     public ResponseEntity<?> returnLoan(@PathVariable long loanId) {
         loanService.returnBoardGameLoan(loanId);
         return ResponseEntity.ok().build();

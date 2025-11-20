@@ -1,22 +1,29 @@
 package cz.cvut.fel.ear.service;
 
 import cz.cvut.fel.ear.dao.RegisteredUserRepository;
+import cz.cvut.fel.ear.dao.UserRepository;
+import cz.cvut.fel.ear.dto.UserRegistrationDTO;
 import cz.cvut.fel.ear.exception.EntityNotFoundException;
 import cz.cvut.fel.ear.model.BoardGameLoan;
 import cz.cvut.fel.ear.model.RegisteredUser;
 import cz.cvut.fel.ear.model.Review;
+import cz.cvut.fel.ear.model.User;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+//we are not implementing logout here
 @Service
 public class UserService {
     private final RegisteredUserRepository registeredUserRepository;
     private final LoanService loanService;
     private final ReviewService reviewService;
+    private final UserRepository userRepository;
 
-    public UserService(RegisteredUserRepository registeredUserRepository, LoanService loanService, ReviewService reviewService) {
+    public UserService(RegisteredUserRepository registeredUserRepository, LoanService loanService, ReviewService reviewService, UserRepository userRepository) {
         this.registeredUserRepository = registeredUserRepository;
         this.loanService = loanService;
         this.reviewService = reviewService;
+        this.userRepository = userRepository;
     }
 
     public RegisteredUser findById(long userId) {
@@ -28,9 +35,8 @@ public class UserService {
                 );
     }
 
-    // TODO - implement for admin too?
-    public RegisteredUser getRegisteredUserByUsername(String username) {
-        RegisteredUser user = registeredUserRepository.findByUsername(username);
+    public User getUserByUsername(String username) {
+        User user = userRepository.findByUsername(username);
 
         if (user == null) {
             throw new EntityNotFoundException(
@@ -91,6 +97,31 @@ public class UserService {
         registeredUserRepository.delete(user);
     }
 
-    //TODO login, logout, update user details
+
+    @Transactional
+    public void registerUser(UserRegistrationDTO registrationDTO) {
+        if(registeredUserRepository.findByUsername(registrationDTO.username()) != null) {
+            throw new IllegalArgumentException("Username already exists");
+        }
+        RegisteredUser newUser = new RegisteredUser();
+        newUser.setUsername(registrationDTO.username());
+        newUser.setPassword(registrationDTO.password());
+        newUser.setEmail(registrationDTO.email());
+        newUser.setFullName(registrationDTO.fullName());
+        registeredUserRepository.save(newUser);
+    }
+
+    public void registerAdmin(UserRegistrationDTO registrationDTO) {
+        if(userRepository.findByUsername(registrationDTO.username()) != null) {
+            throw new IllegalArgumentException("Username already exists");
+        }
+        RegisteredUser newAdmin = new RegisteredUser();
+        newAdmin.setUsername(registrationDTO.username());
+        newAdmin.setPassword(registrationDTO.password());
+        newAdmin.setEmail(registrationDTO.email());
+        newAdmin.setFullName(registrationDTO.fullName());
+        registeredUserRepository.save(newAdmin);
+    }
+
 
 }

@@ -8,6 +8,7 @@ import cz.cvut.fel.ear.service.CategoryService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,6 +24,7 @@ public class CategoryController {
     }
 
     @PostMapping("/")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> createCategory(@RequestBody CategoryCreationDTO categoryCreationDTO) {
         Long id = categoryService.addCategory(categoryCreationDTO.getName());
         HttpHeaders responseHeaders = new HttpHeaders();
@@ -32,12 +34,14 @@ public class CategoryController {
     }
 
     @PutMapping("/{categoryId}/games/{boardGameId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> addBoardGameToCategory(@PathVariable Long categoryId, @PathVariable Long boardGameId) {
         categoryService.addBoardGameToCategory(boardGameId, categoryId);
         return new ResponseEntity<>("Board Game added to Category", HttpStatus.OK);
     }
 
     @DeleteMapping("/{categoryId}/games/{boardGameId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> removeBoardGameFromCategory(@PathVariable Long categoryId, @PathVariable Long boardGameId) {
         categoryService.removeGameFromCategory(boardGameId, categoryId);
         return new ResponseEntity<>("Board Game removed from Category", HttpStatus.NO_CONTENT);

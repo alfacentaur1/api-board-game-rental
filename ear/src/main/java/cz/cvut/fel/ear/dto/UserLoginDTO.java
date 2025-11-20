@@ -1,4 +1,4 @@
 package cz.cvut.fel.ear.dto;
 
-public record UserLoginDTO(String email, String password) {
+public record UserLoginDTO(String username, String password) {
 }
