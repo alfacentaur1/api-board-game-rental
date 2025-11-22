@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Formula;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,7 +77,9 @@ public class BoardGame {
     private String name;
 
     private String description = "";
-    private int availableCopies = 0;
+
+    @Formula("(SELECT COUNT(*) FROM board_game_items bgi WHERE bgi.BOARD_GAME_ID = id AND bgi.state = 'FOR_LOAN')")
+    private int availableCopies;
 
     //mapping composition here
     @OneToMany(mappedBy = "boardGame", cascade = CascadeType.ALL)

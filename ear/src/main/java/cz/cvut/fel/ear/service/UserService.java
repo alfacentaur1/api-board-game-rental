@@ -3,6 +3,7 @@ package cz.cvut.fel.ear.service;
 
 import cz.cvut.fel.ear.dao.UserRepository;
 import cz.cvut.fel.ear.dto.UserRegistrationDTO;
+import cz.cvut.fel.ear.exception.EntityAlreadyExistsException;
 import cz.cvut.fel.ear.exception.EntityNotFoundException;
 import cz.cvut.fel.ear.model.*;
 import io.jsonwebtoken.security.Password;
@@ -81,7 +82,7 @@ public class UserService {
     @Transactional
     public void registerUser(UserRegistrationDTO registrationDTO) {
         if(userRepository.findByUsername(registrationDTO.username()) != null) {
-            throw new IllegalArgumentException("Username already exists");
+            throw new EntityAlreadyExistsException("Username already exists");
         }
         RegisteredUser newUser = new RegisteredUser();
         newUser.setUsername(registrationDTO.username());
@@ -95,7 +96,7 @@ public class UserService {
     @Transactional
     public void registerAdmin(UserRegistrationDTO registrationDTO) {
         if(userRepository.findByUsername(registrationDTO.username()) != null) {
-            throw new IllegalArgumentException("Username already exists");
+            throw new EntityAlreadyExistsException("Username already exists");
         }
         Admin newAdmin = new Admin();
         newAdmin.setUsername(registrationDTO.username());
