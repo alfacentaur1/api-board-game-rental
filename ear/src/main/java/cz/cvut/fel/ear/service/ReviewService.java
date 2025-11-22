@@ -5,6 +5,7 @@ import cz.cvut.fel.ear.exception.EntityNotFoundException;
 import cz.cvut.fel.ear.exception.InvalidCommentRangeException;
 import cz.cvut.fel.ear.exception.InvalidRatingScoreException;
 import cz.cvut.fel.ear.exception.ParametersException;
+import cz.cvut.fel.ear.model.Admin;
 import cz.cvut.fel.ear.model.BoardGame;
 import cz.cvut.fel.ear.model.RegisteredUser;
 import cz.cvut.fel.ear.model.Review;
@@ -44,6 +45,9 @@ public class ReviewService {
     @Transactional
     public Review createReview(long userId, long gameId, String content, int ratingValue) {
         // Find the user
+        if(userService.findById(userId) instanceof Admin) {
+            throw new IllegalArgumentException("Could not be cast on admin");
+        }
         RegisteredUser user = (RegisteredUser)userService.findById(userId);
 
         // Find the board game

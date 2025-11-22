@@ -88,6 +88,10 @@ public class BoardGameItemService {
         if (boardGameToUpdate == null) {
             throw new EntityNotFoundException("Board game with id " + gameId + " not found");
         }
+        Long gameNull = null;
+        if(gameId == gameNull ){
+            throw new ParametersException("Game id is null");
+        }
         if(state == null){
             throw new ParametersException("State is null");
         }

@@ -3,6 +3,7 @@ package cz.cvut.fel.ear.controller.handler;
 import cz.cvut.fel.ear.exception.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -15,6 +16,11 @@ public class GlobalExceptionHandler {
         Map<String,String> errorBody = new HashMap<>();
         errorBody.put("error", message);
         return ResponseEntity.status(status).body(errorBody);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Map<String,String>> handleIllegalArgumentException(IllegalArgumentException exception){
+        return buildErrorResponse(exception.getMessage(),HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(BoardGameNotFoundInCategory.class)
@@ -76,6 +82,42 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String,String>> handleInvalidStatusException(InvalidStatusException exception){
         return buildErrorResponse(exception.getMessage(),HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public ResponseEntity<Map<String,String>> handleUsernameNotFoundException(UsernameNotFoundException exception){
+        return buildErrorResponse(exception.getMessage(),HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(org.springframework.dao.DataIntegrityViolationException.class)
+    public ResponseEntity<Map<String, String>> handleDataIntegrityViolation(org.springframework.dao.DataIntegrityViolationException exception) {
+        return buildErrorResponse(exception.getMessage(), HttpStatus.CONFLICT);
+    }
+
+    //handlers for spring security exceptions - authentication and authorization
+    @ExceptionHandler({
+            org.springframework.security.access.AccessDeniedException.class,
+            org.springframework.security.authorization.AuthorizationDeniedException.class
+    })
+    public ResponseEntity<Map<String, String>> handleAccessDenied(Exception ex) {
+
+        return buildErrorResponse("Access denied.", HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(org.springframework.security.core.AuthenticationException.class)
+    public ResponseEntity<Map<String, String>> handleAuthenticationException(Exception exception) {
+
+        return buildErrorResponse("Authentication error. " + exception.getMessage(), HttpStatus.UNAUTHORIZED);
+    }
+
+    //general exception handler - fallback for unhandled exceptions
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Map<String, String>> handleGeneralException(Exception exception) {
+        exception.printStackTrace();
+
+        return buildErrorResponse("Error: " + exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+
 
 
 }

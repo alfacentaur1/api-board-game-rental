@@ -25,7 +25,7 @@ public class BoardGameService {
     private final BoardGameItemService boardGameItemService;
     private final BoardGameLoanRepository boardGameLoanRepository;
 
-    public BoardGameService(BoardGameRepository boardGameRepository, UserRepository userRepository, BoardGameItemRepository boardGameItemRepository, BoardGameItemService boardGameItemService, BoardGameLoanRepository boardGameLoanRepository) {
+    public BoardGameService(BoardGameRepository boardGameRepository, UserRepository userRepository, BoardGameItemService boardGameItemService, BoardGameItemService boardGameItemService1, BoardGameLoanRepository boardGameLoanRepository) {
         this.boardGameRepository = boardGameRepository;
         this.userRepository = userRepository;
         this.boardGameItemService = boardGameItemService;
@@ -91,16 +91,21 @@ public class BoardGameService {
     }
 
     @Transactional
-    public void addGameToFavorites(RegisteredUser user, Long gameId) {
+    public void addGameToFavorites(RegisteredUser userDTO, Long gameId) {
+        if (userDTO == null) {
+            throw new ParametersException("User must not be null");
+        }
+        // FIX: Reload user from DB to ensure entity is attached (prevents LazyInitializationException)
+        RegisteredUser user = (RegisteredUser) userRepository.findById(userDTO.getId())
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
         BoardGame boardGameToAdd = boardGameRepository.getBoardGameById(gameId);
         if (boardGameToAdd == null) {
             throw new EntityNotFoundException("Board game with id " + gameId + " not found");
         }
-        if (user == null) {
-            throw new ParametersException("User must not be null");
-        }
 
-        if (userRepository.findAllFavoriteGames(user.getId()).contains(boardGameToAdd.getName())) {
+        // Check using the fetched user's collection or query
+        if (user.getFavoriteBoardGames().contains(boardGameToAdd)) {
             throw new GameAlreadyInFavoritesException("Game with name " + boardGameToAdd.getName() + " already in favorites");
         }
 
@@ -108,17 +113,21 @@ public class BoardGameService {
         userRepository.save(user);
     }
 
-    @Transactional // Added @Transactional
-    public void removeGameFromFavorites(RegisteredUser user, Long gameId) {
+    @Transactional
+    public void removeGameFromFavorites(RegisteredUser userDTO, Long gameId) {
+        if (userDTO == null) {
+            throw new ParametersException("User must not be null");
+        }
+        // FIX: Reload user from DB
+        RegisteredUser user = (RegisteredUser) userRepository.findById(userDTO.getId())
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
         BoardGame boardGameToRemove = boardGameRepository.getBoardGameById(gameId);
         if (boardGameToRemove == null) {
             throw new EntityNotFoundException("Board game with id " + gameId + " not found");
         }
-        if (user == null) {
-            throw new ParametersException("User must not be null");
-        }
 
-        if (!userRepository.findAllFavoriteGames(user.getId()).contains(boardGameToRemove.getName())) {
+        if (!user.getFavoriteBoardGames().contains(boardGameToRemove)) {
             throw new EntityNotFoundException("Game with name " + boardGameToRemove.getName() + " not in favorites");
         }
 

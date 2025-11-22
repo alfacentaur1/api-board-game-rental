@@ -48,7 +48,7 @@ public class ReviewController {
                                                         @PathVariable("userId") Long userId,
                                                         @RequestParam("content") String content,
                                                         @RequestParam("rating") int rating){
-        Review review = reviewService.createReview(gameId, userId, content, rating);
+        Review review = reviewService.createReview(userId, gameId, content, rating);
         HttpHeaders responseHeaders = new HttpHeaders();
         ReviewDetailDTO reviewDetailDTO = reviewMapper.toReviewDetailDTO(review);
         URI location = URI.create(String.format("api/reviews/%d", review.getId()));
