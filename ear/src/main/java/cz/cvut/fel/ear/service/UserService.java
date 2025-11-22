@@ -15,11 +15,9 @@ public class UserService {
     private final UserRepository userRepository;
     private final LoanService loanService;
     private final ReviewService reviewService;
-    private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public UserService(RegisteredUserRepository registeredUserRepository, LoanService loanService, ReviewService reviewService, UserRepository userRepository, PasswordEncoder passwordEncoder) {
-        this.registeredUserRepository = registeredUserRepository;
+    public UserService( LoanService loanService, ReviewService reviewService, UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.loanService = loanService;
         this.reviewService = reviewService;
         this.userRepository = userRepository;
@@ -77,14 +75,6 @@ public class UserService {
         // Remove it
         user.getRatings().remove(reviewToRemove);
         userRepository.save(user);
-    }
-
-    public void deleteUser(long userId) {
-        if(!loanService.getAllBoardGameLoansByUser(userId).isEmpty()) {
-            throw new IllegalStateException("Cannot delete user with active loans");
-        }
-        RegisteredUser user = (RegisteredUser)findById(userId);
-        userRepository.delete(user);
     }
 
 
