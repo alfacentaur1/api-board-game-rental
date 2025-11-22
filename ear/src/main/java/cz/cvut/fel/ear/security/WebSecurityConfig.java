@@ -17,7 +17,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 // for pre-method annotations like @PreAuthorize
-@EnableMethodSecurity
+//@EnableMethodSecurity
 //this class declares how spring security works in our application
 public class WebSecurityConfig {
 
