@@ -3,7 +3,7 @@ package cz.cvut.fel.ear.service;
 import cz.cvut.fel.ear.dao.BoardGameItemRepository;
 import cz.cvut.fel.ear.dao.BoardGameLoanRepository;
 import cz.cvut.fel.ear.dao.BoardGameRepository;
-import cz.cvut.fel.ear.dao.RegisteredUserRepository;
+import cz.cvut.fel.ear.dao.UserRepository;
 import cz.cvut.fel.ear.exception.EntityAlreadyExistsException;
 import cz.cvut.fel.ear.exception.EntityNotFoundException;
 import cz.cvut.fel.ear.exception.GameAlreadyInFavoritesException;
@@ -12,7 +12,7 @@ import cz.cvut.fel.ear.model.BoardGame;
 import cz.cvut.fel.ear.model.BoardGameItem;
 import cz.cvut.fel.ear.model.BoardGameLoan;
 import cz.cvut.fel.ear.model.RegisteredUser;
-import jakarta.transaction.Transactional; // Import this
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -21,15 +21,13 @@ import java.util.stream.Collectors;
 @Service
 public class BoardGameService {
     private final BoardGameRepository boardGameRepository;
-    private final RegisteredUserRepository userRepository;
-    private final BoardGameItemRepository boardGameItemRepository;
+    private final UserRepository userRepository;
     private final BoardGameItemService boardGameItemService;
     private final BoardGameLoanRepository boardGameLoanRepository;
 
-    public BoardGameService(BoardGameRepository boardGameRepository, RegisteredUserRepository userRepository, BoardGameItemRepository boardGameItemRepository, BoardGameItemService boardGameItemService, BoardGameLoanRepository boardGameLoanRepository) {
+    public BoardGameService(BoardGameRepository boardGameRepository, UserRepository userRepository, BoardGameItemRepository boardGameItemRepository, BoardGameItemService boardGameItemService, BoardGameLoanRepository boardGameLoanRepository) {
         this.boardGameRepository = boardGameRepository;
         this.userRepository = userRepository;
-        this.boardGameItemRepository = boardGameItemRepository;
         this.boardGameItemService = boardGameItemService;
         this.boardGameLoanRepository = boardGameLoanRepository;
     }

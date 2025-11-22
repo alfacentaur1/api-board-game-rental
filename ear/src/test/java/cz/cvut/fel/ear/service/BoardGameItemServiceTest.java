@@ -80,7 +80,7 @@ public class BoardGameItemServiceTest {
 
     @Test
     @DisplayName("Should add a new board game item")
-    public void testAddBoardGameItem() {
+    void testAddBoardGameItem() {
         Long boardGameId = boardGame.getId();
         String serialNumber = "SN-TEST-12345";
 
@@ -104,7 +104,7 @@ public class BoardGameItemServiceTest {
 
     @Test
     @DisplayName("Should update an item's state and throw exceptions for invalid cases")
-    public void testUpdateBoardGameItemState(){
+    void testUpdateBoardGameItemState(){
         // arrange: get the ID of the item from setUp
         Long testItemId = this.testItem.getId();
         assertEquals(BoardGameState.BORROWED, testItem.getState()); // check initial state
@@ -130,7 +130,7 @@ public class BoardGameItemServiceTest {
 
     @Test
     @DisplayName("Should delete an item and throw exception for non-existing item")
-    public void testDeleteBoardGameItem(){
+    void testDeleteBoardGameItem(){
         // arrange: get the ID from setUp
         Long itemId = this.testItem.getId();
 
@@ -160,7 +160,7 @@ public class BoardGameItemServiceTest {
      */
     @Test
     @DisplayName("Should correctly query for all, available, and count of items")
-    public void testGetItemQueries() {
+    void testGetItemQueries() {
         // arrange: add one more item that IS available
         BoardGameItem availableItem = new BoardGameItem();
         availableItem.setBoardGame(boardGame);

@@ -1,20 +1,18 @@
 package cz.cvut.fel.ear.service;
 
-import cz.cvut.fel.ear.dao.AdminRepository;
-import cz.cvut.fel.ear.dao.RegisteredUserRepository;
+
 import cz.cvut.fel.ear.dao.UserRepository;
 import cz.cvut.fel.ear.dto.UserRegistrationDTO;
 import cz.cvut.fel.ear.exception.EntityNotFoundException;
 import cz.cvut.fel.ear.model.*;
+import io.jsonwebtoken.security.Password;
 import jakarta.transaction.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-//we are not implementing logout here
 @Service
 public class UserService {
-    private final AdminRepository adminRepository;
-    private final RegisteredUserRepository registeredUserRepository;
+    private final UserRepository userRepository;
     private final LoanService loanService;
     private final ReviewService reviewService;
     private final UserRepository userRepository;
@@ -28,8 +26,8 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public RegisteredUser findById(long userId) {
-        return registeredUserRepository.findById(userId)
+    public User findById(long userId) {
+        return userRepository.findById(userId)
                 .orElseThrow(
                         () -> new EntityNotFoundException(
                                 String.format("Registered user with id %d not found", userId)
@@ -51,23 +49,23 @@ public class UserService {
 
     public void linkLoanToUser(long userId, long loanId) {
         BoardGameLoan loanToAdd = loanService.getBoardGameLoan(loanId);
-        RegisteredUser user = findById(userId);
+        RegisteredUser user = (RegisteredUser)findById(userId);
 
         user.getBoardGameLoans().add(loanToAdd);
-        registeredUserRepository.save(user);
+        userRepository.save(user);
     }
 
     public void linkReviewToUser(long userId, long reviewId) {
         Review reviewToAdd = reviewService.findReviewById(reviewId);
-        RegisteredUser user = findById(userId);
+        RegisteredUser user = (RegisteredUser)findById(userId);
 
         user.getRatings().add(reviewToAdd);
-        registeredUserRepository.save(user);
+        userRepository.save(user);
     }
 
     public void unlinkReviewFromUser(long userId, long reviewId) {
         Review reviewToRemove = reviewService.findReviewById(reviewId);
-        RegisteredUser user = findById(userId);
+        RegisteredUser user = (RegisteredUser)findById(userId);
 
         // Check that user has this review linked to him
         if (!user.getRatings().contains(reviewToRemove)) {
@@ -78,21 +76,21 @@ public class UserService {
 
         // Remove it
         user.getRatings().remove(reviewToRemove);
-        registeredUserRepository.save(user);
+        userRepository.save(user);
     }
 
     public void deleteUser(long userId) {
         if(!loanService.getAllBoardGameLoansByUser(userId).isEmpty()) {
             throw new IllegalStateException("Cannot delete user with active loans");
         }
-        RegisteredUser user = findById(userId);
-        registeredUserRepository.delete(user);
+        RegisteredUser user = (RegisteredUser)findById(userId);
+        userRepository.delete(user);
     }
 
 
     @Transactional
     public void registerUser(UserRegistrationDTO registrationDTO) {
-        if(registeredUserRepository.findByUsername(registrationDTO.username()) != null) {
+        if(userRepository.findByUsername(registrationDTO.username()) != null) {
             throw new IllegalArgumentException("Username already exists");
         }
         RegisteredUser newUser = new RegisteredUser();
@@ -101,7 +99,7 @@ public class UserService {
         newUser.setPassword(encodedPassword);
         newUser.setEmail(registrationDTO.email());
         newUser.setFullName(registrationDTO.fullName());
-        registeredUserRepository.save(newUser);
+        userRepository.save(newUser);
     }
 
     @Transactional
@@ -115,7 +113,7 @@ public class UserService {
         newAdmin.setPassword(encodedPassword);
         newAdmin.setEmail(registrationDTO.email());
         newAdmin.setFullName(registrationDTO.fullName());
-        adminRepository.save(newAdmin);
+        userRepository.save(newAdmin);
     }
 
 

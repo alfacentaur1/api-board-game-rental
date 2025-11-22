@@ -44,7 +44,7 @@ public class ReviewService {
     @Transactional
     public Review createReview(long userId, long gameId, String content, int ratingValue) {
         // Find the user
-        RegisteredUser user = userService.findById(userId);
+        RegisteredUser user = (RegisteredUser)userService.findById(userId);
 
         // Find the board game
         BoardGame boardGame = boardGameService.getBoardGame(gameId);

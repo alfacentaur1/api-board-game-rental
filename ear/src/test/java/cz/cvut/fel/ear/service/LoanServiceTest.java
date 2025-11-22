@@ -312,7 +312,7 @@ public class LoanServiceTest {
 
     @Test
     @DisplayName("Test positive loan lifecycle")
-    public void testLoanLifeCycle_approved() {
+    void testLoanLifeCycle_approved() {
         // Check that items are in state borrowed
         List<BoardGameItem> borrowedItems = testLoan.getItems();
 
@@ -340,7 +340,7 @@ public class LoanServiceTest {
 
     @Test
     @DisplayName("Test negative loan lifecycle")
-    public void testLoanLifeCycle_rejected() {
+    void testLoanLifeCycle_rejected() {
         // Check that items are in state borrowed
         List<BoardGameItem> borrowedItems = testLoan.getItems();
 

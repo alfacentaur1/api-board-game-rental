@@ -56,7 +56,7 @@ public class CategoryServiceTest {
 
     @Test
     @DisplayName("Should create and persist a new category")
-    public void addCategory_createsAndPersistsCategory() {
+    void addCategory_createsAndPersistsCategory() {
         // Act
         String categoryName = "Family Game";
         long newCategoryId = categoryService.addCategory(categoryName);
@@ -69,7 +69,7 @@ public class CategoryServiceTest {
 
     @Test
     @DisplayName("Should associate a game with a category on both sides")
-    public void addBoardGameToCategory_associatesGameAndCategoryCorrectly() {
+    void addBoardGameToCategory_associatesGameAndCategoryCorrectly() {
         // Act
         categoryService.addBoardGameToCategory(testGame.getId(), testCategory.getId());
 
@@ -91,7 +91,7 @@ public class CategoryServiceTest {
 
     @Test
     @DisplayName("Should disassociate a game from a category on both sides")
-    public void removeGameFromCategory_disassociatesGameAndCategory() {
+    void removeGameFromCategory_disassociatesGameAndCategory() {
         // Arrange
         categoryService.addBoardGameToCategory(testGame.getId(), testCategory.getId());
         em.flush();
@@ -119,7 +119,7 @@ public class CategoryServiceTest {
 
     @Test
     @DisplayName("Should throw EntityNotFoundException when game does not exist")
-    public void addBoardGameToCategory_throwsException_whenGameNotFound() {
+    void addBoardGameToCategory_throwsException_whenGameNotFound() {
         // Act & Assert
         long nonExistentGameId = -99L;
 
@@ -131,7 +131,7 @@ public class CategoryServiceTest {
 
     @Test
     @DisplayName("Should throw EntityNotFoundException when category does not exist")
-    public void addBoardGameToCategory_throwsException_whenCategoryNotFound() {
+    void addBoardGameToCategory_throwsException_whenCategoryNotFound() {
         // Act & Assert
         long nonExistentCategoryId = -99L;
 
@@ -143,7 +143,7 @@ public class CategoryServiceTest {
 
     @Test
     @DisplayName("Should throw CategoryAlreadyExistsException when name is duplicate")
-    public void addCategory_throwsException_whenNameIsDuplicate() {
+    void addCategory_throwsException_whenNameIsDuplicate() {
         // Arrange
         // "Strategy" was already persisted in setUp()
         String existingName = "Strategy";
@@ -156,7 +156,7 @@ public class CategoryServiceTest {
 
     @Test
     @DisplayName("Should throw IllegalArgumentException when name is null")
-    public void addCategory_throwsException_whenNameIsNull() {
+    void addCategory_throwsException_whenNameIsNull() {
         // Act & Assert
         assertThrows(IllegalArgumentException.class, () -> {
             categoryService.addCategory(null);
@@ -165,7 +165,7 @@ public class CategoryServiceTest {
 
     @Test
     @DisplayName("Should throw IllegalArgumentException when name is empty")
-    public void addCategory_throwsException_whenNameIsEmpty() {
+    void addCategory_throwsException_whenNameIsEmpty() {
         // Act & Assert
         assertThrows(IllegalArgumentException.class, () -> {
             categoryService.addCategory("");
@@ -174,7 +174,7 @@ public class CategoryServiceTest {
 
     @Test
     @DisplayName("Should throw IllegalArgumentException when name is only whitespace")
-    public void addCategory_throwsException_whenNameIsWhitespace() {
+    void addCategory_throwsException_whenNameIsWhitespace() {
         // Act & Assert
         assertThrows(IllegalArgumentException.class, () -> {
             categoryService.addCategory("   ");
@@ -183,7 +183,7 @@ public class CategoryServiceTest {
 
     @Test
     @DisplayName("Should successfully add case-sensitive names")
-    public void addCategory_allowsCaseSensitiveNames() {
+    void addCategory_allowsCaseSensitiveNames() {
         // Arrange
         // "Strategy" (uppercase S) exists from setUp()
         String newName = "strategy"; // lowercase s
