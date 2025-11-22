@@ -15,12 +15,14 @@ public class UserService {
     private final UserRepository userRepository;
     private final LoanService loanService;
     private final ReviewService reviewService;
+    private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, LoanService loanService, ReviewService reviewService, PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
+    public UserService(RegisteredUserRepository registeredUserRepository, LoanService loanService, ReviewService reviewService, UserRepository userRepository, PasswordEncoder passwordEncoder) {
+        this.registeredUserRepository = registeredUserRepository;
         this.loanService = loanService;
         this.reviewService = reviewService;
+        this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
 

@@ -59,6 +59,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
+
         //if we have username and no authentication is set yet
         //we validate the token and set the authentication
         //in the security context
