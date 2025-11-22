@@ -5,7 +5,9 @@ import cz.cvut.fel.ear.dao.UserRepository;
 import cz.cvut.fel.ear.dto.UserRegistrationDTO;
 import cz.cvut.fel.ear.exception.EntityNotFoundException;
 import cz.cvut.fel.ear.model.*;
+import io.jsonwebtoken.security.Password;
 import jakarta.transaction.Transactional;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -13,11 +15,13 @@ public class UserService {
     private final UserRepository userRepository;
     private final LoanService loanService;
     private final ReviewService reviewService;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, LoanService loanService, ReviewService reviewService) {
+    public UserService(UserRepository userRepository, LoanService loanService, ReviewService reviewService, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.loanService = loanService;
         this.reviewService = reviewService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public User findById(long userId) {
@@ -89,7 +93,8 @@ public class UserService {
         }
         RegisteredUser newUser = new RegisteredUser();
         newUser.setUsername(registrationDTO.username());
-        newUser.setPassword(registrationDTO.password());
+        String encodedPassword = passwordEncoder.encode(registrationDTO.password());
+        newUser.setPassword(encodedPassword);
         newUser.setEmail(registrationDTO.email());
         newUser.setFullName(registrationDTO.fullName());
         userRepository.save(newUser);
@@ -102,7 +107,8 @@ public class UserService {
         }
         Admin newAdmin = new Admin();
         newAdmin.setUsername(registrationDTO.username());
-        newAdmin.setPassword(registrationDTO.password());
+        String encodedPassword = passwordEncoder.encode(registrationDTO.password());
+        newAdmin.setPassword(encodedPassword);
         newAdmin.setEmail(registrationDTO.email());
         newAdmin.setFullName(registrationDTO.fullName());
         userRepository.save(newAdmin);
