@@ -21,13 +21,13 @@ public class DataInitializer implements CommandLineRunner {
     private final ReviewService reviewService;
     private final BoardGameLoanRepository loanRepository;
     private final UserRepository userRepository;
-    private final CategoryRepository categoryRepository; // Added repository
+    private final CategoryRepository categoryRepository;
 
     public DataInitializer(UserService userService, BoardGameService boardGameService,
                            BoardGameItemService boardGameItemService, CategoryService categoryService,
                            LoanService loanService, ReviewService reviewService,
                            BoardGameLoanRepository loanRepository, UserRepository userRepository,
-                           CategoryRepository categoryRepository) { // Added to constructor
+                           CategoryRepository categoryRepository) {
         this.userService = userService;
         this.boardGameService = boardGameService;
         this.boardGameItemService = boardGameItemService;
