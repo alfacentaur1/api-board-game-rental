@@ -78,7 +78,7 @@ public class BoardGame {
 
     private String description = "";
 
-    @Formula("(SELECT COUNT(*) FROM board_game_items bgi WHERE bgi.BOARD_GAME_ID = id AND bgi.state = 'FOR_LOAN')")
+    @Formula("(SELECT COUNT(*) FROM board_game_items bgi WHERE bgi.board_game_id = id AND bgi.state = 'FOR_LOAN')")
     private int availableCopies;
 
     //mapping composition here

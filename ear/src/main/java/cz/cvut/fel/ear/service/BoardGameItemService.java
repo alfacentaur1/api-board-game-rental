@@ -84,6 +84,9 @@ public class BoardGameItemService {
 
 
     public void updateBoardGameItemState(long gameId, BoardGameState state) {
+        if (gameId <= 0) {
+            throw new ParametersException("Game id must be greater than 0");
+        }
         BoardGameItem boardGameToUpdate = boardGameItemRepository.getBoardGameItemById(gameId);
         if (boardGameToUpdate == null) {
             throw new EntityNotFoundException("Board game with id " + gameId + " not found");

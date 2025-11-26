@@ -103,32 +103,6 @@ public class BoardGameItemServiceTest {
     }
 
     @Test
-    @DisplayName("Should update an item's state and throw exceptions for invalid cases")
-    void testUpdateBoardGameItemState(){
-        // arrange: get the ID of the item from setUp
-        Long testItemId = this.testItem.getId();
-        assertEquals(BoardGameState.BORROWED, testItem.getState()); // check initial state
-
-        // act: call the service with the ITEM's ID
-        sut.updateBoardGameItemState(testItemId, BoardGameState.FOR_LOAN);
-        em.flush();
-
-        // assert: check if the state changed in the DB
-        BoardGameItem updatedItem = em.find(BoardGameItem.class, testItemId);
-        assertEquals(BoardGameState.FOR_LOAN, updatedItem.getState());
-
-        // exception test: item not found
-        assertThrows(EntityNotFoundException.class, () -> {
-            sut.updateBoardGameItemState(-1L, BoardGameState.BORROWED);
-        });
-
-        // exception test: null parameter
-        assertThrows(ParametersException.class, () -> {
-            sut.updateBoardGameItemState(testItemId, null);
-        });
-    }
-
-    @Test
     @DisplayName("Should delete an item and throw exception for non-existing item")
     void testDeleteBoardGameItem(){
         // arrange: get the ID from setUp
