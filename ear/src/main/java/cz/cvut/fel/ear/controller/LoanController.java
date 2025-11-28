@@ -99,9 +99,9 @@ public class LoanController {
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<BoardGameLoanDetailDTO> createLoan(@RequestBody BoardGameLoanToCreateDTO loanDetailDTO) {
         long loanId = loanService.createLoan(
-                loanDetailDTO.getDueDate(),
-                loanDetailDTO.getBoardGameNames(),
-                loanDetailDTO.getUserId()
+                loanDetailDTO.dueDate(),
+                loanDetailDTO.boardGameNames(),
+                loanDetailDTO.userId()
         );
 
         BoardGameLoan newLoan = loanService.getBoardGameLoan(loanId);
