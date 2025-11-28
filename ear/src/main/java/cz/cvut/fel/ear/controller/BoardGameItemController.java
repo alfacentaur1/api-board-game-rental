@@ -63,7 +63,7 @@ public class BoardGameItemController {
     @PostMapping("/items")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> addBoardGameItem( @RequestBody BoardGameItemCreationDTO boardGameItemCreationDTO) {
-        Long idItem = boardGameItemService.addBoardGameItem(boardGameItemCreationDTO.getBoardGameId(),boardGameItemCreationDTO.getSerialNumber(),boardGameItemCreationDTO.getState());
+        Long idItem = boardGameItemService.addBoardGameItem(boardGameItemCreationDTO.boardGameId(),boardGameItemCreationDTO.serialNumber(),boardGameItemCreationDTO.state());
         URI location = URI.create("/api/items/" + idItem);
 
         return ResponseEntity.created(location).build();
@@ -75,7 +75,7 @@ public class BoardGameItemController {
             @RequestBody BoardGameItemStateDTO boardGameItemStateDTO) {
 
         boardGameItemService.updateBoardGameItemState(itemId,
-                boardGameItemStateDTO.getBoardGameState());
+                boardGameItemStateDTO.boardGameState());
 
         return ResponseEntity.ok().build();
     }

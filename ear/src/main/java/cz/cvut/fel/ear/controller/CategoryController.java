@@ -26,7 +26,7 @@ public class CategoryController {
     @PostMapping("/")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> createCategory(@RequestBody CategoryCreationDTO categoryCreationDTO) {
-        Long id = categoryService.addCategory(categoryCreationDTO.getName());
+        Long id = categoryService.addCategory(categoryCreationDTO.name());
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.add("Location", "api/categories/" + id);
         return new ResponseEntity<>("New category created",responseHeaders, HttpStatus.CREATED);
