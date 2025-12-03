@@ -27,7 +27,7 @@ public class BoardGameItemService {
     public int availableItemsInStockNumber(long boardGameId) {
         BoardGame boardGame = boardGameRepository.findById(boardGameId).get();
         if (boardGame.getName() == null) {
-            throw new EntityNotFoundException("Board game with id " + boardGameId + " not found");
+            throw new EntityNotFoundException(boardGame.getClass().getSimpleName(), boardGameId);
         }
         return getAllAvailableBoardGameItemsForBoardGame(boardGameId).size();
     }
@@ -36,7 +36,7 @@ public class BoardGameItemService {
         BoardGame boardGame = boardGameRepository.findBoardGameById(boardGameId);
 
         if (boardGame == null) {
-            throw new EntityNotFoundException("Board game with id " + boardGameId + " not found");
+            throw new EntityNotFoundException(BoardGame.class.getSimpleName(), boardGameId);
         }
         return boardGame.getAvailableStockItems();
     }
@@ -45,7 +45,7 @@ public class BoardGameItemService {
         Optional<BoardGame> optionalBoardGame = boardGameRepository.findById(boardGameId);
 
         if (optionalBoardGame.isEmpty()) {
-            throw new EntityNotFoundException("Board game with id " + boardGameId + " not found");
+            throw new EntityNotFoundException(BoardGame.class.getSimpleName(),boardGameId);
         }
 
         List<BoardGameItem> boardGameItems = getAllBoardGameItemsForBoardGame(boardGameId);
@@ -63,7 +63,7 @@ public class BoardGameItemService {
         BoardGame boardGame = boardGameRepository.findBoardGameById(boardGameId);
 
         if (boardGame == null) {
-            throw new EntityNotFoundException("Board game with id " + boardGameId + " not found");
+            throw new EntityNotFoundException(BoardGame.class.getSimpleName(),boardGameId);
         }
         if( serialNumber == null || serialNumber.isEmpty() || state == null){
             throw new ParametersException("Serial number or state is null");
@@ -89,7 +89,7 @@ public class BoardGameItemService {
         }
         BoardGameItem boardGameToUpdate = boardGameItemRepository.getBoardGameItemById(gameId);
         if (boardGameToUpdate == null) {
-            throw new EntityNotFoundException("Board game with id " + gameId + " not found");
+            throw new EntityNotFoundException(BoardGame.class.getSimpleName(),gameId);
         }
         Long gameNull = null;
         if(gameId == gameNull ){
@@ -111,7 +111,7 @@ public class BoardGameItemService {
     public void deleteBoardGameItem(long gameId) {
         BoardGameItem boardGameItemToDelete = boardGameItemRepository.getBoardGameItemById(gameId);
         if (boardGameItemToDelete == null) {
-            throw new EntityNotFoundException("Board game with id " + gameId + " not found");
+            throw new EntityNotFoundException(BoardGameItemService.class.getSimpleName(),gameId);
         }
         boardGameItemRepository.delete(boardGameItemToDelete);
     }

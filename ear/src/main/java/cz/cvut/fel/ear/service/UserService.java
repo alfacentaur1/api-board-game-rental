@@ -28,9 +28,7 @@ public class UserService {
     public User findById(long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(
-                        () -> new EntityNotFoundException(
-                                String.format("Registered user with id %d not found", userId)
-                        )
+                        () -> new EntityNotFoundException(User.class.getSimpleName(), userId)
                 );
     }
 
@@ -38,9 +36,7 @@ public class UserService {
         User user = userRepository.findByUsername(username);
 
         if (user == null) {
-            throw new EntityNotFoundException(
-                    String.format("Registered user with id %s not found", username)
-            );
+            throw new EntityNotFoundException(User.class.getSimpleName(), null);
         }
 
         return user;
@@ -68,9 +64,7 @@ public class UserService {
 
         // Check that user has this review linked to him
         if (!user.getRatings().contains(reviewToRemove)) {
-            throw new EntityNotFoundException(
-                    String.format("User %d doesn't have review %d linked to him", userId, reviewId)
-            );
+            throw new EntityNotFoundException(User.class.getSimpleName(), userId, Review.class.getSimpleName(), reviewId);
         }
 
         // Remove it

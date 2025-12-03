@@ -41,12 +41,12 @@ public class CategoryService {
     @Transactional
     public void addBoardGameToCategory(long gameId, long categoryId) {
         Category category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new EntityNotFoundException("Category with id " + categoryId + " not found"));
+                .orElseThrow(() -> new EntityNotFoundException(Category.class.getSimpleName(), categoryId));
 
         BoardGame boardGame = boardGameRepository.findById(gameId)
-                .orElseThrow(() -> new EntityNotFoundException("BoardGame with id " + gameId + " not found"));
+                .orElseThrow(() -> new EntityNotFoundException(BoardGame.class.getSimpleName(), gameId));
         if (boardGame.getName() == null) {
-            throw new EntityNotFoundException("Board game with name " + boardGame.getName() + " does not exist");
+            throw new EntityNotFoundException(BoardGame.class.getSimpleName(), gameId);
         }
         if (boardGame.getCategories() == null) {
             boardGame.setCategories(new ArrayList<>());
@@ -70,10 +70,10 @@ public class CategoryService {
     @Transactional
     public void removeGameFromCategory(long gameId, long categoryId) {
         Category category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new EntityNotFoundException("Category with id " + categoryId + " not found"));
+                .orElseThrow(() -> new EntityNotFoundException(Category.class.getSimpleName(),categoryId));
 
         BoardGame boardGame = boardGameRepository.findById(gameId)
-                .orElseThrow(() -> new EntityNotFoundException("BoardGame with id " + gameId + " not found"));
+                .orElseThrow(() -> new EntityNotFoundException(BoardGame.class.getSimpleName(),gameId));
 
         if (boardGame.getCategories() != null) {
             boardGame.getCategories().remove(category);

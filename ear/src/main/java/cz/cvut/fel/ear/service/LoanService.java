@@ -27,9 +27,7 @@ public class  LoanService {
 
     public BoardGameLoan getBoardGameLoan(long loanId) {
         return boardGameLoanRepository.findById(loanId)
-                .orElseThrow(() -> new EntityNotFoundException(
-                        "BoardGameLoan with id " + loanId + " not found"
-                ));
+                .orElseThrow(() -> new EntityNotFoundException(BoardGameLoan.class.getSimpleName(), loanId));
     }
 
     public List<BoardGameLoan> getBoardGameLoans() {
@@ -39,7 +37,7 @@ public class  LoanService {
     public List<BoardGameLoan> getAllBoardGameLoansByUser(long userId) {
         List<BoardGameLoan> loans = boardGameLoanRepository.findAllByUserId(userId);
         if (loans == null) {
-            throw new EntityNotFoundException("No loans found for user id " + userId);
+            throw new EntityNotFoundException(BoardGameLoan.class.getSimpleName(), null, User.class.getSimpleName(), userId);
         }
         return loans;
     }
@@ -164,7 +162,7 @@ public class  LoanService {
 
     public List<BoardGameItem> getBoardGameItemsInLoan(long loanId) {
         if(!boardGameLoanRepository.existsById(loanId)) {
-            throw new EntityNotFoundException("Loan with id " + loanId + " does not exist");
+            throw new EntityNotFoundException(BoardGameLoan.class.getSimpleName(), loanId);
         }
         BoardGameLoan loan = getBoardGameLoan(loanId);
         return loan.getItems();

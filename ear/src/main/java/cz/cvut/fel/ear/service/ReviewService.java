@@ -33,7 +33,7 @@ public class ReviewService {
 
     public Review findReviewById(long reviewId) {
         return reviewRepository.findById(reviewId)
-                .orElseThrow(() -> new EntityNotFoundException("Review not found"));
+                .orElseThrow(() -> new EntityNotFoundException(Review.class.getSimpleName(), reviewId));
     }
 
     public List<Review> getReviewsForBoardGame(long gameId) {

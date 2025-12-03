@@ -8,10 +8,7 @@ import cz.cvut.fel.ear.exception.EntityAlreadyExistsException;
 import cz.cvut.fel.ear.exception.EntityNotFoundException;
 import cz.cvut.fel.ear.exception.GameAlreadyInFavoritesException;
 import cz.cvut.fel.ear.exception.ParametersException;
-import cz.cvut.fel.ear.model.BoardGame;
-import cz.cvut.fel.ear.model.BoardGameItem;
-import cz.cvut.fel.ear.model.BoardGameLoan;
-import cz.cvut.fel.ear.model.RegisteredUser;
+import cz.cvut.fel.ear.model.*;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -35,7 +32,7 @@ public class BoardGameService {
     public BoardGame getBoardGame(Long gameId) {
         BoardGame boardGame = boardGameRepository.getBoardGameById(gameId);
         if (boardGame == null) {
-            throw new EntityNotFoundException("Board game not found");
+            throw new EntityNotFoundException(BoardGame.class.getSimpleName(), gameId);
         }
         return boardGame;
     }
@@ -44,8 +41,9 @@ public class BoardGameService {
         List<BoardGame> boardGames = boardGameRepository.findAll();
 
         if (boardGames.isEmpty()) {
-            throw new EntityNotFoundException("There are no board games");
+            throw new EntityNotFoundException(BoardGame.class.getSimpleName(), null);
         }
+
         return boardGames;
     }
 
@@ -70,7 +68,7 @@ public class BoardGameService {
         BoardGame boardGameToRemove = boardGameRepository.getBoardGameById(gameId);
 
         if (boardGameToRemove == null) {
-            throw new EntityNotFoundException("Board game with id " + gameId + " not found");
+            throw new EntityNotFoundException(BoardGame.class.getSimpleName(), gameId);
 
         }
         boardGameRepository.delete(boardGameToRemove);
@@ -80,7 +78,7 @@ public class BoardGameService {
     public void updateBoardGameDescription(Long gameId, String newDescription) {
         BoardGame boardGameToUpdate = boardGameRepository.getBoardGameById(gameId);
         if (boardGameToUpdate == null) {
-            throw new EntityNotFoundException("Board game with id " + gameId + " not found");
+            throw new EntityNotFoundException(BoardGame.class.getSimpleName(), gameId);
         }
         if (newDescription == null || newDescription.isEmpty()) {
             throw new ParametersException("New description must not be empty");
@@ -97,11 +95,11 @@ public class BoardGameService {
         }
         // FIX: Reload user from DB to ensure entity is attached (prevents LazyInitializationException)
         RegisteredUser user = (RegisteredUser) userRepository.findById(userDTO.getId())
-                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+                .orElseThrow(() -> new EntityNotFoundException(User.class.getSimpleName(), userDTO.getId()));
 
         BoardGame boardGameToAdd = boardGameRepository.getBoardGameById(gameId);
         if (boardGameToAdd == null) {
-            throw new EntityNotFoundException("Board game with id " + gameId + " not found");
+            throw new EntityNotFoundException(BoardGame.class.getSimpleName(), gameId);
         }
 
         // Check using the fetched user's collection or query
@@ -120,15 +118,15 @@ public class BoardGameService {
         }
         // FIX: Reload user from DB
         RegisteredUser user = (RegisteredUser) userRepository.findById(userDTO.getId())
-                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+                .orElseThrow(() -> new EntityNotFoundException(User.class.getSimpleName(),userDTO.getId()));
 
         BoardGame boardGameToRemove = boardGameRepository.getBoardGameById(gameId);
         if (boardGameToRemove == null) {
-            throw new EntityNotFoundException("Board game with id " + gameId + " not found");
+            throw new EntityNotFoundException(BoardGame.class.getSimpleName(),gameId);
         }
 
         if (!user.getFavoriteBoardGames().contains(boardGameToRemove)) {
-            throw new EntityNotFoundException("Game with name " + boardGameToRemove.getName() + " not in favorites");
+            throw new EntityNotFoundException(BoardGame.class.getSimpleName(),gameId);
         }
 
         user.getFavoriteBoardGames().remove(boardGameToRemove);
@@ -137,7 +135,7 @@ public class BoardGameService {
 
     public void viewBoardGameDetails(BoardGame boardGame) {
         if (boardGame == null) {
-            throw new EntityNotFoundException("Board game not found");
+            throw new EntityNotFoundException(BoardGame.class.getSimpleName(), null);
         }
         System.out.println(boardGame.getName());
         System.out.println(boardGame.getDescription());
