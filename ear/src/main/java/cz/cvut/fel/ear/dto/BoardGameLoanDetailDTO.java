@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 
-public record BoardGameLoanDetailDTO(Long id, LocalDateTime borrowedAt, LocalDateTime returnedAt, LocalDateTime dueDate, Status status, UserSummaryDTO user, List<BoardGameItemDTO> itemsInLoan) {
+public record BoardGameLoanDetailDTO(Long id, LocalDateTime borrowedAt, LocalDateTime returnedAt, LocalDateTime dueDate, Status status, UserSummaryDTO user, List<BoardGameItemDTO> itemsInLoan) implements BasicDTO {
 
     public List<String> getBoardGameNames() {
         return itemsInLoan.stream()

@@ -1,5 +1,5 @@
 package cz.cvut.fel.ear.dto;
 
-public record CategoryCreationDTO(String name) {
+public record CategoryCreationDTO(String name) implements BasicDTO {
 
 }
