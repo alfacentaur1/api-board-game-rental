@@ -51,7 +51,7 @@ public class BoardGameService {
     public long createBoardGame(String name, String description) {
         List<String> allBoardGameNames = boardGameRepository.getAllBoardGameNames();
         if (allBoardGameNames.contains(name)) {
-            throw new EntityAlreadyExistsException("Board game with title " + name + " already exists");
+            throw new EntityAlreadyExistsException(BoardGame.class.getSimpleName(), name);
         }
         if (name == null || name.isEmpty() || description == null || description.isEmpty()) {
             throw new ParametersException("Name and description must not be empty");

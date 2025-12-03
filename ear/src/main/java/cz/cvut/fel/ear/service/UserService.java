@@ -76,7 +76,7 @@ public class UserService {
     @Transactional
     public void registerUser(UserRegistrationDTO registrationDTO) {
         if(userRepository.findByUsername(registrationDTO.username()) != null) {
-            throw new EntityAlreadyExistsException("Username already exists");
+            throw new EntityAlreadyExistsException(User.class.getSimpleName(), registrationDTO.username());
         }
         RegisteredUser newUser = new RegisteredUser();
         newUser.setUsername(registrationDTO.username());
@@ -90,7 +90,7 @@ public class UserService {
     @Transactional
     public void registerAdmin(UserRegistrationDTO registrationDTO) {
         if(userRepository.findByUsername(registrationDTO.username()) != null) {
-            throw new EntityAlreadyExistsException("Username already exists");
+            throw new EntityAlreadyExistsException(User.class.getSimpleName(), registrationDTO.username());
         }
         Admin newAdmin = new Admin();
         newAdmin.setUsername(registrationDTO.username());
