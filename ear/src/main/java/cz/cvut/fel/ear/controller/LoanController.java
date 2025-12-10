@@ -378,8 +378,8 @@ public class LoanController {
                     content = @Content(schema = @Schema(hidden = true))
             ),
     })
-    @PostMapping("/{loanId}/return")
-    @PreAuthorize("hasRole('USER') and @loanSecurity.isLoanOwner(#loandId, authentication)")
+    @PatchMapping("/{loanId}/return")
+    @PreAuthorize("hasRole('USER') and @loanSecurity.isLoanOwner(#loanId, authentication)")
     public ResponseEntity<Map<String, Object>> returnLoan(
             @Parameter(
                     description = "ID of the loan to return",
