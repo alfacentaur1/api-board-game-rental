@@ -1,18 +1,26 @@
 package cz.cvut.fel.ear.controller;
 
+import cz.cvut.fel.ear.controller.response.ResponseGenerator;
 import cz.cvut.fel.ear.dto.BoardGameLoanDetailDTO;
 import cz.cvut.fel.ear.dto.BoardGameLoanToCreateDTO;
 import cz.cvut.fel.ear.mapper.LoanMapper;
 import cz.cvut.fel.ear.model.BoardGameLoan;
 import cz.cvut.fel.ear.model.Status;
 import cz.cvut.fel.ear.service.LoanService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.access.prepost.PreFilter;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/loans")
@@ -26,95 +34,324 @@ public class LoanController {
         this.loanMapper = loanMapper;
     }
 
+    @Operation(
+            summary = "Get Loan by ID",
+            description = "Retrieves detailed information about a specific loan"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Loan successfully retrieved",
+                    content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Validation error occurred",
+                    content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Loan not found",
+                    content = @Content(schema = @Schema(hidden = true))
+            )
+    })
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or @loanSecurity.isLoanOwner(#id, authentication)")
-    public ResponseEntity<BoardGameLoanDetailDTO> getLoanById(@PathVariable long id) {
+    public ResponseEntity<Map<String, Object>> getLoanById(
+            @Parameter(
+                    description = "ID of the loan to retrieve",
+                    example = "1",
+                    required = true
+            )
+            @PathVariable long id) {
         BoardGameLoan boardGameLoan = loanService.getBoardGameLoan(id);
         BoardGameLoanDetailDTO loanDetailDTO = loanMapper.toDetailDto(boardGameLoan);
-        return ResponseEntity.ok(loanDetailDTO);
+
+        ResponseGenerator generator = new ResponseGenerator();
+        generator.setResponseInfoMessage(ResponseGenerator.ResponseInfoCode.SUCCESS_FOUND, "Loan");
+        generator.addResponseData("loan", loanDetailDTO);
+
+        return new ResponseEntity<>(generator.getResponse(), HttpStatus.OK);
     }
 
+    @Operation(
+            summary = "Get All Pending Loans",
+            description = "Retrieves all loans with pending status"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Pending loans successfully retrieved",
+                    content = @Content(schema = @Schema(hidden = true))
+            )
+    })
     @GetMapping("/pending")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<BoardGameLoanDetailDTO>> getAllPendingLoans() {
+    public ResponseEntity<Map<String, Object>> getAllPendingLoans() {
         List<BoardGameLoan> pendingLoans = loanService.getAllPendingLoans();
         List<BoardGameLoanDetailDTO> pendingLoanDTOs = pendingLoans.stream()
                 .map(loanMapper::toDetailDto)
                 .toList();
-        return ResponseEntity.ok(pendingLoanDTOs);
+
+        ResponseGenerator generator = new ResponseGenerator();
+        generator.setResponseInfoMessage(ResponseGenerator.ResponseInfoCode.SUCCESS_FOUND, "Loan");
+        generator.addResponseData("loans", pendingLoanDTOs);
+
+        return new ResponseEntity<>(generator.getResponse(), HttpStatus.OK);
     }
 
+    @Operation(
+            summary = "Get All Loans",
+            description = "Retrieves all loans in the system"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "All loans successfully retrieved",
+                    content = @Content(schema = @Schema(hidden = true))
+            )
+    })
     @GetMapping("/")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<BoardGameLoanDetailDTO>> getAllLoans() {
+    public ResponseEntity<Map<String, Object>> getAllLoans() {
         List<BoardGameLoan> allLoans = loanService.getBoardGameLoans();
         List<BoardGameLoanDetailDTO> allLoanDTOs = allLoans.stream()
                 .map(loanMapper::toDetailDto)
                 .toList();
-        return ResponseEntity.ok(allLoanDTOs);
+
+        ResponseGenerator generator = new ResponseGenerator();
+        generator.setResponseInfoMessage(ResponseGenerator.ResponseInfoCode.SUCCESS_FOUND, "Loan");
+        generator.addResponseData("loans", allLoanDTOs);
+
+        return new ResponseEntity<>(generator.getResponse(), HttpStatus.OK);
     }
 
+    @Operation(
+            summary = "Get Loans by User ID",
+            description = "Retrieves all loans for a specific user"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "User loans successfully retrieved",
+                    content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "User not found",
+                    content = @Content(schema = @Schema(hidden = true))
+            )
+    })
     @GetMapping("/user/{userId}")
     @PreAuthorize("hasRole('ADMIN') or #userId == authentication.principal.id")
-    public ResponseEntity<List<BoardGameLoanDetailDTO>> getLoansByUserId(@PathVariable long userId) {
+    public ResponseEntity<Map<String, Object>> getLoansByUserId(
+            @Parameter(
+                    description = "ID of the user to retrieve loans for",
+                    example = "1",
+                    required = true
+            )
+            @PathVariable long userId) {
         List<BoardGameLoan> userLoans = loanService.getAllBoardGameLoansByUser(userId);
         List<BoardGameLoanDetailDTO> userLoanDTOs = userLoans.stream()
                 .map(loanMapper::toDetailDto)
                 .toList();
-        return ResponseEntity.ok(userLoanDTOs);
+
+        ResponseGenerator generator = new ResponseGenerator();
+        generator.setResponseInfoMessage(ResponseGenerator.ResponseInfoCode.SUCCESS_FOUND, "Loan");
+        generator.addResponseData("loans", userLoanDTOs);
+
+        return new ResponseEntity<>(generator.getResponse(), HttpStatus.OK);
     }
 
+    @Operation(
+            summary = "Approve Loan",
+            description = "Approves a pending loan request"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Loan successfully approved",
+                    content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Validation error occurred or loan is not in a valid state for approval",
+                    content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Loan not found",
+                    content = @Content(schema = @Schema(hidden = true))
+            )
+    })
     @PatchMapping("/{id}/approve")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> approveLoan(@PathVariable long id) {
+    public ResponseEntity<Map<String, Object>> approveLoan(
+            @Parameter(
+                    description = "ID of the loan to approve",
+                    example = "1",
+                    required = true
+            )
+            @PathVariable long id) {
         loanService.approveGameLoan(id);
-        return ResponseEntity.ok().build();
+
+        ResponseGenerator generator = new ResponseGenerator();
+        generator.setResponseInfoMessage(ResponseGenerator.ResponseInfoCode.SUCCESS_MODIFIED, "Loan");
+
+        return new ResponseEntity<>(generator.getResponse(), HttpStatus.OK);
     }
 
+    @Operation(
+            summary = "Reject Loan",
+            description = "Rejects a pending loan request"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Loan successfully rejected",
+                    content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Validation error occurred or loan is not in a valid state for rejection",
+                    content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Loan not found",
+                    content = @Content(schema = @Schema(hidden = true))
+            )
+    })
     @PatchMapping("/{id}/reject")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> rejectLoan(@PathVariable long id) {
+    public ResponseEntity<Map<String, Object>> rejectLoan(
+            @Parameter(
+                    description = "ID of the loan to reject",
+                    example = "1",
+                    required = true
+            )
+            @PathVariable long id) {
         loanService.rejectGameLoan(id);
-        return ResponseEntity.ok().build();
+
+        ResponseGenerator generator = new ResponseGenerator();
+        generator.setResponseInfoMessage(ResponseGenerator.ResponseInfoCode.SUCCESS_MODIFIED, "Loan");
+
+        return new ResponseEntity<>(generator.getResponse(), HttpStatus.OK);
     }
 
     @PatchMapping("/{id}/status")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> changeLoanStatus(@PathVariable long id, @RequestParam Status status) {
+    public ResponseEntity<Map<String, Object>> changeLoanStatus(@PathVariable long id, @RequestParam Status status) {
         loanService.changeLoanStatus(id, status);
-        return ResponseEntity.ok().build();
+
+        ResponseGenerator generator = new ResponseGenerator();
+        generator.setResponseInfoMessage(ResponseGenerator.ResponseInfoCode.SUCCESS_MODIFIED, "Loan");
+
+        return new ResponseEntity<>(generator.getResponse(), HttpStatus.OK);
     }
 
     @GetMapping("/borrowed")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<BoardGameLoanDetailDTO>> getAllBorrowedLoans() {
+    public ResponseEntity<Map<String, Object>> getAllBorrowedLoans() {
         List<BoardGameLoan> borrowedLoans = loanService.getAllApprovedLoans();
         List<BoardGameLoanDetailDTO> borrowedLoanDTOs = borrowedLoans.stream()
                 .map(loanMapper::toDetailDto)
                 .toList();
-        return ResponseEntity.ok(borrowedLoanDTOs);
+
+        ResponseGenerator generator = new ResponseGenerator();
+        generator.setResponseInfoMessage(ResponseGenerator.ResponseInfoCode.SUCCESS_FOUND, "Loan");
+        generator.addResponseData("loans", borrowedLoanDTOs);
+
+        return new ResponseEntity<>(generator.getResponse(), HttpStatus.OK);
     }
 
+    @Operation(
+            summary = "Create Loan",
+            description = "Creates a new loan request for a board game item"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "201",
+                    description = "Loan successfully created",
+                    content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Validation error occurred",
+                    content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "User or Board Game Item not found",
+                    content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(
+                    responseCode = "409",
+                    description = "Board Game Item is not available",
+                    content = @Content(schema = @Schema(hidden = true))
+            )
+    })
     @PostMapping("/")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<BoardGameLoanDetailDTO> createLoan(@RequestBody BoardGameLoanToCreateDTO loanDetailDTO) {
+    public ResponseEntity<Map<String, Object>> createLoan(
+            @RequestBody BoardGameLoanToCreateDTO boardGameLoanToCreateDTO
+    ) {
         long loanId = loanService.createLoan(
-                loanDetailDTO.dueDate(),
-                loanDetailDTO.boardGameNames(),
-                loanDetailDTO.userId()
+                boardGameLoanToCreateDTO.dueDate(),
+                boardGameLoanToCreateDTO.boardGameNames(),
+                boardGameLoanToCreateDTO.userId()
         );
 
         BoardGameLoan newLoan = loanService.getBoardGameLoan(loanId);
         BoardGameLoanDetailDTO newLoanDto = loanMapper.toDetailDto(newLoan);
 
-        URI location = URI.create("/api/loans/" + newLoan.getId());
-        return ResponseEntity.created(location).body(newLoanDto);
+        ResponseGenerator generator = new ResponseGenerator();
+        generator.setResponseInfoMessage(ResponseGenerator.ResponseInfoCode.SUCCESS_CREATED, "Loan");
+        generator.addResponseData("loan", newLoanDto);
+
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.add("Location", "api/loans/" + newLoan.getId());
+
+        return new ResponseEntity<>(generator.getResponse(), responseHeaders, HttpStatus.CREATED);
     }
 
+
+
+    @Operation(
+            summary = "Return Loan",
+            description = "Marks a loan as returned. Only accessible to administrators or the loan owner."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Loan successfully marked as returned",
+                    content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Validation error occurred or loan is not in a valid state for return",
+                    content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Loan not found",
+                    content = @Content(schema = @Schema(hidden = true))
+            )
+    })
     @PostMapping("/{loanId}/return")
-    @PreAuthorize("hasRole('USER') and @loanSecurity.isLoanOwner(#loanId, authentication)")
-    public ResponseEntity<?> returnLoan(@PathVariable long loanId) {
+    @PreAuthorize("hasRole('USER') and @loanSecurity.isLoanOwner(#loandId, authentication)")
+    public ResponseEntity<Map<String, Object>> returnLoan(
+            @Parameter(
+                    description = "ID of the loan to return",
+                    example = "1",
+                    required = true
+            )
+            @PathVariable long loanId) {
         loanService.returnBoardGameLoan(loanId);
-        return ResponseEntity.ok().build();
+
+        ResponseGenerator generator = new ResponseGenerator();
+        generator.setResponseInfoMessage(ResponseGenerator.ResponseInfoCode.SUCCESS_MODIFIED, "Loan");
+
+        return new ResponseEntity<>(generator.getResponse(), HttpStatus.OK);
     }
 }
