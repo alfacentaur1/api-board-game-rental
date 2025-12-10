@@ -5,6 +5,7 @@ import cz.cvut.fel.ear.dao.CategoryRepository;
 import cz.cvut.fel.ear.exception.BoardGameAlreadyInCategoryException;
 import cz.cvut.fel.ear.exception.CategoryAlreadyExistsException;
 import cz.cvut.fel.ear.exception.EntityNotFoundException;
+import cz.cvut.fel.ear.exception.ItemNotInResource;
 import cz.cvut.fel.ear.model.BoardGame;
 import cz.cvut.fel.ear.model.Category;
 import jakarta.transaction.Transactional;
@@ -30,7 +31,7 @@ public class CategoryService {
         }
         Optional<Category> existing = categoryRepository.findByName(name);
         if (existing.isPresent()) {
-            throw new CategoryAlreadyExistsException("Category with name " + name + " already exists");
+            throw new CategoryAlreadyExistsException(name);
         }
         Category category = new Category();
         category.setName(name);
@@ -53,7 +54,7 @@ public class CategoryService {
         }
 
         if (boardGame.getCategories().contains(category)) {
-            throw new BoardGameAlreadyInCategoryException("Board game " + boardGame.getName() + " in Category " + category.getName() + " already exists");
+            throw new BoardGameAlreadyInCategoryException();
         }
 
         boardGame.getCategories().add(category);
@@ -75,15 +76,18 @@ public class CategoryService {
         BoardGame boardGame = boardGameRepository.findById(gameId)
                 .orElseThrow(() -> new EntityNotFoundException(BoardGame.class.getSimpleName(),gameId));
 
-        if (boardGame.getCategories() != null) {
+        // Check if boardGame is in Category
+        if (
+                boardGame.getCategories().contains(category) && category.getBoardGames().contains(boardGame)
+        ) {
             boardGame.getCategories().remove(category);
-        }
-
-        if (category.getBoardGames() != null) {
             category.getBoardGames().remove(boardGame);
-        }
 
-        boardGameRepository.save(boardGame);
+            boardGameRepository.save(boardGame);
+            categoryRepository.save(category);
+        } else {
+            throw new ItemNotInResource("BoardGame", "Category");
+        }
     }
 
     public List<Long> getCategories(long gameId) {
