@@ -2,6 +2,7 @@ package cz.cvut.fel.ear.controller;
 
 import cz.cvut.fel.ear.controller.response.ResponseWrapper;
 import cz.cvut.fel.ear.dto.ReviewDetailDTO;
+import cz.cvut.fel.ear.dto.ReviewToCreateDTO;
 import cz.cvut.fel.ear.mapper.ReviewMapper;
 import cz.cvut.fel.ear.model.Review;
 import cz.cvut.fel.ear.service.ReviewService;
@@ -11,6 +12,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -158,15 +160,9 @@ public class ReviewController {
                     example = "Great game!",
                     required = true
             )
-            @RequestParam("content") String content,
-            @Parameter(
-                    description = "Rating score from 1 to 5",
-                    example = "5",
-                    required = true
-            )
-            @RequestParam("rating") int rating
+            @Valid @RequestBody ReviewToCreateDTO reviewDto
     ) {
-        Review review = reviewService.createReview(userId, gameId, content, rating);
+        Review review = reviewService.createReview(userId, gameId, reviewDto.content(), reviewDto.score());
         ReviewDetailDTO reviewDetailDTO = reviewMapper.toReviewDetailDTO(review);
 
         ResponseWrapper generator = new ResponseWrapper();
