@@ -1,11 +1,18 @@
 package cz.cvut.fel.ear.controller;
 
-import cz.cvut.fel.ear.dto.BoardGameDTO;
+import cz.cvut.fel.ear.controller.response.ResponseGenerator;
 import cz.cvut.fel.ear.dto.BoardGameItemCreationDTO;
 import cz.cvut.fel.ear.dto.BoardGameItemDTO;
 import cz.cvut.fel.ear.dto.BoardGameItemStateDTO;
 import cz.cvut.fel.ear.model.BoardGameItem;
 import cz.cvut.fel.ear.service.BoardGameItemService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,8 +20,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
@@ -25,14 +32,73 @@ public class BoardGameItemController {
         this.boardGameItemService = boardGameItemService;
     }
 
+    @Operation(
+            summary = "Get Stock Count for Board Game",
+            description = "Retrieves the number of board game items currently available in stock for a specific board game"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Stock count successfully retrieved",
+                    content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Validation error occurred",
+                    content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Board Game not found",
+                    content = @Content(schema = @Schema(hidden = true))
+            )
+    })
     @GetMapping("/boardgames/{id}/items/stock")
-    public ResponseEntity<Integer> numberOfStockItemsForGame(@PathVariable int id) {
+    public ResponseEntity<Map<String, Object>> numberOfStockItemsForGame(
+            @Parameter(
+                    description = "ID of the board game to get stock count for",
+                    example = "1",
+                    required = true
+            )
+            @PathVariable Long id) {
         int stockCount = boardGameItemService.availableItemsInStockNumber(id);
-        return new ResponseEntity<>(stockCount, HttpStatus.OK);
+
+        ResponseGenerator generator = new ResponseGenerator();
+        generator.setResponseInfoMessage(ResponseGenerator.ResponseInfoCode.SUCCESS_FOUND, "BoardGameItems");
+        generator.addResponseData("items", stockCount);
+
+        return new ResponseEntity<>(generator.getResponse(), HttpStatus.OK);
     }
 
+    @Operation(
+            summary = "Get All Items for Board Game",
+            description = "Retrieves all board game items for a specific board game, regardless of their state or availability"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Board Game Items successfully retrieved",
+                    content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Validation error occurred",
+                    content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Board Game not found",
+                    content = @Content(schema = @Schema(hidden = true))
+            )
+    })
     @GetMapping("/boardgames/{id}/items/all")
-    public ResponseEntity<List<BoardGameItemDTO>> allItemsForGame(@PathVariable Long id) {
+    public ResponseEntity<Map<String, Object>> allItemsForGame(
+            @Parameter(
+                    description = "ID of the board game to retrieve all items for",
+                    example = "1",
+                    required = true
+            )
+            @PathVariable Long id) {
         List<BoardGameItem> boardGameItems = boardGameItemService.getAllBoardGameItemsForBoardGame(id);
         List<BoardGameItemDTO> boardGameItemDTOS = boardGameItems.stream()
                 .map(boardGameItem -> new BoardGameItemDTO(
@@ -43,11 +109,44 @@ public class BoardGameItemController {
 
                 ))
                 .toList();
-        return new ResponseEntity<>(boardGameItemDTOS, HttpStatus.OK);
+
+        ResponseGenerator generator = new ResponseGenerator();
+        generator.setResponseInfoMessage(ResponseGenerator.ResponseInfoCode.SUCCESS_FOUND, "BoardGameItem");
+        generator.addResponseData("count", boardGameItemDTOS.stream().count());
+        generator.addResponseData("items", boardGameItemDTOS);
+
+        return new ResponseEntity<>(generator.getResponse(), HttpStatus.OK);
     }
 
+    @Operation(
+            summary = "Get Available Items for Board Game",
+            description = "Retrieves all available board game items for a specific board game that are currently not on loan and can be borrowed"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Available Board Game Items successfully retrieved",
+                    content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Validation error occurred",
+                    content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Board Game not found",
+                    content = @Content(schema = @Schema(hidden = true))
+            )
+    })
     @GetMapping("/boardgames/{id}/items/available")
-    public ResponseEntity<List<BoardGameItemDTO>> availableItemsForGame(@PathVariable Long id) {
+    public ResponseEntity<Map<String, Object>> availableItemsForGame(
+            @Parameter(
+                    description = "ID of the board game to retrieve available items for",
+                    example = "1",
+                    required = true
+            )
+            @PathVariable Long id) {
         List<BoardGameItem> boardGameItems = boardGameItemService.getAllAvailableBoardGameItemsForBoardGame(id);
         List<BoardGameItemDTO> boardGameItemDTOS = boardGameItems.stream()
                 .map(boardGameItem -> new BoardGameItemDTO(
@@ -57,34 +156,135 @@ public class BoardGameItemController {
                         boardGameItem.getBoardGame().getName()
                 ))
                 .toList();
-        return new ResponseEntity<>(boardGameItemDTOS, HttpStatus.OK);
+
+        ResponseGenerator generator = new ResponseGenerator();
+        generator.setResponseInfoMessage(ResponseGenerator.ResponseInfoCode.SUCCESS_FOUND, "AvailableBoardGameItem");
+        generator.addResponseData("count", boardGameItemDTOS.stream().count());
+        generator.addResponseData("items", boardGameItemDTOS);
+
+        return new ResponseEntity<>(generator.getResponse(), HttpStatus.OK);
     }
 
+    @Operation(
+            summary = "Create Board Game Item",
+            description = "Creates a new board game item in the system"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "201",
+                    description = "Board Game Item successfully created",
+                    content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Validation error occurred",
+                    content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Board Game not found",
+                    content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(
+                    responseCode = "409",
+                    description = "Board Game Item with this serial number already exists",
+                    content = @Content(schema = @Schema(hidden = true))
+            )
+    })
     @PostMapping("/items")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> addBoardGameItem( @RequestBody BoardGameItemCreationDTO boardGameItemCreationDTO) {
-        Long idItem = boardGameItemService.addBoardGameItem(boardGameItemCreationDTO.boardGameId(),boardGameItemCreationDTO.serialNumber(),boardGameItemCreationDTO.state());
-        URI location = URI.create("/api/items/" + idItem);
+    public ResponseEntity<Map<String, Object>> addBoardGameItem(
+            @Valid @RequestBody BoardGameItemCreationDTO boardGameItemCreationDTO
+    ) {
+        Long idItem = boardGameItemService.addBoardGameItem(boardGameItemCreationDTO.boardGameId(), boardGameItemCreationDTO.serialNumber(), boardGameItemCreationDTO.state());
 
-        return ResponseEntity.created(location).build();
+        ResponseGenerator generator = new ResponseGenerator();
+        generator.setResponseInfoMessage(ResponseGenerator.ResponseInfoCode.SUCCESS_CREATED, "BoardGameItem");
+
+        HttpHeaders responseHeaders = new HttpHeaders();
+        URI location = URI.create("/api/items/" + idItem);
+        responseHeaders.setLocation(location);
+
+        return new ResponseEntity<>(generator.getResponse(), responseHeaders, HttpStatus.CREATED);
     }
 
+    @Operation(
+            summary = "Update Board Game Item State",
+            description = "Updates the state of a specific board game item"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Board Game Item state successfully updated",
+                    content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Validation error occurred",
+                    content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Board Game Item not found",
+                    content = @Content(schema = @Schema(hidden = true))
+            )
+    })
     @PatchMapping("/items/{itemId}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> updateBoardGameItemState(@PathVariable Long itemId,
-            @RequestBody BoardGameItemStateDTO boardGameItemStateDTO) {
+    public ResponseEntity<Map<String, Object>> updateBoardGameItemState(
+            @Parameter(
+                    description = "ID of the board game item to update",
+                    example = "1",
+                    required = true
+            )
+            @PathVariable Long itemId,
+            @Valid @RequestBody BoardGameItemStateDTO boardGameItemStateDTO
+    ) {
 
-        boardGameItemService.updateBoardGameItemState(itemId,
-                boardGameItemStateDTO.boardGameState());
+        boardGameItemService.updateBoardGameItemState(itemId, boardGameItemStateDTO.boardGameState());
 
-        return ResponseEntity.ok().build();
+        ResponseGenerator generator = new ResponseGenerator();
+        generator.setResponseInfoMessage(ResponseGenerator.ResponseInfoCode.SUCCESS_MODIFIED, "BoardGameItem");
+
+        return new ResponseEntity<>(generator.getResponse(), HttpStatus.OK);
     }
 
+    @Operation(
+            summary = "Delete Board Game Item",
+            description = "Deletes a specific board game item from the system"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Board Game Item successfully deleted",
+                    content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Validation error occurred",
+                    content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Board Game Item not found",
+                    content = @Content(schema = @Schema(hidden = true))
+            )
+    })
     @DeleteMapping("/items/{itemId}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> deleteBoardGameItem( @PathVariable Long itemId) {
+    public ResponseEntity<Map<String, Object>> deleteBoardGameItem(
+            @Parameter(
+                    description = "ID of the board game item to delete",
+                    example = "1",
+                    required = true
+            )
+            @PathVariable Long itemId) {
         boardGameItemService.deleteBoardGameItem(itemId);
-        return ResponseEntity.noContent().build();
+
+        ResponseGenerator generator = new ResponseGenerator();
+        generator.setResponseInfoMessage(ResponseGenerator.ResponseInfoCode.SUCCESS_DELETED, "BoardGameItem");
+
+        return new ResponseEntity<>(generator.getResponse(), HttpStatus.OK);
     }
 
 }
