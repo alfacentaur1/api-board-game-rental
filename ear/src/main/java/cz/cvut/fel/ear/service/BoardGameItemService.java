@@ -25,10 +25,7 @@ public class BoardGameItemService {
     }
 
     public int availableItemsInStockNumber(long boardGameId) {
-        BoardGame boardGame = boardGameRepository.findById(boardGameId).get();
-        if (boardGame.getName() == null) {
-            throw new EntityNotFoundException(boardGame.getClass().getSimpleName(), boardGameId);
-        }
+        BoardGame boardGame = boardGameRepository.getBoardGameById(boardGameId);
         return getAllAvailableBoardGameItemsForBoardGame(boardGameId).size();
     }
 
@@ -82,36 +79,21 @@ public class BoardGameItemService {
         return boardGameItemRepository.save(boardGameItem).getId();
     }
 
+    public void updateBoardGameItemState(long itemId, BoardGameState state) {
+        BoardGameItem itemToUpdate = boardGameItemRepository.getBoardGameItemById(itemId);
 
-    public void updateBoardGameItemState(long gameId, BoardGameState state) {
-        if (gameId <= 0) {
-            throw new ParametersException("Game id must be greater than 0");
+        if (itemToUpdate == null) {
+            throw new EntityNotFoundException("BoardGameItem", itemId);
         }
-        BoardGameItem boardGameToUpdate = boardGameItemRepository.getBoardGameItemById(gameId);
-        if (boardGameToUpdate == null) {
-            throw new EntityNotFoundException(BoardGame.class.getSimpleName(),gameId);
-        }
-        Long gameNull = null;
-        if(gameId == gameNull ){
-            throw new ParametersException("Game id is null");
-        }
-        if(state == null){
-            throw new ParametersException("State is null");
-        }
-        try {
-            BoardGameState stateToTest = BoardGameState.valueOf(state.toString());
-        } catch (IllegalArgumentException e) {
-            throw new ParametersException("State is not valid");
-        }
-        boardGameToUpdate.setState(state);
-        boardGameItemRepository.save(boardGameToUpdate);
 
+        itemToUpdate.setState(state);
+        boardGameItemRepository.save(itemToUpdate);
     }
 
     public void deleteBoardGameItem(long gameId) {
         BoardGameItem boardGameItemToDelete = boardGameItemRepository.getBoardGameItemById(gameId);
         if (boardGameItemToDelete == null) {
-            throw new EntityNotFoundException(BoardGameItemService.class.getSimpleName(),gameId);
+            throw new EntityNotFoundException(BoardGameItem.class.getSimpleName(),gameId);
         }
         boardGameItemRepository.delete(boardGameItemToDelete);
     }
