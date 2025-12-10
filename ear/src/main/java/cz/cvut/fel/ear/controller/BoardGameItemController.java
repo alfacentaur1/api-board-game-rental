@@ -112,7 +112,7 @@ public class BoardGameItemController {
 
         ResponseWrapper generator = new ResponseWrapper();
         generator.setResponseInfoMessage(ResponseWrapper.ResponseInfoCode.SUCCESS_FOUND, "BoardGameItem");
-        generator.addResponseData("count", boardGameItemDTOS.stream().count());
+        generator.addResponseData("count", boardGameItemDTOS.size());
         generator.addResponseData("items", boardGameItemDTOS);
 
         return new ResponseEntity<>(generator.getResponse(), HttpStatus.OK);
@@ -159,7 +159,7 @@ public class BoardGameItemController {
 
         ResponseWrapper generator = new ResponseWrapper();
         generator.setResponseInfoMessage(ResponseWrapper.ResponseInfoCode.SUCCESS_FOUND, "AvailableBoardGameItem");
-        generator.addResponseData("count", boardGameItemDTOS.stream().count());
+        generator.addResponseData("count", boardGameItemDTOS.size());
         generator.addResponseData("items", boardGameItemDTOS);
 
         return new ResponseEntity<>(generator.getResponse(), HttpStatus.OK);
