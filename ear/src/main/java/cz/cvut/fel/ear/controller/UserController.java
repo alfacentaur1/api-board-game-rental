@@ -1,6 +1,6 @@
 package cz.cvut.fel.ear.controller;
 
-import cz.cvut.fel.ear.controller.response.ResponseGenerator;
+import cz.cvut.fel.ear.controller.response.ResponseWrapper;
 import cz.cvut.fel.ear.dto.UserLoginDTO;
 import cz.cvut.fel.ear.dto.UserRegistrationDTO;
 import cz.cvut.fel.ear.security.JwtService;
@@ -81,15 +81,15 @@ public class UserController {
             loginData.put("email", userDetails.getEmail());
             loginData.put("roles", userDetails.getAuthorities());
 
-            ResponseGenerator generator = new ResponseGenerator();
-            generator.setResponseInfoMessage(ResponseGenerator.ResponseInfoCode.SUCCESS_FOUND, "User");
+            ResponseWrapper generator = new ResponseWrapper();
+            generator.setResponseInfoMessage(ResponseWrapper.ResponseInfoCode.SUCCESS_FOUND, "User");
             generator.addResponseData("user", loginData);
 
             return new ResponseEntity<>(generator.getResponse(), HttpStatus.OK);
 
         } catch (AuthenticationException e) {
-            ResponseGenerator generator = new ResponseGenerator();
-            generator.setResponseInfoMessage(ResponseGenerator.ResponseInfoCode.INVALID_AUTHORIZATION);
+            ResponseWrapper generator = new ResponseWrapper();
+            generator.setResponseInfoMessage(ResponseWrapper.ResponseInfoCode.INVALID_AUTHORIZATION);
 
             return new ResponseEntity<>(generator.getResponse(), HttpStatus.BAD_REQUEST);
         }
@@ -121,8 +121,8 @@ public class UserController {
             @Valid @RequestBody UserRegistrationDTO registrationDTO) {
         userService.registerUser(registrationDTO);
         
-        ResponseGenerator generator = new ResponseGenerator();
-        generator.setResponseInfoMessage(ResponseGenerator.ResponseInfoCode.SUCCESS_CREATED, "User");
+        ResponseWrapper generator = new ResponseWrapper();
+        generator.setResponseInfoMessage(ResponseWrapper.ResponseInfoCode.SUCCESS_CREATED, "User");
         
         return new ResponseEntity<>(generator.getResponse(), HttpStatus.CREATED);
     }
@@ -153,8 +153,8 @@ public class UserController {
             @Valid @RequestBody UserRegistrationDTO registrationDTO) {
         userService.registerAdmin(registrationDTO);
         
-        ResponseGenerator generator = new ResponseGenerator();
-        generator.setResponseInfoMessage(ResponseGenerator.ResponseInfoCode.SUCCESS_CREATED, "Admin");
+        ResponseWrapper generator = new ResponseWrapper();
+        generator.setResponseInfoMessage(ResponseWrapper.ResponseInfoCode.SUCCESS_CREATED, "Admin");
         
         return new ResponseEntity<>(generator.getResponse(), HttpStatus.CREATED);
     }

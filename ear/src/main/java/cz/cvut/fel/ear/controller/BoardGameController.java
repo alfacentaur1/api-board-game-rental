@@ -1,6 +1,6 @@
 package cz.cvut.fel.ear.controller;
 
-import cz.cvut.fel.ear.controller.response.ResponseGenerator;
+import cz.cvut.fel.ear.controller.response.ResponseWrapper;
 import cz.cvut.fel.ear.dto.BoardGameDTO;
 import cz.cvut.fel.ear.dto.BoardGameToCreateDTO;
 import cz.cvut.fel.ear.dto.BoardGameUpdateDTO;
@@ -82,8 +82,8 @@ public class BoardGameController {
         BoardGame boardGame = boardGameService.getBoardGame(id);
         BoardGameDTO DTO = createBoardGameDTO(boardGame);
 
-        ResponseGenerator generator = new ResponseGenerator();
-        generator.setResponseInfoMessage(ResponseGenerator.ResponseInfoCode.SUCCESS_FOUND, boardGame.getClass().getSimpleName());
+        ResponseWrapper generator = new ResponseWrapper();
+        generator.setResponseInfoMessage(ResponseWrapper.ResponseInfoCode.SUCCESS_FOUND, boardGame.getClass().getSimpleName());
         generator.addResponseData("BoardGame", DTO);
 
         return new ResponseEntity<>(generator.getResponse(), HttpStatus.OK);
@@ -122,8 +122,8 @@ public class BoardGameController {
         Long id = boardGameService.createBoardGame(boardGameToCreateDTO.name(),
                 boardGameToCreateDTO.description());
 
-        ResponseGenerator generator = new ResponseGenerator();
-        generator.setResponseInfoMessage(ResponseGenerator.ResponseInfoCode.SUCCESS_CREATED, BoardGame.class.getSimpleName());
+        ResponseWrapper generator = new ResponseWrapper();
+        generator.setResponseInfoMessage(ResponseWrapper.ResponseInfoCode.SUCCESS_CREATED, BoardGame.class.getSimpleName());
 
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.add(HttpHeaders.LOCATION, "/boardGames/" + id);
@@ -167,8 +167,8 @@ public class BoardGameController {
             @PathVariable Long gameId) {
         boardGameService.removeBoardGame(gameId);
 
-        ResponseGenerator generator = new ResponseGenerator();
-        generator.setResponseInfoMessage(ResponseGenerator.ResponseInfoCode.SUCCESS_DELETED, BoardGame.class.getSimpleName());
+        ResponseWrapper generator = new ResponseWrapper();
+        generator.setResponseInfoMessage(ResponseWrapper.ResponseInfoCode.SUCCESS_DELETED, BoardGame.class.getSimpleName());
 
         return new ResponseEntity<>(generator.getResponse(), HttpStatus.OK);
     }
@@ -206,8 +206,8 @@ public class BoardGameController {
         boardGameService.updateBoardGameDescription(boardGameUpdateDTO.id(),
                 boardGameUpdateDTO.description());
 
-        ResponseGenerator generator = new ResponseGenerator();
-        generator.setResponseInfoMessage(ResponseGenerator.ResponseInfoCode.SUCCESS_MODIFIED, BoardGame.class.getSimpleName());
+        ResponseWrapper generator = new ResponseWrapper();
+        generator.setResponseInfoMessage(ResponseWrapper.ResponseInfoCode.SUCCESS_MODIFIED, BoardGame.class.getSimpleName());
 
         return new ResponseEntity<>(generator.getResponse(), HttpStatus.OK);
     }
@@ -231,9 +231,9 @@ public class BoardGameController {
             boardGameDTOs.add(createBoardGameDTO(boardGame));
         }
 
-        ResponseGenerator generator = new ResponseGenerator();
+        ResponseWrapper generator = new ResponseWrapper();
         generator.addResponseData("BoardGame", boardGameDTOs);
-        generator.setResponseInfoMessage(ResponseGenerator.ResponseInfoCode.SUCCESS_FOUND, BoardGame.class.getSimpleName());
+        generator.setResponseInfoMessage(ResponseWrapper.ResponseInfoCode.SUCCESS_FOUND, BoardGame.class.getSimpleName());
 
         return new ResponseEntity<>(generator.getResponse(), HttpStatus.OK);
     }
@@ -289,8 +289,8 @@ public class BoardGameController {
         RegisteredUser user = (RegisteredUser) userService.getUserByUsername(username);
         boardGameService.addGameToFavorites(user, gameId);
 
-        ResponseGenerator generator = new ResponseGenerator();
-        generator.setResponseInfoMessage(ResponseGenerator.ResponseInfoCode.SUCCESS_ITEM_ADDED_TO_SOURCE, "BoardGame", "Favorites");
+        ResponseWrapper generator = new ResponseWrapper();
+        generator.setResponseInfoMessage(ResponseWrapper.ResponseInfoCode.SUCCESS_ITEM_ADDED_TO_SOURCE, "BoardGame", "Favorites");
 
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.add(HttpHeaders.LOCATION, "/api/boardgames/users/" + username + "/favorites/" + gameId);
@@ -342,8 +342,8 @@ public class BoardGameController {
         RegisteredUser user = (RegisteredUser) userService.getUserByUsername(username);
         boardGameService.removeGameFromFavorites(user, gameId);
 
-        ResponseGenerator generator = new ResponseGenerator();
-        generator.setResponseInfoMessage(ResponseGenerator.ResponseInfoCode.SUCCESS_ITEM_REMOVED_FROM_SOURCE, "Board Game", "Favorites");
+        ResponseWrapper generator = new ResponseWrapper();
+        generator.setResponseInfoMessage(ResponseWrapper.ResponseInfoCode.SUCCESS_ITEM_REMOVED_FROM_SOURCE, "Board Game", "Favorites");
 
         return new ResponseEntity<>(generator.getResponse(), HttpStatus.OK);
     }
@@ -390,8 +390,8 @@ public class BoardGameController {
             favoriteGameDTOs.add(boardGameDTO);
         }
 
-        ResponseGenerator generator = new ResponseGenerator();
-        generator.setResponseInfoMessage(ResponseGenerator.ResponseInfoCode.SUCCESS_FOUND, "Board Game");
+        ResponseWrapper generator = new ResponseWrapper();
+        generator.setResponseInfoMessage(ResponseWrapper.ResponseInfoCode.SUCCESS_FOUND, "Board Game");
         generator.addResponseData("favorites", favoriteGameDTOs);
 
         return new ResponseEntity<>(generator.getResponse(), HttpStatus.OK);
@@ -435,8 +435,8 @@ public class BoardGameController {
             topBorrowedGameDTOs.add(createBoardGameDTO(boardGame));
         }
 
-        ResponseGenerator generator = new ResponseGenerator();
-        generator.setResponseInfoMessage(ResponseGenerator.ResponseInfoCode.SUCCESS_FOUND, BoardGame.class.getSimpleName());
+        ResponseWrapper generator = new ResponseWrapper();
+        generator.setResponseInfoMessage(ResponseWrapper.ResponseInfoCode.SUCCESS_FOUND, BoardGame.class.getSimpleName());
         generator.addResponseData("boardGame", topBorrowedGameDTOs);
 
         return new ResponseEntity<>(generator.getResponse(), HttpStatus.OK);

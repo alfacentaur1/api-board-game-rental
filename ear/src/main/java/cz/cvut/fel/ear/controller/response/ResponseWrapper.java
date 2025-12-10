@@ -4,7 +4,7 @@ import cz.cvut.fel.ear.dto.BasicDTO;
 
 import java.util.*;
 
-public class ResponseGenerator {
+public class ResponseWrapper {
     public enum ErrorMessageCode {
         INVALID_FIELD_TYPE ("invalid type in field %s"),
         INVALID_FIELD_VALUE ("invalid value in field %s"),

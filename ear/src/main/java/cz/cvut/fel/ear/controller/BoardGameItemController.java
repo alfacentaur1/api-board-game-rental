@@ -1,6 +1,6 @@
 package cz.cvut.fel.ear.controller;
 
-import cz.cvut.fel.ear.controller.response.ResponseGenerator;
+import cz.cvut.fel.ear.controller.response.ResponseWrapper;
 import cz.cvut.fel.ear.dto.BoardGameItemCreationDTO;
 import cz.cvut.fel.ear.dto.BoardGameItemDTO;
 import cz.cvut.fel.ear.dto.BoardGameItemStateDTO;
@@ -63,8 +63,8 @@ public class BoardGameItemController {
             @PathVariable Long id) {
         int stockCount = boardGameItemService.availableItemsInStockNumber(id);
 
-        ResponseGenerator generator = new ResponseGenerator();
-        generator.setResponseInfoMessage(ResponseGenerator.ResponseInfoCode.SUCCESS_FOUND, "BoardGameItems");
+        ResponseWrapper generator = new ResponseWrapper();
+        generator.setResponseInfoMessage(ResponseWrapper.ResponseInfoCode.SUCCESS_FOUND, "BoardGameItems");
         generator.addResponseData("items", stockCount);
 
         return new ResponseEntity<>(generator.getResponse(), HttpStatus.OK);
@@ -110,8 +110,8 @@ public class BoardGameItemController {
                 ))
                 .toList();
 
-        ResponseGenerator generator = new ResponseGenerator();
-        generator.setResponseInfoMessage(ResponseGenerator.ResponseInfoCode.SUCCESS_FOUND, "BoardGameItem");
+        ResponseWrapper generator = new ResponseWrapper();
+        generator.setResponseInfoMessage(ResponseWrapper.ResponseInfoCode.SUCCESS_FOUND, "BoardGameItem");
         generator.addResponseData("count", boardGameItemDTOS.stream().count());
         generator.addResponseData("items", boardGameItemDTOS);
 
@@ -157,8 +157,8 @@ public class BoardGameItemController {
                 ))
                 .toList();
 
-        ResponseGenerator generator = new ResponseGenerator();
-        generator.setResponseInfoMessage(ResponseGenerator.ResponseInfoCode.SUCCESS_FOUND, "AvailableBoardGameItem");
+        ResponseWrapper generator = new ResponseWrapper();
+        generator.setResponseInfoMessage(ResponseWrapper.ResponseInfoCode.SUCCESS_FOUND, "AvailableBoardGameItem");
         generator.addResponseData("count", boardGameItemDTOS.stream().count());
         generator.addResponseData("items", boardGameItemDTOS);
 
@@ -203,8 +203,8 @@ public class BoardGameItemController {
     ) {
         Long idItem = boardGameItemService.addBoardGameItem(boardGameItemCreationDTO.boardGameId(), boardGameItemCreationDTO.serialNumber(), boardGameItemCreationDTO.state());
 
-        ResponseGenerator generator = new ResponseGenerator();
-        generator.setResponseInfoMessage(ResponseGenerator.ResponseInfoCode.SUCCESS_CREATED, "BoardGameItem");
+        ResponseWrapper generator = new ResponseWrapper();
+        generator.setResponseInfoMessage(ResponseWrapper.ResponseInfoCode.SUCCESS_CREATED, "BoardGameItem");
 
         HttpHeaders responseHeaders = new HttpHeaders();
         URI location = URI.create("/api/items/" + idItem);
@@ -253,8 +253,8 @@ public class BoardGameItemController {
 
         boardGameItemService.updateBoardGameItemState(itemId, boardGameItemStateDTO.boardGameState());
 
-        ResponseGenerator generator = new ResponseGenerator();
-        generator.setResponseInfoMessage(ResponseGenerator.ResponseInfoCode.SUCCESS_MODIFIED, "BoardGameItem");
+        ResponseWrapper generator = new ResponseWrapper();
+        generator.setResponseInfoMessage(ResponseWrapper.ResponseInfoCode.SUCCESS_MODIFIED, "BoardGameItem");
 
         return new ResponseEntity<>(generator.getResponse(), HttpStatus.OK);
     }
@@ -296,8 +296,8 @@ public class BoardGameItemController {
             @PathVariable Long itemId) {
         boardGameItemService.deleteBoardGameItem(itemId);
 
-        ResponseGenerator generator = new ResponseGenerator();
-        generator.setResponseInfoMessage(ResponseGenerator.ResponseInfoCode.SUCCESS_DELETED, "BoardGameItem");
+        ResponseWrapper generator = new ResponseWrapper();
+        generator.setResponseInfoMessage(ResponseWrapper.ResponseInfoCode.SUCCESS_DELETED, "BoardGameItem");
 
         return new ResponseEntity<>(generator.getResponse(), HttpStatus.OK);
     }

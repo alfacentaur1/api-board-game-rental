@@ -1,6 +1,6 @@
 package cz.cvut.fel.ear.controller;
 
-import cz.cvut.fel.ear.controller.response.ResponseGenerator;
+import cz.cvut.fel.ear.controller.response.ResponseWrapper;
 import cz.cvut.fel.ear.dto.CategoryCreationDTO;
 import cz.cvut.fel.ear.dto.CategoryDTO;
 import cz.cvut.fel.ear.model.Category;
@@ -64,8 +64,8 @@ public class CategoryController {
     ) {
         Long id = categoryService.addCategory(categoryCreationDTO.name());
         
-        ResponseGenerator generator = new ResponseGenerator();
-        generator.setResponseInfoMessage(ResponseGenerator.ResponseInfoCode.SUCCESS_CREATED, "Category");
+        ResponseWrapper generator = new ResponseWrapper();
+        generator.setResponseInfoMessage(ResponseWrapper.ResponseInfoCode.SUCCESS_CREATED, "Category");
         
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.add("Location", "api/categories/" + id);
@@ -121,8 +121,8 @@ public class CategoryController {
             @PathVariable Long boardGameId) {
         categoryService.addBoardGameToCategory(boardGameId, categoryId);
 
-        ResponseGenerator generator = new ResponseGenerator();
-        generator.setResponseInfoMessage(ResponseGenerator.ResponseInfoCode.SUCCESS_ITEM_ADDED_TO_SOURCE, "Board Game", "Category");
+        ResponseWrapper generator = new ResponseWrapper();
+        generator.setResponseInfoMessage(ResponseWrapper.ResponseInfoCode.SUCCESS_ITEM_ADDED_TO_SOURCE, "Board Game", "Category");
         
         return new ResponseEntity<>(generator.getResponse(), HttpStatus.OK);
     }
@@ -170,8 +170,8 @@ public class CategoryController {
             @PathVariable Long boardGameId) {
         categoryService.removeGameFromCategory(boardGameId, categoryId);
 
-        ResponseGenerator generator = new ResponseGenerator();
-        generator.setResponseInfoMessage(ResponseGenerator.ResponseInfoCode.SUCCESS_ITEM_REMOVED_FROM_SOURCE, "Board Game", "Category");
+        ResponseWrapper generator = new ResponseWrapper();
+        generator.setResponseInfoMessage(ResponseWrapper.ResponseInfoCode.SUCCESS_ITEM_REMOVED_FROM_SOURCE, "Board Game", "Category");
         
         return new ResponseEntity<>(generator.getResponse(), HttpStatus.OK);
     }
@@ -194,8 +194,8 @@ public class CategoryController {
                 .map(category -> new CategoryDTO(category.getId(), category.getName()))
                 .toList();
 
-        ResponseGenerator generator = new ResponseGenerator();
-        generator.setResponseInfoMessage(ResponseGenerator.ResponseInfoCode.SUCCESS_FOUND, "Category");
+        ResponseWrapper generator = new ResponseWrapper();
+        generator.setResponseInfoMessage(ResponseWrapper.ResponseInfoCode.SUCCESS_FOUND, "Category");
         generator.addResponseData("count", categoryDTOs.size());
         generator.addResponseData("categories", categoryDTOs);
         

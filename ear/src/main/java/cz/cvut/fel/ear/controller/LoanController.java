@@ -1,6 +1,6 @@
 package cz.cvut.fel.ear.controller;
 
-import cz.cvut.fel.ear.controller.response.ResponseGenerator;
+import cz.cvut.fel.ear.controller.response.ResponseWrapper;
 import cz.cvut.fel.ear.dto.BoardGameLoanDetailDTO;
 import cz.cvut.fel.ear.dto.BoardGameLoanToCreateDTO;
 import cz.cvut.fel.ear.mapper.LoanMapper;
@@ -72,8 +72,8 @@ public class LoanController {
         BoardGameLoan boardGameLoan = loanService.getBoardGameLoan(id);
         BoardGameLoanDetailDTO loanDetailDTO = loanMapper.toDetailDto(boardGameLoan);
 
-        ResponseGenerator generator = new ResponseGenerator();
-        generator.setResponseInfoMessage(ResponseGenerator.ResponseInfoCode.SUCCESS_FOUND, "Loan");
+        ResponseWrapper generator = new ResponseWrapper();
+        generator.setResponseInfoMessage(ResponseWrapper.ResponseInfoCode.SUCCESS_FOUND, "Loan");
         generator.addResponseData("loan", loanDetailDTO);
 
         return new ResponseEntity<>(generator.getResponse(), HttpStatus.OK);
@@ -103,8 +103,8 @@ public class LoanController {
                 .map(loanMapper::toDetailDto)
                 .toList();
 
-        ResponseGenerator generator = new ResponseGenerator();
-        generator.setResponseInfoMessage(ResponseGenerator.ResponseInfoCode.SUCCESS_FOUND, "Loan");
+        ResponseWrapper generator = new ResponseWrapper();
+        generator.setResponseInfoMessage(ResponseWrapper.ResponseInfoCode.SUCCESS_FOUND, "Loan");
         generator.addResponseData("loans", pendingLoanDTOs);
 
         return new ResponseEntity<>(generator.getResponse(), HttpStatus.OK);
@@ -134,8 +134,8 @@ public class LoanController {
                 .map(loanMapper::toDetailDto)
                 .toList();
 
-        ResponseGenerator generator = new ResponseGenerator();
-        generator.setResponseInfoMessage(ResponseGenerator.ResponseInfoCode.SUCCESS_FOUND, "Loan");
+        ResponseWrapper generator = new ResponseWrapper();
+        generator.setResponseInfoMessage(ResponseWrapper.ResponseInfoCode.SUCCESS_FOUND, "Loan");
         generator.addResponseData("loans", allLoanDTOs);
 
         return new ResponseEntity<>(generator.getResponse(), HttpStatus.OK);
@@ -176,8 +176,8 @@ public class LoanController {
                 .map(loanMapper::toDetailDto)
                 .toList();
 
-        ResponseGenerator generator = new ResponseGenerator();
-        generator.setResponseInfoMessage(ResponseGenerator.ResponseInfoCode.SUCCESS_FOUND, "Loan");
+        ResponseWrapper generator = new ResponseWrapper();
+        generator.setResponseInfoMessage(ResponseWrapper.ResponseInfoCode.SUCCESS_FOUND, "Loan");
         generator.addResponseData("loans", userLoanDTOs);
 
         return new ResponseEntity<>(generator.getResponse(), HttpStatus.OK);
@@ -220,8 +220,8 @@ public class LoanController {
             @PathVariable long id) {
         loanService.approveGameLoan(id);
 
-        ResponseGenerator generator = new ResponseGenerator();
-        generator.setResponseInfoMessage(ResponseGenerator.ResponseInfoCode.SUCCESS_MODIFIED, "Loan");
+        ResponseWrapper generator = new ResponseWrapper();
+        generator.setResponseInfoMessage(ResponseWrapper.ResponseInfoCode.SUCCESS_MODIFIED, "Loan");
 
         return new ResponseEntity<>(generator.getResponse(), HttpStatus.OK);
     }
@@ -263,8 +263,8 @@ public class LoanController {
             @PathVariable long id) {
         loanService.rejectGameLoan(id);
 
-        ResponseGenerator generator = new ResponseGenerator();
-        generator.setResponseInfoMessage(ResponseGenerator.ResponseInfoCode.SUCCESS_MODIFIED, "Loan");
+        ResponseWrapper generator = new ResponseWrapper();
+        generator.setResponseInfoMessage(ResponseWrapper.ResponseInfoCode.SUCCESS_MODIFIED, "Loan");
 
         return new ResponseEntity<>(generator.getResponse(), HttpStatus.OK);
     }
@@ -274,8 +274,8 @@ public class LoanController {
     public ResponseEntity<Map<String, Object>> changeLoanStatus(@PathVariable long id, @RequestParam Status status) {
         loanService.changeLoanStatus(id, status);
 
-        ResponseGenerator generator = new ResponseGenerator();
-        generator.setResponseInfoMessage(ResponseGenerator.ResponseInfoCode.SUCCESS_MODIFIED, "Loan");
+        ResponseWrapper generator = new ResponseWrapper();
+        generator.setResponseInfoMessage(ResponseWrapper.ResponseInfoCode.SUCCESS_MODIFIED, "Loan");
 
         return new ResponseEntity<>(generator.getResponse(), HttpStatus.OK);
     }
@@ -288,8 +288,8 @@ public class LoanController {
                 .map(loanMapper::toDetailDto)
                 .toList();
 
-        ResponseGenerator generator = new ResponseGenerator();
-        generator.setResponseInfoMessage(ResponseGenerator.ResponseInfoCode.SUCCESS_FOUND, "Loan");
+        ResponseWrapper generator = new ResponseWrapper();
+        generator.setResponseInfoMessage(ResponseWrapper.ResponseInfoCode.SUCCESS_FOUND, "Loan");
         generator.addResponseData("loans", borrowedLoanDTOs);
 
         return new ResponseEntity<>(generator.getResponse(), HttpStatus.OK);
@@ -340,8 +340,8 @@ public class LoanController {
         BoardGameLoan newLoan = loanService.getBoardGameLoan(loanId);
         BoardGameLoanDetailDTO newLoanDto = loanMapper.toDetailDto(newLoan);
 
-        ResponseGenerator generator = new ResponseGenerator();
-        generator.setResponseInfoMessage(ResponseGenerator.ResponseInfoCode.SUCCESS_CREATED, "Loan");
+        ResponseWrapper generator = new ResponseWrapper();
+        generator.setResponseInfoMessage(ResponseWrapper.ResponseInfoCode.SUCCESS_CREATED, "Loan");
         generator.addResponseData("loan", newLoanDto);
 
         HttpHeaders responseHeaders = new HttpHeaders();
@@ -389,8 +389,8 @@ public class LoanController {
             @PathVariable long loanId) {
         loanService.returnBoardGameLoan(loanId);
 
-        ResponseGenerator generator = new ResponseGenerator();
-        generator.setResponseInfoMessage(ResponseGenerator.ResponseInfoCode.SUCCESS_MODIFIED, "Loan");
+        ResponseWrapper generator = new ResponseWrapper();
+        generator.setResponseInfoMessage(ResponseWrapper.ResponseInfoCode.SUCCESS_MODIFIED, "Loan");
 
         return new ResponseEntity<>(generator.getResponse(), HttpStatus.OK);
     }

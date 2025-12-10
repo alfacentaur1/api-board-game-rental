@@ -1,6 +1,6 @@
 package cz.cvut.fel.ear.controller;
 
-import cz.cvut.fel.ear.controller.response.ResponseGenerator;
+import cz.cvut.fel.ear.controller.response.ResponseWrapper;
 import cz.cvut.fel.ear.dto.ReviewDetailDTO;
 import cz.cvut.fel.ear.mapper.ReviewMapper;
 import cz.cvut.fel.ear.model.Review;
@@ -64,8 +64,8 @@ public class ReviewController {
             @PathVariable("id") Long id) {
         Review reviewDetailDTO = reviewService.findReviewById(id);
 
-        ResponseGenerator generator = new ResponseGenerator();
-        generator.setResponseInfoMessage(ResponseGenerator.ResponseInfoCode.SUCCESS_FOUND, "Review");
+        ResponseWrapper generator = new ResponseWrapper();
+        generator.setResponseInfoMessage(ResponseWrapper.ResponseInfoCode.SUCCESS_FOUND, "Review");
         generator.addResponseData("review", reviewMapper.toReviewDetailDTO(reviewDetailDTO));
 
         return new ResponseEntity<>(generator.getResponse(), HttpStatus.OK);
@@ -105,8 +105,8 @@ public class ReviewController {
                 .map(reviewMapper::toReviewDetailDTO)
                 .collect(Collectors.toList());
 
-        ResponseGenerator generator = new ResponseGenerator();
-        generator.setResponseInfoMessage(ResponseGenerator.ResponseInfoCode.SUCCESS_FOUND, "Review");
+        ResponseWrapper generator = new ResponseWrapper();
+        generator.setResponseInfoMessage(ResponseWrapper.ResponseInfoCode.SUCCESS_FOUND, "Review");
         generator.addResponseData("reviews", reviewDTOS);
 
         return new ResponseEntity<>(generator.getResponse(), HttpStatus.OK);
@@ -169,8 +169,8 @@ public class ReviewController {
         Review review = reviewService.createReview(userId, gameId, content, rating);
         ReviewDetailDTO reviewDetailDTO = reviewMapper.toReviewDetailDTO(review);
 
-        ResponseGenerator generator = new ResponseGenerator();
-        generator.setResponseInfoMessage(ResponseGenerator.ResponseInfoCode.SUCCESS_CREATED, "Review");
+        ResponseWrapper generator = new ResponseWrapper();
+        generator.setResponseInfoMessage(ResponseWrapper.ResponseInfoCode.SUCCESS_CREATED, "Review");
         generator.addResponseData("review", reviewDetailDTO);
 
         HttpHeaders responseHeaders = new HttpHeaders();
@@ -217,8 +217,8 @@ public class ReviewController {
             @PathVariable("id") Long id) {
         reviewService.deleteReview(id);
 
-        ResponseGenerator generator = new ResponseGenerator();
-        generator.setResponseInfoMessage(ResponseGenerator.ResponseInfoCode.SUCCESS_DELETED, "Review");
+        ResponseWrapper generator = new ResponseWrapper();
+        generator.setResponseInfoMessage(ResponseWrapper.ResponseInfoCode.SUCCESS_DELETED, "Review");
 
         return new ResponseEntity<>(generator.getResponse(), HttpStatus.OK);
     }
