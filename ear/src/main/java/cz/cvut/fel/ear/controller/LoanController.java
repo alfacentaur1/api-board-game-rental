@@ -50,6 +50,11 @@ public class LoanController {
                     content = @Content(schema = @Schema(hidden = true))
             ),
             @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden - Authentication required",
+                    content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(
                     responseCode = "404",
                     description = "Loan not found",
                     content = @Content(schema = @Schema(hidden = true))
@@ -83,7 +88,12 @@ public class LoanController {
                     responseCode = "200",
                     description = "Pending loans successfully retrieved",
                     content = @Content(schema = @Schema(hidden = true))
-            )
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden - Authentication required",
+                    content = @Content(schema = @Schema(hidden = true))
+            ),
     })
     @GetMapping("/pending")
     @PreAuthorize("hasRole('ADMIN')")
@@ -109,7 +119,12 @@ public class LoanController {
                     responseCode = "200",
                     description = "All loans successfully retrieved",
                     content = @Content(schema = @Schema(hidden = true))
-            )
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden - Authentication required",
+                    content = @Content(schema = @Schema(hidden = true))
+            ),
     })
     @GetMapping("/")
     @PreAuthorize("hasRole('ADMIN')")
@@ -140,7 +155,12 @@ public class LoanController {
                     responseCode = "404",
                     description = "User not found",
                     content = @Content(schema = @Schema(hidden = true))
-            )
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden - Authentication required",
+                    content = @Content(schema = @Schema(hidden = true))
+            ),
     })
     @GetMapping("/user/{userId}")
     @PreAuthorize("hasRole('ADMIN') or #userId == authentication.principal.id")
@@ -182,7 +202,12 @@ public class LoanController {
                     responseCode = "404",
                     description = "Loan not found",
                     content = @Content(schema = @Schema(hidden = true))
-            )
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden - Authentication required",
+                    content = @Content(schema = @Schema(hidden = true))
+            ),
     })
     @PatchMapping("/{id}/approve")
     @PreAuthorize("hasRole('ADMIN')")
@@ -220,7 +245,12 @@ public class LoanController {
                     responseCode = "404",
                     description = "Loan not found",
                     content = @Content(schema = @Schema(hidden = true))
-            )
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden - Authentication required",
+                    content = @Content(schema = @Schema(hidden = true))
+            ),
     })
     @PatchMapping("/{id}/reject")
     @PreAuthorize("hasRole('ADMIN')")
@@ -289,7 +319,12 @@ public class LoanController {
                     responseCode = "409",
                     description = "Board Game Item is not available",
                     content = @Content(schema = @Schema(hidden = true))
-            )
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden - Authentication required",
+                    content = @Content(schema = @Schema(hidden = true))
+            ),
     })
     @PostMapping("/")
     @PreAuthorize("hasRole('USER')")
@@ -336,7 +371,12 @@ public class LoanController {
                     responseCode = "404",
                     description = "Loan not found",
                     content = @Content(schema = @Schema(hidden = true))
-            )
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden - Authentication required",
+                    content = @Content(schema = @Schema(hidden = true))
+            ),
     })
     @PostMapping("/{loanId}/return")
     @PreAuthorize("hasRole('USER') and @loanSecurity.isLoanOwner(#loandId, authentication)")

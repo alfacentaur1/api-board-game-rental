@@ -131,7 +131,12 @@ public class ReviewController {
                     responseCode = "404",
                     description = "User or Board Game not found",
                     content = @Content(schema = @Schema(hidden = true))
-            )
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden - Authentication required",
+                    content = @Content(schema = @Schema(hidden = true))
+            ),
     })
     @PreAuthorize("hasRole('USER')")
     @PostMapping("/games/{gameId}/users/{userId}")
@@ -194,7 +199,12 @@ public class ReviewController {
                     responseCode = "404",
                     description = "Review not found",
                     content = @Content(schema = @Schema(hidden = true))
-            )
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden - Authentication required",
+                    content = @Content(schema = @Schema(hidden = true))
+            ),
     })
     @PreAuthorize("hasRole('USER') and @reviewSecurity.isOwner(#id, authentication)")
     @DeleteMapping("/{id}")

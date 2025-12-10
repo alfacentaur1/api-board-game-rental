@@ -47,6 +47,11 @@ public class CategoryController {
                     content = @Content(schema = @Schema(hidden = true))
             ),
             @ApiResponse(
+                    responseCode = "403",
+                    description = "For - Authentication required",
+                    content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(
                     responseCode = "409",
                     description = "Category already exists",
                     content = @Content(schema = @Schema(hidden = true))
@@ -81,6 +86,11 @@ public class CategoryController {
             @ApiResponse(
                     responseCode = "400",
                     description = "Validation error occurred",
+                    content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden - Authentication required",
                     content = @Content(schema = @Schema(hidden = true))
             ),
             @ApiResponse(
@@ -130,6 +140,11 @@ public class CategoryController {
             @ApiResponse(
                     responseCode = "400",
                     description = "Validation error occurred",
+                    content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden - Authentication required",
                     content = @Content(schema = @Schema(hidden = true))
             ),
             @ApiResponse(

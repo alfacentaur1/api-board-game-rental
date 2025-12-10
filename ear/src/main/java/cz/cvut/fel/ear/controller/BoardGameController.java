@@ -105,6 +105,11 @@ public class BoardGameController {
                     content = @Content(schema = @Schema(hidden = true))
             ),
             @ApiResponse(
+                    responseCode = "401",
+                    description = "Forbidden - Authentication required",
+                    content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(
                     responseCode = "409",
                     description = "Board Game already exists",
                     content = @Content(schema = @Schema(hidden = true))
@@ -138,6 +143,11 @@ public class BoardGameController {
             @ApiResponse(
                     responseCode = "400",
                     description = "Validation error occurred",
+                    content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden - Authentication required",
                     content = @Content(schema = @Schema(hidden = true))
             ),
             @ApiResponse(
@@ -176,6 +186,11 @@ public class BoardGameController {
             @ApiResponse(
                     responseCode = "400",
                     description = "Validation error occurred",
+                    content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden - Authentication required",
                     content = @Content(schema = @Schema(hidden = true))
             ),
             @ApiResponse(
@@ -240,6 +255,11 @@ public class BoardGameController {
                     content = @Content(schema = @Schema(hidden = true))
             ),
             @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden - Authentication required",
+                    content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(
                     responseCode = "404",
                     description = "User or Board Game not found",
                     content = @Content(schema = @Schema(hidden = true))
@@ -294,6 +314,11 @@ public class BoardGameController {
                     content = @Content(schema = @Schema(hidden = true))
             ),
             @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden - Authentication required",
+                    content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(
                     responseCode = "404",
                     description = "User or Board Game not found",
                     content = @Content(schema = @Schema(hidden = true))
@@ -331,6 +356,11 @@ public class BoardGameController {
             @ApiResponse(
                     responseCode = "200",
                     description = "Favorite Board Games successfully retrieved",
+                    content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden - Authentication required",
                     content = @Content(schema = @Schema(hidden = true))
             ),
             @ApiResponse(
@@ -381,6 +411,11 @@ public class BoardGameController {
             @ApiResponse(
                     responseCode = "400",
                     description = "Validation error occurred (count must be greater than 0)",
+                    content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden - Authentication required",
                     content = @Content(schema = @Schema(hidden = true))
             )
     })
