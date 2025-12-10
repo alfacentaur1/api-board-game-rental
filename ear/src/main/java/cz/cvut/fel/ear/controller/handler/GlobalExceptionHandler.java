@@ -1,123 +1,240 @@
 package cz.cvut.fel.ear.controller.handler;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import cz.cvut.fel.ear.controller.response.ResponseWrapper;
+import cz.cvut.fel.ear.controller.response.ResponseWrapper.ErrorMessageCode;
+import cz.cvut.fel.ear.controller.response.ResponseWrapper.ResponseInfoCode;
 import cz.cvut.fel.ear.exception.*;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Path;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.validation.FieldError;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.StreamSupport;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-    private ResponseEntity<Map<String,String>> buildErrorResponse(String message, HttpStatus status){
-        Map<String,String> errorBody = new HashMap<>();
-        errorBody.put("error", message);
-        return ResponseEntity.status(status).body(errorBody);
+
+    /**
+     * Handles @Valid on RequestBody DTOs
+     */
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, Object>> handleDtoValidation(MethodArgumentNotValidException exception) {
+        ResponseWrapper generator = new ResponseWrapper();
+        generator.setResponseInfoMessage(ResponseInfoCode.ERROR_VALIDATION);
+
+        for (FieldError error : exception.getBindingResult().getFieldErrors()) {
+            generator.addResponseInfoError(
+                    resolveValidationCode(error.getCode()),
+                    error.getField()
+            );
+        }
+        return buildResponse(generator, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<Map<String,String>> handleIllegalArgumentException(IllegalArgumentException exception){
-        return buildErrorResponse(exception.getMessage(),HttpStatus.BAD_REQUEST);
+    /**
+     * Handles @Validated on Controller parameters
+     */
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<Map<String, Object>> handleUrlValidation(ConstraintViolationException exception) {
+        ResponseWrapper generator = new ResponseWrapper();
+        generator.setResponseInfoMessage(ResponseInfoCode.ERROR_VALIDATION);
+
+        for (ConstraintViolation<?> violation : exception.getConstraintViolations()) {
+            String fieldName = extractFieldName(violation.getPropertyPath());
+            String annotation = violation.getConstraintDescriptor().getAnnotation().annotationType().getSimpleName();
+
+            generator.addResponseInfoError(resolveValidationCode(annotation), fieldName);
+        }
+        return buildResponse(generator, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(BoardGameNotFoundInCategory.class)
-    public ResponseEntity<Map<String,String>> handleBoardGameNotFoundInCategory(BoardGameNotFoundInCategory exception){
-        return buildErrorResponse(exception.getMessage(),HttpStatus.NOT_FOUND);
+    /**
+     * Handles JSON formatting errors
+     */
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<Map<String, Object>> handleJsonErrors(HttpMessageNotReadableException exception) {
+        ResponseWrapper generator = new ResponseWrapper();
+        generator.setResponseInfoMessage(ResponseInfoCode.ERROR_VALIDATION);
+
+        // Empty body check
+        if (exception.getMessage() != null && exception.getMessage().startsWith("Required request body is missing")) {
+            generator.addResponseInfoError(ErrorMessageCode.MISSING_BODY, "requestBody");
+            return buildResponse(generator, HttpStatus.BAD_REQUEST);
+        }
+
+        Throwable cause = exception.getCause();
+
+        // Invalid dataType
+        if (cause instanceof InvalidFormatException ife) {
+            String fieldName = extractJsonFieldName(ife.getPath());
+            if (ife.getTargetType().isEnum()) {
+                generator.addResponseInfoError(ErrorMessageCode.INVALID_FIELD_VALUE, fieldName);
+            } else {
+                generator.addResponseInfoError(ErrorMessageCode.INVALID_FIELD_TYPE, fieldName);
+            }
+        }
+
+        // Missing  field
+        else if (cause instanceof MismatchedInputException mie) {
+            String fieldName = extractJsonFieldName(mie.getPath());
+            String msg = mie.getOriginalMessage();
+            if (msg != null && (msg.contains("missing") || msg.contains("null"))) {
+                generator.addResponseInfoError(ErrorMessageCode.MISSING_FIELD, fieldName);
+            } else {
+                generator.addResponseInfoError(ErrorMessageCode.INVALID_FIELD_TYPE, fieldName);
+            }
+        }
+
+        // Syntax error
+        else if (cause instanceof JsonParseException jpe) {
+            handleJsonParseException(jpe, generator);
+        }
+        else {
+            generator.setResponseInfoMessage(ResponseInfoCode.INVALID_BODY_FORMAT);
+        }
+
+        return buildResponse(generator, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(BoardGameAlreadyInCategoryException.class)
-    public ResponseEntity<Map<String,String>> handleBoardGameAlreadyInCategoryException(BoardGameAlreadyInCategoryException exception){
-        return buildErrorResponse(exception.getMessage(),HttpStatus.CONFLICT);
+    /**
+     * Handles URL type mismatch
+     */
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<Map<String, Object>> handleTypeMismatch(MethodArgumentTypeMismatchException exception) {
+        ResponseWrapper generator = new ResponseWrapper();
+        generator.setResponseInfoMessage(ResponseInfoCode.ERROR_VALIDATION);
+        generator.addResponseInfoError(ErrorMessageCode.INVALID_FIELD_TYPE, exception.getName());
+        return buildResponse(generator, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(CategoryAlreadyExistsException.class)
-    public ResponseEntity<Map<String,String>> handleCategoryAlreadyExistsException(CategoryAlreadyExistsException exception){
-        return buildErrorResponse(exception.getMessage(),HttpStatus.CONFLICT);
-    }
-
-    @ExceptionHandler(EntityAlreadyExistsException.class)
-    public ResponseEntity<Map<String,String>> handleEntityAlreadyExistsException(EntityAlreadyExistsException exception){
-        return buildErrorResponse(exception.getMessage(),HttpStatus.CONFLICT);
-    }
-
-    @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<Map<String,String>> handleEntityNotFoundException(EntityNotFoundException exception){
-        return buildErrorResponse(exception.getMessage(),HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler(GameAlreadyInFavoritesException.class)
-    public ResponseEntity<Map<String,String>> handleGameAlreadyInFavoritesException(GameAlreadyInFavoritesException exception){
-        return buildErrorResponse(exception.getMessage(),HttpStatus.CONFLICT);
-    }
-
-    @ExceptionHandler(InvalidCommentRangeException.class)
-    public ResponseEntity<Map<String,String>> handleInvalidCommentRangeException(InvalidCommentRangeException exception){
-        return buildErrorResponse(exception.getMessage(),HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(InvalidDateException.class)
-    public ResponseEntity<Map<String,String>> handleInvalidDateException(InvalidDateException exception){
-        return buildErrorResponse(exception.getMessage(),HttpStatus.BAD_REQUEST);
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<Map<String, Object>> handleMethodNotSupported(HttpRequestMethodNotSupportedException exception) {
+        ResponseWrapper generator = new ResponseWrapper();
+        generator.setResponseInfoMessage(ResponseInfoCode.ERROR_METHOD_NOT_SUPPORTED, exception.getMethod());
+        return buildResponse(generator, HttpStatus.METHOD_NOT_ALLOWED);
     }
 
     @ExceptionHandler(InvalidRatingScoreException.class)
-    public ResponseEntity<Map<String,String>> handleInvalidRatingScoreException(InvalidRatingScoreException exception){
-        return buildErrorResponse(exception.getMessage(),HttpStatus.BAD_REQUEST);
+    public ResponseEntity<Map<String, Object>> handleNumOutOfRange(InvalidRatingScoreException exception) {
+        ResponseWrapper generator = new ResponseWrapper();
+        generator.setResponseInfoMessage(ResponseInfoCode.ERROR_VALIDATION);
+        generator.addResponseInfoError(ErrorMessageCode.NUMBER_OUT_OF_RANGE, "rating");
+        return buildResponse(generator, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(NotAvalaibleInStockException.class)
-    public ResponseEntity<Map<String,String>> handleNotAvailableInStockException(NotAvalaibleInStockException exception){
-        return buildErrorResponse(exception.getMessage(),HttpStatus.BAD_REQUEST);
+    /**
+     * Consolidates EntityNotFoundException and ItemNotInResource
+     */
+    @ExceptionHandler({EntityNotFoundException.class, ItemNotInResource.class})
+    public ResponseEntity<Map<String, Object>> handleNotFound(Exception exception) {
+        ResponseWrapper generator = new ResponseWrapper();
+
+        if (exception instanceof EntityNotFoundException e) {
+            if (e.getResouce() == null) {
+                generator.setResponseInfoMessage(ResponseInfoCode.ERROR_ITEM_NOT_FOUND, e.getItem());
+            } else {
+                generator.setResponseInfoMessage(ResponseInfoCode.ERROR_ITEM_NOT_IN_RESOURCE, e.getItem(), e.getResouce());
+            }
+        } else if (exception instanceof ItemNotInResource e) {
+            generator.setResponseInfoMessage(ResponseInfoCode.ERROR_ITEM_NOT_IN_RESOURCE, e.getItem(), e.getResource());
+        }
+
+        return buildResponse(generator, HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(ParametersException.class)
-    public ResponseEntity<Map<String,String>> handleParametersException(ParametersException exception){
-        return buildErrorResponse(exception.getMessage(),HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(InvalidStatusException.class)
-    public ResponseEntity<Map<String,String>> handleInvalidStatusException(InvalidStatusException exception){
-        return buildErrorResponse(exception.getMessage(),HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(UsernameNotFoundException.class)
-    public ResponseEntity<Map<String,String>> handleUsernameNotFoundException(UsernameNotFoundException exception){
-        return buildErrorResponse(exception.getMessage(),HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler(org.springframework.dao.DataIntegrityViolationException.class)
-    public ResponseEntity<Map<String, String>> handleDataIntegrityViolation(org.springframework.dao.DataIntegrityViolationException exception) {
-        return buildErrorResponse(exception.getMessage(), HttpStatus.CONFLICT);
-    }
-
-    //handlers for spring security exceptions - authentication and authorization
+    /**
+     * Handles Item already exists
+     */
     @ExceptionHandler({
-            org.springframework.security.access.AccessDeniedException.class,
-            org.springframework.security.authorization.AuthorizationDeniedException.class
+            EntityAlreadyExistsException.class,
+            BoardGameAlreadyInCategoryException.class,
+            GameAlreadyInFavoritesException.class
     })
-    public ResponseEntity<Map<String, String>> handleAccessDenied(Exception ex) {
+    public ResponseEntity<Map<String, Object>> handleConflicts(Exception exception) {
+        ResponseWrapper generator = new ResponseWrapper();
 
-        return buildErrorResponse("Access denied.", HttpStatus.FORBIDDEN);
+        if (exception instanceof EntityAlreadyExistsException e) {
+            if (e.getResouce() == null) {
+                generator.setResponseInfoMessage(ResponseInfoCode.ERROR_ALREADY_EXISTS, e.getItem());
+            } else {
+                generator.setResponseInfoMessage(ResponseInfoCode.ERROR_ITEM_ALREADY_EXISTS_IN_RESOURCE, e.getItem(), e.getResouce());
+            }
+        } else if (exception instanceof ItemAlreadyInSourceI e) {
+
+            generator.setResponseInfoMessage(ResponseInfoCode.ERROR_ITEM_ALREADY_EXISTS_IN_RESOURCE, e.getItem(), e.getSource());
+        }
+
+        return buildResponse(generator, HttpStatus.CONFLICT);
     }
 
-    @ExceptionHandler(org.springframework.security.core.AuthenticationException.class)
-    public ResponseEntity<Map<String, String>> handleAuthenticationException(Exception exception) {
-
-        return buildErrorResponse("Authentication error. " + exception.getMessage(), HttpStatus.UNAUTHORIZED);
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<Map<String, Object>> handleAuthorizationException(AuthorizationDeniedException exception) {
+        ResponseWrapper generator = new ResponseWrapper();
+        generator.setResponseInfoMessage(ResponseInfoCode.DENIED_AUTHORIZATION);
+        return buildResponse(generator, HttpStatus.FORBIDDEN);
     }
 
-    //general exception handler - fallback for unhandled exceptions
+    // TODO - change to NORMAL
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, String>> handleGeneralException(Exception exception) {
-        exception.printStackTrace();
-
-        return buildErrorResponse("Error: " + exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+    public ResponseEntity<String> handleGeneralException(Exception ex) {
+        return new ResponseEntity<>(ex.getMessage() + " : " + ex.getClass().getSimpleName(), HttpStatus.SEE_OTHER);
     }
 
 
 
 
+    private ResponseEntity<Map<String, Object>> buildResponse(ResponseWrapper generator, HttpStatus status) {
+        return new ResponseEntity<>(generator.getResponse(), status);
+    }
+
+    private ErrorMessageCode resolveValidationCode(String annotation) {
+        if (annotation == null) return ErrorMessageCode.INVALID_FIELD_VALUE;
+        return switch (annotation) {
+            case "NotNull", "NotEmpty", "NotBlank" -> ErrorMessageCode.MISSING_FIELD;
+            case "Min", "Max", "DecimalMin", "DecimalMax", "Size", "Range" -> ErrorMessageCode.NUMBER_OUT_OF_RANGE;
+            default -> ErrorMessageCode.INVALID_FIELD_VALUE;
+        };
+    }
+
+    private String extractFieldName(Path path) {
+        return StreamSupport.stream(path.spliterator(), false)
+                .reduce((first, second) -> second)
+                .map(Path.Node::getName)
+                .orElse("unknown_field");
+    }
+
+    private String extractJsonFieldName(java.util.List<com.fasterxml.jackson.databind.JsonMappingException.Reference> path) {
+        return (path != null && !path.isEmpty()) ? path.get(path.size() - 1).getFieldName() : "unknown_field";
+    }
+
+    private void handleJsonParseException(JsonParseException jpe, ResponseWrapper generator) {
+        String fieldName = "JSON value";
+        if (jpe.getProcessor() instanceof JsonParser parser) {
+            try {
+                String currentName = parser.getCurrentName();
+                if (currentName != null) fieldName = currentName;
+            } catch (Exception ignored) {}
+        }
+
+        String msg = jpe.getMessage();
+        if (msg != null && (msg.contains("expected a valid value") || msg.contains("Unexpected character"))) {
+            generator.addResponseInfoError(ErrorMessageCode.INVALID_FIELD_VALUE, fieldName);
+        } else {
+            generator.addResponseInfoError(ErrorMessageCode.INVALID_BODY_FORMAT, fieldName);
+        }
+    }
 }
