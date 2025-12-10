@@ -1,8 +1,10 @@
 package cz.cvut.fel.ear.dto;
 
 import cz.cvut.fel.ear.model.BoardGameState;
+import jakarta.validation.constraints.NotNull;
 
-import java.io.Serializable;
-
-public record BoardGameItemStateDTO(BoardGameState boardGameState, Long id) implements BasicDTO {
+public record BoardGameItemStateDTO(
+        @NotNull BoardGameState boardGameState,
+        @NotNull Long id
+) implements BasicDTO {
 }
