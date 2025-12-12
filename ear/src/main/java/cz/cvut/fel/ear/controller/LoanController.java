@@ -125,7 +125,7 @@ public class LoanController {
             @ApiResponse(responseCode = "403", description = "Forbidden - Authentication required", content = @Content(schema = @Schema(hidden = true))),
     })
     @GetMapping("/user/{userId}")
-    @PreAuthorize("hasRole('ADMIN') or #userId == authentication.principal.id")
+    @PreAuthorize("isAuthenticated() and hasRole('ADMIN') or #userId == authentication.principal.id")
     public ResponseEntity<Map<String, Object>> getLoansByUserId(
             @Parameter(description = "ID of the user to retrieve loans for", example = "1", required = true)
             @PathVariable long userId) {
@@ -285,7 +285,7 @@ public class LoanController {
             @ApiResponse(responseCode = "403", description = "Forbidden - Authentication required", content = @Content(schema = @Schema(hidden = true))),
     })
     @PatchMapping("/{loanId}/return")
-    @PreAuthorize("(hasRole('USER') and @loanSecurity.isLoanOwner(#loanId, authentication)) or hasRole('ADMIN')")
+    @PreAuthorize("isAuthenticated() and (hasRole('USER') and @loanSecurity.isLoanOwner(#loanId, authentication)) or hasRole('ADMIN')")
     public ResponseEntity<Map<String, Object>> returnLoan(
             @Parameter(description = "ID of the loan to return", example = "1", required = true)
             @PathVariable long loanId) {

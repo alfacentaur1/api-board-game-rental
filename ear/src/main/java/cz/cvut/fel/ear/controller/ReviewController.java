@@ -103,7 +103,7 @@ public class ReviewController {
             @ApiResponse(responseCode = "404", description = "User or Board Game not found", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "403", description = "Forbidden - Authentication required", content = @Content(schema = @Schema(hidden = true))),
     })
-    @PreAuthorize("hasRole('USER') and #userId == authentication.principal.id")
+    @PreAuthorize("isAuthenticated() and hasRole('USER') and #userId == authentication.principal.id")
     @PostMapping("/games/{gameId}/users/{userId}")
     public ResponseEntity<Map<String, Object>> createReview(
             @Parameter(description = "ID of the board game to review", example = "1", required = true)
@@ -140,7 +140,7 @@ public class ReviewController {
             @ApiResponse(responseCode = "404", description = "Review not found", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "403", description = "Forbidden - Authentication required", content = @Content(schema = @Schema(hidden = true))),
     })
-    @PreAuthorize("(hasRole('USER') and @reviewSecurity.isOwner(#id, authentication)) or hasRole('ADMIN')")
+    @PreAuthorize("isAuthenticated() and (hasRole('USER') and @reviewSecurity.isOwner(#id, authentication)) or hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, Object>> deleteReview(
             @Parameter(description = "ID of the review to delete", example = "1", required = true)
