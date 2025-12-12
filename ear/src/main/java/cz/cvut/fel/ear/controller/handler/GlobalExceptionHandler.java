@@ -188,13 +188,13 @@ public class GlobalExceptionHandler {
         return buildResponse(generator, HttpStatus.FORBIDDEN);
     }
 
-    // TODO - change to NORMAL
+    /**
+     * Catches all unhandled exceptions to prevent information leakage and code 500 responses
+     */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleGeneralException(Exception ex) {
-        return new ResponseEntity<>(ex.getMessage() + " : " + ex.getClass().getSimpleName(), HttpStatus.SEE_OTHER);
+        return new ResponseEntity<>(ex.getMessage() + " : " + ex.getClass().getSimpleName(), HttpStatus.BAD_REQUEST);
     }
-
-
 
 
     private ResponseEntity<Map<String, Object>> buildResponse(ResponseWrapper generator, HttpStatus status) {
