@@ -2,6 +2,7 @@ package cz.cvut.fel.ear.service;
 
 import cz.cvut.fel.ear.dao.BoardGameItemRepository;
 import cz.cvut.fel.ear.dao.BoardGameLoanRepository;
+import cz.cvut.fel.ear.dao.UserRepository;
 import cz.cvut.fel.ear.exception.*;
 import cz.cvut.fel.ear.model.*;
 import jakarta.transaction.Transactional;
@@ -18,11 +19,13 @@ public class LoanService {
     private final BoardGameLoanRepository boardGameLoanRepository;
     private final BoardGameItemRepository boardGameItemRepository;
     private final UserService userService;
+    private final UserRepository userRepository;
 
-    public LoanService(BoardGameLoanRepository boardGameLoanRepository, BoardGameItemRepository boardGameItemRepository, @Lazy UserService userService) {
+    public LoanService(BoardGameLoanRepository boardGameLoanRepository, BoardGameItemRepository boardGameItemRepository, @Lazy UserService userService, UserRepository userRepository) {
         this.boardGameLoanRepository = boardGameLoanRepository;
         this.boardGameItemRepository = boardGameItemRepository;
         this.userService = userService;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -137,6 +140,19 @@ public class LoanService {
     @Transactional
     public long createLoan(LocalDateTime dueDate, List<String> boardGameNames, long userId) {
         LocalDateTime now = LocalDateTime.now();
+        User user = userService.findById(userId);
+
+        if(user instanceof Admin) {
+            throw new ParametersException("Admin users cannot borrow board games");
+        }
+
+        if (user == null) {
+            throw new EntityNotFoundException(User.class.getSimpleName(), userId);
+        }
+
+        if( ((RegisteredUser) user).getKarma()< 10) {
+            throw new InsufficientKarmaException("User karma is too low to borrow board games");
+        }
 
         if (dueDate.isBefore(now)) {
             throw new InvalidDateException("Due date is before current date");
