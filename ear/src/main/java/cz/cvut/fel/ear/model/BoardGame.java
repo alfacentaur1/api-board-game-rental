@@ -83,6 +83,7 @@ public class BoardGame {
 
     //mapping composition here
     @OneToMany(mappedBy = "boardGame", cascade = CascadeType.ALL)
+    @OrderBy("createdAt DESC")
     private List<Review> ratings = new ArrayList<>();
 
     @OneToMany(mappedBy = "boardGame")
