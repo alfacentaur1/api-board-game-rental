@@ -21,6 +21,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.Map;
 import java.util.stream.StreamSupport;
@@ -179,6 +180,13 @@ public class GlobalExceptionHandler {
         }
 
         return buildResponse(generator, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleNoResourceFound(NoResourceFoundException exception) {
+        ResponseWrapper generator = new ResponseWrapper();
+        generator.setResponseInfoMessage(ResponseInfoCode.ERROR_ENDPOINT_NOT_FOUND);
+        return buildResponse(generator, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(AuthorizationDeniedException.class)

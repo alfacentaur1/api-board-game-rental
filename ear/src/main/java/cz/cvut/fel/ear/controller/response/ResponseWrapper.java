@@ -32,6 +32,7 @@ public class ResponseWrapper {
 
         ERROR_ALREADY_EXISTS ("%s already exists"),
         ERROR_ITEM_ALREADY_EXISTS_IN_RESOURCE ("%s already exists in %s"),
+        ERROR_ENDPOINT_NOT_FOUND ("Endpoint not found"),
 
         ERROR_ITEM_NOT_FOUND ("%s not found"),
         ERROR_ITEM_NOT_IN_RESOURCE ("%s does not exist in %s"),
