@@ -36,6 +36,10 @@ public class ResponseWrapper {
 
         ERROR_ITEM_NOT_FOUND ("%s not found"),
         ERROR_ITEM_NOT_IN_RESOURCE ("%s does not exist in %s"),
+        ERROR_INVALID_REQUEST_FORMAT("Invalid request format"),
+        ERROR_RESOURCE_NOT_FOUND("Requested resource not found"),
+        ERROR_INTERNAL_SERVER_ERROR("Internal server error occurred"),
+
 
         DENIED_AUTHORIZATION ("Access denied"),
 
@@ -47,6 +51,7 @@ public class ResponseWrapper {
 
         private final String template;
         ResponseInfoCode(String template) { this.template = template; }
+        // we are using Object... to allow both String and other types to be passed
         public String format(Object... args) { return String.format(template, args); }
     }
 

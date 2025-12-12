@@ -21,6 +21,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.Map;
@@ -194,6 +195,21 @@ public class GlobalExceptionHandler {
         ResponseWrapper generator = new ResponseWrapper();
         generator.setResponseInfoMessage(ResponseInfoCode.DENIED_AUTHORIZATION);
         return buildResponse(generator, HttpStatus.FORBIDDEN);
+    }
+    /**
+     * Handles other handler exceptions like missing parameters or type mismatches
+     * e.g. when a required request parameter is missing or mapping is api// and not api/
+     */
+    @ExceptionHandler({
+            org.springframework.beans.TypeMismatchException.class,
+            org.springframework.web.bind.MissingServletRequestParameterException.class,
+            org.springframework.web.bind.ServletRequestBindingException.class
+    }
+    )
+    public ResponseEntity<Map<String, Object>> handleBadRequestExceptions(Exception exception) {
+        ResponseWrapper generator = new ResponseWrapper();
+        generator.setResponseInfoMessage(ResponseInfoCode.ERROR_INVALID_REQUEST_FORMAT);
+        return buildResponse(generator, HttpStatus.BAD_REQUEST);
     }
 
     /**
