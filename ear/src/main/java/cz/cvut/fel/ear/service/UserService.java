@@ -1,12 +1,10 @@
 package cz.cvut.fel.ear.service;
 
-
 import cz.cvut.fel.ear.dao.UserRepository;
 import cz.cvut.fel.ear.dto.UserRegistrationDTO;
 import cz.cvut.fel.ear.exception.EntityAlreadyExistsException;
 import cz.cvut.fel.ear.exception.EntityNotFoundException;
 import cz.cvut.fel.ear.model.*;
-import io.jsonwebtoken.security.Password;
 import jakarta.transaction.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -18,13 +16,20 @@ public class UserService {
     private final ReviewService reviewService;
     private final PasswordEncoder passwordEncoder;
 
-    public UserService( LoanService loanService, ReviewService reviewService, UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(LoanService loanService, ReviewService reviewService, UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.loanService = loanService;
         this.reviewService = reviewService;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
+    /**
+     * Retrieves a user by their ID.
+     *
+     * @param userId the ID of the user
+     * @return the User entity
+     * @throws EntityNotFoundException if the user is not found
+     */
     public User findById(long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(
@@ -32,6 +37,13 @@ public class UserService {
                 );
     }
 
+    /**
+     * Retrieves a user by their username.
+     *
+     * @param username the username to search for
+     * @return the User entity
+     * @throws EntityNotFoundException if the user is not found
+     */
     public User getUserByUsername(String username) {
         User user = userRepository.findByUsername(username);
 
@@ -42,40 +54,62 @@ public class UserService {
         return user;
     }
 
+    /**
+     * Associates a loan with a specific user.
+     *
+     * @param userId the ID of the user
+     * @param loanId the ID of the loan
+     */
     public void linkLoanToUser(long userId, long loanId) {
         BoardGameLoan loanToAdd = loanService.getBoardGameLoan(loanId);
-        RegisteredUser user = (RegisteredUser)findById(userId);
+        RegisteredUser user = (RegisteredUser) findById(userId);
 
         user.getBoardGameLoans().add(loanToAdd);
         userRepository.save(user);
     }
 
+    /**
+     * Associates a review with a specific user.
+     *
+     * @param userId   the ID of the user
+     * @param reviewId the ID of the review
+     */
     public void linkReviewToUser(long userId, long reviewId) {
         Review reviewToAdd = reviewService.findReviewById(reviewId);
-        RegisteredUser user = (RegisteredUser)findById(userId);
+        RegisteredUser user = (RegisteredUser) findById(userId);
 
         user.getRatings().add(reviewToAdd);
         userRepository.save(user);
     }
 
+    /**
+     * Removes the association between a review and a user.
+     *
+     * @param userId   the ID of the user
+     * @param reviewId the ID of the review
+     * @throws EntityNotFoundException if the review is not linked to the user
+     */
     public void unlinkReviewFromUser(long userId, long reviewId) {
         Review reviewToRemove = reviewService.findReviewById(reviewId);
-        RegisteredUser user = (RegisteredUser)findById(userId);
+        RegisteredUser user = (RegisteredUser) findById(userId);
 
-        // Check that user has this review linked to him
         if (!user.getRatings().contains(reviewToRemove)) {
             throw new EntityNotFoundException(User.class.getSimpleName(), userId, Review.class.getSimpleName(), reviewId);
         }
 
-        // Remove it
         user.getRatings().remove(reviewToRemove);
         userRepository.save(user);
     }
 
-
+    /**
+     * Registers a new regular user in the system.
+     *
+     * @param registrationDTO DTO containing registration details
+     * @throws EntityAlreadyExistsException if a user with the same username already exists
+     */
     @Transactional
     public void registerUser(UserRegistrationDTO registrationDTO) {
-        if(userRepository.findByUsername(registrationDTO.username()) != null) {
+        if (userRepository.findByUsername(registrationDTO.username()) != null) {
             throw new EntityAlreadyExistsException(User.class.getSimpleName(), registrationDTO.username());
         }
         RegisteredUser newUser = new RegisteredUser();
@@ -87,9 +121,15 @@ public class UserService {
         userRepository.save(newUser);
     }
 
+    /**
+     * Registers a new administrator in the system.
+     *
+     * @param registrationDTO DTO containing registration details
+     * @throws EntityAlreadyExistsException if a user with the same username already exists
+     */
     @Transactional
     public void registerAdmin(UserRegistrationDTO registrationDTO) {
-        if(userRepository.findByUsername(registrationDTO.username()) != null) {
+        if (userRepository.findByUsername(registrationDTO.username()) != null) {
             throw new EntityAlreadyExistsException(User.class.getSimpleName(), registrationDTO.username());
         }
         Admin newAdmin = new Admin();
@@ -100,6 +140,4 @@ public class UserService {
         newAdmin.setFullName(registrationDTO.fullName());
         userRepository.save(newAdmin);
     }
-
-
 }

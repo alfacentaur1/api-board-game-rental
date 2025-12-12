@@ -34,40 +34,23 @@ public class LoanController {
         this.loanMapper = loanMapper;
     }
 
-    @Operation(
-            summary = "Get Loan by ID",
-            description = "Retrieves detailed information about a specific loan"
-    )
+    /**
+     * Retrieves detailed information about a specific loan by its ID.
+     *
+     * @param id The ID of the loan to retrieve.
+     * @return A ResponseEntity containing the BoardGameLoanDetailDTO.
+     */
+    @Operation(summary = "Get Loan by ID", description = "Retrieves detailed information about a specific loan")
     @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Loan successfully retrieved",
-                    content = @Content(schema = @Schema(hidden = true))
-            ),
-            @ApiResponse(
-                    responseCode = "400",
-                    description = "Validation error occurred",
-                    content = @Content(schema = @Schema(hidden = true))
-            ),
-            @ApiResponse(
-                    responseCode = "403",
-                    description = "Forbidden - Authentication required",
-                    content = @Content(schema = @Schema(hidden = true))
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "Loan not found",
-                    content = @Content(schema = @Schema(hidden = true))
-            )
+            @ApiResponse(responseCode = "200", description = "Loan successfully retrieved", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "400", description = "Validation error occurred", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "Forbidden - Authentication required", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", description = "Loan not found", content = @Content(schema = @Schema(hidden = true)))
     })
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or @loanSecurity.isLoanOwner(#id, authentication)")
     public ResponseEntity<Map<String, Object>> getLoanById(
-            @Parameter(
-                    description = "ID of the loan to retrieve",
-                    example = "1",
-                    required = true
-            )
+            @Parameter(description = "ID of the loan to retrieve", example = "1", required = true)
             @PathVariable long id) {
         BoardGameLoan boardGameLoan = loanService.getBoardGameLoan(id);
         BoardGameLoanDetailDTO loanDetailDTO = loanMapper.toDetailDto(boardGameLoan);
@@ -79,21 +62,15 @@ public class LoanController {
         return new ResponseEntity<>(generator.getResponse(), HttpStatus.OK);
     }
 
-    @Operation(
-            summary = "Get All Pending Loans",
-            description = "Retrieves all loans with pending status"
-    )
+    /**
+     * Retrieves all loans with pending status.
+     *
+     * @return A ResponseEntity containing a list of pending BoardGameLoanDetailDTOs.
+     */
+    @Operation(summary = "Get All Pending Loans", description = "Retrieves all loans with pending status")
     @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Pending loans successfully retrieved",
-                    content = @Content(schema = @Schema(hidden = true))
-            ),
-            @ApiResponse(
-                    responseCode = "403",
-                    description = "Forbidden - Authentication required",
-                    content = @Content(schema = @Schema(hidden = true))
-            ),
+            @ApiResponse(responseCode = "200", description = "Pending loans successfully retrieved", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "Forbidden - Authentication required", content = @Content(schema = @Schema(hidden = true))),
     })
     @GetMapping("/pending")
     @PreAuthorize("hasRole('ADMIN')")
@@ -110,21 +87,15 @@ public class LoanController {
         return new ResponseEntity<>(generator.getResponse(), HttpStatus.OK);
     }
 
-    @Operation(
-            summary = "Get All Loans",
-            description = "Retrieves all loans in the system"
-    )
+    /**
+     * Retrieves all loans currently in the system.
+     *
+     * @return A ResponseEntity containing a list of all BoardGameLoanDetailDTOs.
+     */
+    @Operation(summary = "Get All Loans", description = "Retrieves all loans in the system")
     @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "All loans successfully retrieved",
-                    content = @Content(schema = @Schema(hidden = true))
-            ),
-            @ApiResponse(
-                    responseCode = "403",
-                    description = "Forbidden - Authentication required",
-                    content = @Content(schema = @Schema(hidden = true))
-            ),
+            @ApiResponse(responseCode = "200", description = "All loans successfully retrieved", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "Forbidden - Authentication required", content = @Content(schema = @Schema(hidden = true))),
     })
     @GetMapping("/")
     @PreAuthorize("hasRole('ADMIN')")
@@ -141,35 +112,22 @@ public class LoanController {
         return new ResponseEntity<>(generator.getResponse(), HttpStatus.OK);
     }
 
-    @Operation(
-            summary = "Get Loans by User ID",
-            description = "Retrieves all loans for a specific user"
-    )
+    /**
+     * Retrieves all loans for a specific user.
+     *
+     * @param userId The ID of the user.
+     * @return A ResponseEntity containing a list of the user's BoardGameLoanDetailDTOs.
+     */
+    @Operation(summary = "Get Loans by User ID", description = "Retrieves all loans for a specific user")
     @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "User loans successfully retrieved",
-                    content = @Content(schema = @Schema(hidden = true))
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "User not found",
-                    content = @Content(schema = @Schema(hidden = true))
-            ),
-            @ApiResponse(
-                    responseCode = "403",
-                    description = "Forbidden - Authentication required",
-                    content = @Content(schema = @Schema(hidden = true))
-            ),
+            @ApiResponse(responseCode = "200", description = "User loans successfully retrieved", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", description = "User not found", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "Forbidden - Authentication required", content = @Content(schema = @Schema(hidden = true))),
     })
     @GetMapping("/user/{userId}")
     @PreAuthorize("hasRole('ADMIN') or #userId == authentication.principal.id")
     public ResponseEntity<Map<String, Object>> getLoansByUserId(
-            @Parameter(
-                    description = "ID of the user to retrieve loans for",
-                    example = "1",
-                    required = true
-            )
+            @Parameter(description = "ID of the user to retrieve loans for", example = "1", required = true)
             @PathVariable long userId) {
         List<BoardGameLoan> userLoans = loanService.getAllBoardGameLoansByUser(userId);
         List<BoardGameLoanDetailDTO> userLoanDTOs = userLoans.stream()
@@ -183,40 +141,23 @@ public class LoanController {
         return new ResponseEntity<>(generator.getResponse(), HttpStatus.OK);
     }
 
-    @Operation(
-            summary = "Approve Loan",
-            description = "Approves a pending loan request"
-    )
+    /**
+     * Approves a pending loan request.
+     *
+     * @param id The ID of the loan to approve.
+     * @return A ResponseEntity indicating success.
+     */
+    @Operation(summary = "Approve Loan", description = "Approves a pending loan request")
     @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Loan successfully approved",
-                    content = @Content(schema = @Schema(hidden = true))
-            ),
-            @ApiResponse(
-                    responseCode = "400",
-                    description = "Validation error occurred or loan is not in a valid state for approval",
-                    content = @Content(schema = @Schema(hidden = true))
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "Loan not found",
-                    content = @Content(schema = @Schema(hidden = true))
-            ),
-            @ApiResponse(
-                    responseCode = "403",
-                    description = "Forbidden - Authentication required",
-                    content = @Content(schema = @Schema(hidden = true))
-            ),
+            @ApiResponse(responseCode = "200", description = "Loan successfully approved", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "400", description = "Validation error occurred or loan is not in a valid state for approval", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", description = "Loan not found", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "Forbidden - Authentication required", content = @Content(schema = @Schema(hidden = true))),
     })
     @PatchMapping("/{id}/approve")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Map<String, Object>> approveLoan(
-            @Parameter(
-                    description = "ID of the loan to approve",
-                    example = "1",
-                    required = true
-            )
+            @Parameter(description = "ID of the loan to approve", example = "1", required = true)
             @PathVariable long id) {
         loanService.approveGameLoan(id);
 
@@ -226,40 +167,23 @@ public class LoanController {
         return new ResponseEntity<>(generator.getResponse(), HttpStatus.OK);
     }
 
-    @Operation(
-            summary = "Reject Loan",
-            description = "Rejects a pending loan request"
-    )
+    /**
+     * Rejects a pending loan request.
+     *
+     * @param id The ID of the loan to reject.
+     * @return A ResponseEntity indicating success.
+     */
+    @Operation(summary = "Reject Loan", description = "Rejects a pending loan request")
     @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Loan successfully rejected",
-                    content = @Content(schema = @Schema(hidden = true))
-            ),
-            @ApiResponse(
-                    responseCode = "400",
-                    description = "Validation error occurred or loan is not in a valid state for rejection",
-                    content = @Content(schema = @Schema(hidden = true))
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "Loan not found",
-                    content = @Content(schema = @Schema(hidden = true))
-            ),
-            @ApiResponse(
-                    responseCode = "403",
-                    description = "Forbidden - Authentication required",
-                    content = @Content(schema = @Schema(hidden = true))
-            ),
+            @ApiResponse(responseCode = "200", description = "Loan successfully rejected", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "400", description = "Validation error occurred or loan is not in a valid state for rejection", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", description = "Loan not found", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "Forbidden - Authentication required", content = @Content(schema = @Schema(hidden = true))),
     })
     @PatchMapping("/{id}/reject")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Map<String, Object>> rejectLoan(
-            @Parameter(
-                    description = "ID of the loan to reject",
-                    example = "1",
-                    required = true
-            )
+            @Parameter(description = "ID of the loan to reject", example = "1", required = true)
             @PathVariable long id) {
         loanService.rejectGameLoan(id);
 
@@ -269,6 +193,14 @@ public class LoanController {
         return new ResponseEntity<>(generator.getResponse(), HttpStatus.OK);
     }
 
+    /**
+     * Changes the status of a specific loan.
+     *
+     * @param id     The ID of the loan.
+     * @param status The new status to set.
+     * @return A ResponseEntity indicating success.
+     */
+    @Operation(summary = "Change Loan Status", description = "Manually changes the status of a loan")
     @PatchMapping("/{id}/status")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Map<String, Object>> changeLoanStatus(@PathVariable long id, @RequestParam Status status) {
@@ -280,6 +212,12 @@ public class LoanController {
         return new ResponseEntity<>(generator.getResponse(), HttpStatus.OK);
     }
 
+    /**
+     * Retrieves all loans that are currently approved (borrowed).
+     *
+     * @return A ResponseEntity containing a list of borrowed BoardGameLoanDetailDTOs.
+     */
+    @Operation(summary = "Get All Borrowed Loans", description = "Retrieves all loans that are currently approved (borrowed)")
     @GetMapping("/borrowed")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Map<String, Object>> getAllBorrowedLoans() {
@@ -295,36 +233,19 @@ public class LoanController {
         return new ResponseEntity<>(generator.getResponse(), HttpStatus.OK);
     }
 
-    @Operation(
-            summary = "Create Loan",
-            description = "Creates a new loan request for a board game item"
-    )
+    /**
+     * Creates a new loan request for a board game.
+     *
+     * @param boardGameLoanToCreateDTO Data transfer object containing loan details.
+     * @return A ResponseEntity indicating success and the location of the new loan.
+     */
+    @Operation(summary = "Create Loan", description = "Creates a new loan request for a board game item")
     @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "201",
-                    description = "Loan successfully created",
-                    content = @Content(schema = @Schema(hidden = true))
-            ),
-            @ApiResponse(
-                    responseCode = "400",
-                    description = "Validation error occurred",
-                    content = @Content(schema = @Schema(hidden = true))
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "User or Board Game Item not found",
-                    content = @Content(schema = @Schema(hidden = true))
-            ),
-            @ApiResponse(
-                    responseCode = "409",
-                    description = "Board Game Item is not available",
-                    content = @Content(schema = @Schema(hidden = true))
-            ),
-            @ApiResponse(
-                    responseCode = "403",
-                    description = "Forbidden - Authentication required",
-                    content = @Content(schema = @Schema(hidden = true))
-            ),
+            @ApiResponse(responseCode = "201", description = "Loan successfully created", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "400", description = "Validation error occurred", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", description = "User or Board Game Item not found", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "409", description = "Board Game Item is not available", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "Forbidden - Authentication required", content = @Content(schema = @Schema(hidden = true))),
     })
     @PostMapping("/")
     @PreAuthorize("hasRole('USER')")
@@ -350,42 +271,23 @@ public class LoanController {
         return new ResponseEntity<>(generator.getResponse(), responseHeaders, HttpStatus.CREATED);
     }
 
-
-
-    @Operation(
-            summary = "Return Loan",
-            description = "Marks a loan as returned. Only accessible to administrators or the loan owner."
-    )
+    /**
+     * Marks a loan as returned.
+     *
+     * @param loanId The ID of the loan to return.
+     * @return A ResponseEntity indicating the loan was returned.
+     */
+    @Operation(summary = "Return Loan", description = "Marks a loan as returned. Only accessible to administrators or the loan owner.")
     @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Loan successfully marked as returned",
-                    content = @Content(schema = @Schema(hidden = true))
-            ),
-            @ApiResponse(
-                    responseCode = "400",
-                    description = "Validation error occurred or loan is not in a valid state for return",
-                    content = @Content(schema = @Schema(hidden = true))
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "Loan not found",
-                    content = @Content(schema = @Schema(hidden = true))
-            ),
-            @ApiResponse(
-                    responseCode = "403",
-                    description = "Forbidden - Authentication required",
-                    content = @Content(schema = @Schema(hidden = true))
-            ),
+            @ApiResponse(responseCode = "200", description = "Loan successfully marked as returned", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "400", description = "Validation error occurred or loan is not in a valid state for return", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", description = "Loan not found", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", description = "Forbidden - Authentication required", content = @Content(schema = @Schema(hidden = true))),
     })
     @PatchMapping("/{loanId}/return")
-    @PreAuthorize("hasRole('USER') and @loanSecurity.isLoanOwner(#loanId, authentication)")
+    @PreAuthorize("(hasRole('USER') and @loanSecurity.isLoanOwner(#loanId, authentication)) or hasRole('ADMIN')")
     public ResponseEntity<Map<String, Object>> returnLoan(
-            @Parameter(
-                    description = "ID of the loan to return",
-                    example = "1",
-                    required = true
-            )
+            @Parameter(description = "ID of the loan to return", example = "1", required = true)
             @PathVariable long loanId) {
         loanService.returnBoardGameLoan(loanId);
 

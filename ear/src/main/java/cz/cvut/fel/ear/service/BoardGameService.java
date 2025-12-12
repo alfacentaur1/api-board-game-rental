@@ -28,6 +28,13 @@ public class BoardGameService {
         this.boardGameLoanRepository = boardGameLoanRepository;
     }
 
+    /**
+     * Retrieves a board game by its unique identifier.
+     *
+     * @param gameId the ID of the board game to retrieve
+     * @return the found BoardGame entity
+     * @throws EntityNotFoundException if no board game with the given ID is found
+     */
     public BoardGame getBoardGame(Long gameId) {
         BoardGame boardGame = boardGameRepository.getBoardGameById(gameId);
         if (boardGame == null) {
@@ -36,6 +43,12 @@ public class BoardGameService {
         return boardGame;
     }
 
+    /**
+     * Retrieves all board games available in the system.
+     *
+     * @return a list of all BoardGame entities
+     * @throws EntityNotFoundException if no board games are found in the system
+     */
     public List<BoardGame> getAllBoardGames() {
         List<BoardGame> boardGames = boardGameRepository.findAll();
 
@@ -46,6 +59,15 @@ public class BoardGameService {
         return boardGames;
     }
 
+    /**
+     * Creates a new board game with the specified name and description.
+     *
+     * @param name        the name of the board game
+     * @param description the description of the board game
+     * @return the ID of the newly created board game
+     * @throws EntityAlreadyExistsException if a board game with the same name already exists
+     * @throws ParametersException      if the name or description is null or empty
+     */
     @Transactional
     public long createBoardGame(String name, String description) {
         List<String> allBoardGameNames = boardGameRepository.getAllBoardGameNames();
@@ -62,6 +84,12 @@ public class BoardGameService {
         return boardGameToCreate.getId();
     }
 
+    /**
+     * Removes a board game from the system by its ID.
+     *
+     * @param gameId the ID of the board game to remove
+     * @throws EntityNotFoundException if no board game with the given ID is found
+     */
     @Transactional
     public void removeBoardGame(Long gameId) {
         BoardGame boardGameToRemove = boardGameRepository.getBoardGameById(gameId);
@@ -72,6 +100,14 @@ public class BoardGameService {
         boardGameRepository.delete(boardGameToRemove);
     }
 
+    /**
+     * Updates the description of an existing board game.
+     *
+     * @param gameId         the ID of the board game to update
+     * @param newDescription the new description to set
+     * @throws EntityNotFoundException if no board game with the given ID is found
+     * @throws ParametersException     if the new description is null or empty
+     */
     @Transactional
     public void updateBoardGameDescription(Long gameId, String newDescription) {
         BoardGame boardGameToUpdate = boardGameRepository.getBoardGameById(gameId);
@@ -86,12 +122,20 @@ public class BoardGameService {
         boardGameRepository.save(boardGameToUpdate);
     }
 
+    /**
+     * Adds a board game to the user's list of favorite games.
+     *
+     * @param userDTO the user who wants to add the game to favorites
+     * @param gameId  the ID of the board game to add
+     * @throws ParametersException             if the user is null
+     * @throws EntityNotFoundException         if the user or board game is not found
+     * @throws GameAlreadyInFavoritesException if the game is already in the user's favorites
+     */
     @Transactional
     public void addGameToFavorites(RegisteredUser userDTO, Long gameId) {
         if (userDTO == null) {
             throw new ParametersException("User must not be null");
         }
-        // FIX: Reload user from DB to ensure entity is attached (prevents LazyInitializationException)
         RegisteredUser user = (RegisteredUser) userRepository.findById(userDTO.getId())
                 .orElseThrow(() -> new EntityNotFoundException(User.class.getSimpleName(), userDTO.getId()));
 
@@ -100,7 +144,6 @@ public class BoardGameService {
             throw new EntityNotFoundException(BoardGame.class.getSimpleName(), gameId);
         }
 
-        // Check using the fetched user's collection or query
         if (user.getFavoriteBoardGames().contains(boardGameToAdd)) {
             throw new GameAlreadyInFavoritesException();
         }
@@ -109,13 +152,22 @@ public class BoardGameService {
         userRepository.save(user);
     }
 
+    /**
+     * Removes a board game from the user's list of favorite games.
+     *
+     * @param userDTO the user who wants to remove the game from favorites
+     * @param gameId  the ID of the board game to remove
+     * @throws ParametersException     if the user is null
+     * @throws EntityNotFoundException if the user is not found
+     * @throws ItemNotInResource       if the game is not in the user's favorites
+     */
     @Transactional
     public void removeGameFromFavorites(RegisteredUser userDTO, Long gameId) {
         if (userDTO == null) {
             throw new ParametersException("User must not be null");
         }
         RegisteredUser user = (RegisteredUser) userRepository.findById(userDTO.getId())
-                .orElseThrow(() -> new EntityNotFoundException(User.class.getSimpleName(),userDTO.getId()));
+                .orElseThrow(() -> new EntityNotFoundException(User.class.getSimpleName(), userDTO.getId()));
 
         BoardGame boardGameToRemove = getBoardGame(gameId);
 
@@ -127,6 +179,12 @@ public class BoardGameService {
         }
     }
 
+    /**
+     * Prints details of a board game to the console.
+     *
+     * @param boardGame the board game to view
+     * @throws EntityNotFoundException if the board game is null
+     */
     public void viewBoardGameDetails(BoardGame boardGame) {
         if (boardGame == null) {
             throw new EntityNotFoundException(BoardGame.class.getSimpleName(), null);
@@ -136,12 +194,25 @@ public class BoardGameService {
         System.out.println("Available in stock: " + boardGameItemService.availableItemsInStockNumber(boardGame.getId()));
     }
 
+    /**
+     * Lists the names of all favorite board games for a specific user.
+     *
+     * @param userId the ID of the user
+     * @return a list of names of favorite board games
+     */
     public List<String> listAllFavoriteBoardGame(long userId) {
         return userRepository.findAllFavoriteGames(userId);
     }
 
+    /**
+     * Retrieves the top X most borrowed board games.
+     *
+     * @param x the number of games to retrieve
+     * @return a list of the top X borrowed board games
+     * @throws ParametersException if x is less than or equal to 0
+     */
     public List<BoardGame> getTopXBorrowedGames(int x) {
-        if(x <= 0) {
+        if (x <= 0) {
             throw new ParametersException("Parameter x must be greater than 0");
         }
 

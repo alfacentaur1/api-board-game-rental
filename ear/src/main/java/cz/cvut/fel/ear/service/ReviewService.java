@@ -31,32 +31,51 @@ public class ReviewService {
         this.userService = userService;
     }
 
+    /**
+     * Retrieves a review by its ID.
+     *
+     * @param reviewId the ID of the review
+     * @return the Review entity
+     * @throws EntityNotFoundException if the review is not found
+     */
     public Review findReviewById(long reviewId) {
         return reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new EntityNotFoundException(Review.class.getSimpleName(), reviewId));
     }
 
+    /**
+     * Retrieves all reviews associated with a specific board game.
+     *
+     * @param gameId the ID of the board game
+     * @return a list of Review entities
+     */
     public List<Review> getReviewsForBoardGame(long gameId) {
         BoardGame boardGame = boardGameService.getBoardGame(gameId);
 
         return reviewRepository.findAllByBoardGame_IdIn(List.of(gameId));
     }
 
+    /**
+     * Creates a new review for a board game by a registered user.
+     *
+     * @param userId      the ID of the author
+     * @param gameId      the ID of the board game being reviewed
+     * @param content     the text content of the review
+     * @param ratingValue the numerical score (0-5)
+     * @return the created Review entity
+     * @throws IllegalArgumentException if the user is an Admin
+     */
     @Transactional
     public Review createReview(long userId, long gameId, String content, int ratingValue) {
-        // Find the user
-        if(userService.findById(userId) instanceof Admin) {
+        if (userService.findById(userId) instanceof Admin) {
             throw new IllegalArgumentException("Could not be cast on admin");
         }
-        RegisteredUser user = (RegisteredUser)userService.findById(userId);
+        RegisteredUser user = (RegisteredUser) userService.findById(userId);
 
-        // Find the board game
         BoardGame boardGame = boardGameService.getBoardGame(gameId);
-
 
         validateReviewInput(content, ratingValue);
 
-        // Create new review
         Review newReview = new Review();
         newReview.setBoardGame(boardGame);
         newReview.setComment(content);
@@ -66,24 +85,25 @@ public class ReviewService {
 
         reviewRepository.save(newReview);
 
-        // link review to user
         userService.linkReviewToUser(userId, newReview.getId());
 
         return newReview;
     }
 
+    /**
+     * Deletes a review from the system and unlinks it from the author.
+     *
+     * @param reviewId the ID of the review to delete
+     */
     public void deleteReview(long reviewId) {
         Review review = findReviewById(reviewId);
 
-        // Unlink the review from the user
         userService.unlinkReviewFromUser(review.getAuthor().getId(), reviewId);
 
         reviewRepository.delete(review);
     }
 
-
     private void validateReviewInput(String content, int ratingValue) {
-        // Validate content
         if (content == null) {
             throw new ParametersException("Content is null");
         } else if (content.length() > maxCommentRange) {
@@ -92,7 +112,6 @@ public class ReviewService {
             );
         }
 
-        // Validate Rating value
         if (ratingValue > maxRating || ratingValue < minRating) {
             throw new InvalidRatingScoreException(
                     String.format("Rating must be between %d and %d current : %d", maxCommentRange, minRating, ratingValue)

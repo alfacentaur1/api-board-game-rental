@@ -25,6 +25,14 @@ public class CategoryService {
         this.boardGameRepository = boardGameRepository;
     }
 
+    /**
+     * Adds a new category to the system.
+     *
+     * @param name the name of the category
+     * @return the ID of the created category
+     * @throws IllegalArgumentException       if the name is null or empty
+     * @throws CategoryAlreadyExistsException if a category with the same name already exists
+     */
     public long addCategory(String name) {
         if (name == null || name.trim().isEmpty()) {
             throw new IllegalArgumentException("Category name cannot be null or empty.");
@@ -39,6 +47,14 @@ public class CategoryService {
         return category.getId();
     }
 
+    /**
+     * Associates a board game with a specific category.
+     *
+     * @param gameId     the ID of the board game
+     * @param categoryId the ID of the category
+     * @throws EntityNotFoundException           if the game or category is not found
+     * @throws BoardGameAlreadyInCategoryException if the game is already in the category
+     */
     @Transactional
     public void addBoardGameToCategory(long gameId, long categoryId) {
         Category category = categoryRepository.findById(categoryId)
@@ -68,15 +84,22 @@ public class CategoryService {
 
     }
 
+    /**
+     * Removes a board game from a specific category.
+     *
+     * @param gameId     the ID of the board game
+     * @param categoryId the ID of the category
+     * @throws EntityNotFoundException if the game or category is not found
+     * @throws ItemNotInResource       if the game is not associated with the category
+     */
     @Transactional
     public void removeGameFromCategory(long gameId, long categoryId) {
         Category category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new EntityNotFoundException(Category.class.getSimpleName(),categoryId));
+                .orElseThrow(() -> new EntityNotFoundException(Category.class.getSimpleName(), categoryId));
 
         BoardGame boardGame = boardGameRepository.findById(gameId)
-                .orElseThrow(() -> new EntityNotFoundException(BoardGame.class.getSimpleName(),gameId));
+                .orElseThrow(() -> new EntityNotFoundException(BoardGame.class.getSimpleName(), gameId));
 
-        // Check if boardGame is in Category
         if (
                 boardGame.getCategories().contains(category) && category.getBoardGames().contains(boardGame)
         ) {
@@ -90,6 +113,12 @@ public class CategoryService {
         }
     }
 
+    /**
+     * Retrieves the IDs of all categories associated with a board game.
+     *
+     * @param gameId the ID of the board game
+     * @return a list of category IDs
+     */
     public List<Long> getCategories(long gameId) {
         List<Long> categories = new ArrayList<>();
         BoardGame boardGame = boardGameRepository.findBoardGameById(gameId);
@@ -100,12 +129,12 @@ public class CategoryService {
         return categories;
     }
 
-    public List<Category> getAllCategories(){
+    /**
+     * Retrieves all categories in the system.
+     *
+     * @return a list of Category entities
+     */
+    public List<Category> getAllCategories() {
         return categoryRepository.findAll();
     }
-
-
-
-
-
 }

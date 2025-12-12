@@ -41,21 +41,16 @@ public class UserController {
         this.jwtService = jwtService;
     }
 
-    @Operation(
-            summary = "User Sign In",
-            description = "Authenticates a user with username and password"
-    )
+    /**
+     * Authenticates a user with username and password.
+     *
+     * @param loginRequest Data transfer object containing the username and password.
+     * @return A ResponseEntity containing the JWT token and user details on success.
+     */
+    @Operation(summary = "User Sign In", description = "Authenticates a user with username and password")
     @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "User successfully authenticated",
-                    content = @Content(schema = @Schema(hidden = true))
-            ),
-            @ApiResponse(
-                    responseCode = "400",
-                    description = "Invalid credentials or validation error occurred",
-                    content = @Content(schema = @Schema(hidden = true))
-            )
+            @ApiResponse(responseCode = "200", description = "User successfully authenticated", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "400", description = "Invalid credentials or validation error occurred", content = @Content(schema = @Schema(hidden = true)))
     })
     @PostMapping("/signin")
     public ResponseEntity<Map<String, Object>> authenticateUser(
@@ -95,67 +90,49 @@ public class UserController {
         }
     }
 
-    @Operation(
-            summary = "Register New User",
-            description = "Registers a new regular user account in the system"
-    )
+    /**
+     * Registers a new regular user account in the system.
+     *
+     * @param registrationDTO Data transfer object containing registration details.
+     * @return A ResponseEntity indicating success.
+     */
+    @Operation(summary = "Register New User", description = "Registers a new regular user account in the system")
     @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "201",
-                    description = "User successfully registered",
-                    content = @Content(schema = @Schema(hidden = true))
-            ),
-            @ApiResponse(
-                    responseCode = "400",
-                    description = "Validation error occurred",
-                    content = @Content(schema = @Schema(hidden = true))
-            ),
-            @ApiResponse(
-                    responseCode = "409",
-                    description = "User already exists",
-                    content = @Content(schema = @Schema(hidden = true))
-            )
+            @ApiResponse(responseCode = "201", description = "User successfully registered", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "400", description = "Validation error occurred", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "409", description = "User already exists", content = @Content(schema = @Schema(hidden = true)))
     })
     @PostMapping("/signup/user")
     public ResponseEntity<Map<String, Object>> registerUser(
             @Valid @RequestBody UserRegistrationDTO registrationDTO) {
         userService.registerUser(registrationDTO);
-        
+
         ResponseWrapper generator = new ResponseWrapper();
         generator.setResponseInfoMessage(ResponseWrapper.ResponseInfoCode.SUCCESS_CREATED, "User");
-        
+
         return new ResponseEntity<>(generator.getResponse(), HttpStatus.CREATED);
     }
 
-    @Operation(
-            summary = "Register New Admin",
-            description = "Registers a new administrator account in the system"
-    )
+    /**
+     * Registers a new administrator account in the system.
+     *
+     * @param registrationDTO Data transfer object containing registration details.
+     * @return A ResponseEntity indicating success.
+     */
+    @Operation(summary = "Register New Admin", description = "Registers a new administrator account in the system")
     @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "201",
-                    description = "Admin successfully registered",
-                    content = @Content(schema = @Schema(hidden = true))
-            ),
-            @ApiResponse(
-                    responseCode = "400",
-                    description = "Validation error occurred",
-                    content = @Content(schema = @Schema(hidden = true))
-            ),
-            @ApiResponse(
-                    responseCode = "409",
-                    description = "Admin already exists",
-                    content = @Content(schema = @Schema(hidden = true))
-            )
+            @ApiResponse(responseCode = "201", description = "Admin successfully registered", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "400", description = "Validation error occurred", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "409", description = "Admin already exists", content = @Content(schema = @Schema(hidden = true)))
     })
     @PostMapping("/signup/admin")
     public ResponseEntity<Map<String, Object>> registerAdmin(
             @Valid @RequestBody UserRegistrationDTO registrationDTO) {
         userService.registerAdmin(registrationDTO);
-        
+
         ResponseWrapper generator = new ResponseWrapper();
         generator.setResponseInfoMessage(ResponseWrapper.ResponseInfoCode.SUCCESS_CREATED, "Admin");
-        
+
         return new ResponseEntity<>(generator.getResponse(), HttpStatus.CREATED);
     }
 }

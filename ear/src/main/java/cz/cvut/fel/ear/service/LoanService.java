@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class  LoanService {
+public class LoanService {
 
     private final BoardGameLoanRepository boardGameLoanRepository;
     private final BoardGameItemRepository boardGameItemRepository;
@@ -25,15 +25,34 @@ public class  LoanService {
         this.userService = userService;
     }
 
+    /**
+     * Retrieves a loan by its ID.
+     *
+     * @param loanId the ID of the loan
+     * @return the BoardGameLoan entity
+     * @throws EntityNotFoundException if the loan is not found
+     */
     public BoardGameLoan getBoardGameLoan(long loanId) {
         return boardGameLoanRepository.findById(loanId)
                 .orElseThrow(() -> new EntityNotFoundException(BoardGameLoan.class.getSimpleName(), loanId));
     }
 
+    /**
+     * Retrieves all loans stored in the database.
+     *
+     * @return a list of all BoardGameLoan entities
+     */
     public List<BoardGameLoan> getBoardGameLoans() {
         return boardGameLoanRepository.findAll();
     }
 
+    /**
+     * Retrieves all loans associated with a specific user.
+     *
+     * @param userId the ID of the user
+     * @return a list of the user's loans
+     * @throws EntityNotFoundException if the user has no loans or user does not exist
+     */
     public List<BoardGameLoan> getAllBoardGameLoansByUser(long userId) {
         List<BoardGameLoan> loans = boardGameLoanRepository.findAllByUserId(userId);
         if (loans == null) {
@@ -42,11 +61,22 @@ public class  LoanService {
         return loans;
     }
 
+    /**
+     * Approves a loan request, changing its status to APPROVED.
+     *
+     * @param loanId the ID of the loan to approve
+     */
     public void approveGameLoan(long loanId) {
         BoardGameLoan boardGameLoan = getBoardGameLoan(loanId);
         boardGameLoan.setStatus(Status.approved);
     }
 
+    /**
+     * Rejects a loan request.
+     * Sets status to REJECTED and returns the items to the loanable state.
+     *
+     * @param loanId the ID of the loan to reject
+     */
     public void rejectGameLoan(long loanId) {
         BoardGameLoan boardGameLoan = getBoardGameLoan(loanId);
         List<BoardGameItem> loanBoardGameItems = boardGameLoan.getItems();
@@ -56,6 +86,13 @@ public class  LoanService {
         boardGameLoan.setStatus(Status.rejected);
     }
 
+    /**
+     * Manually changes the status of a loan.
+     *
+     * @param loanId    the ID of the loan
+     * @param newStatus the new status to set
+     * @throws InvalidStatusException if the status is null or invalid
+     */
     public void changeLoanStatus(long loanId, Status newStatus) {
         BoardGameLoan boardGameLoan = getBoardGameLoan(loanId);
         if (newStatus == null) {
@@ -69,6 +106,11 @@ public class  LoanService {
         boardGameLoan.setStatus(newStatus);
     }
 
+    /**
+     * Retrieves a list of all board game items that are currently marked as BORROWED.
+     *
+     * @return a list of borrowed BoardGameItem entities
+     */
     public List<BoardGameItem> currentlyBorrowedBoardGameItems() {
         List<BoardGameItem> boardGameItems = boardGameItemRepository.findAll();
         List<BoardGameItem> currentlyBorrowedBoardGameItems = new ArrayList<>();
@@ -80,16 +122,26 @@ public class  LoanService {
         return currentlyBorrowedBoardGameItems;
     }
 
+    /**
+     * Creates a new loan transaction.
+     * Checks availability of games, locks items, and assigns them to the user.
+     *
+     * @param dueDate        the date by which the games should be returned
+     * @param boardGameNames list of names of games to borrow
+     * @param userId         the ID of the user borrowing the games
+     * @return the ID of the newly created loan
+     * @throws InvalidDateException         if due date is in the past
+     * @throws ParametersException          if game list is empty
+     * @throws NotAvalaibleInStockException if any game is unavailable
+     */
     @Transactional
     public long createLoan(LocalDateTime dueDate, List<String> boardGameNames, long userId) {
-        // Validate due date
         LocalDateTime now = LocalDateTime.now();
 
         if (dueDate.isBefore(now)) {
             throw new InvalidDateException("Due date is before current date");
         }
 
-        // Check if there are any games to be borrowed
         if (boardGameNames == null || boardGameNames.isEmpty()) {
             throw new ParametersException("There are no board games to borrow (boardGameNames is empty");
         }
@@ -98,25 +150,20 @@ public class  LoanService {
         List<BoardGameItem> itemsToBorrow = new ArrayList<>();
 
         for (String name : boardGameNames) {
-            // Get all available board game items
             List<BoardGameItem> allAvailableItems = boardGameItemRepository.findAvailableByNameWithLock(name, BoardGameState.FOR_LOAN);
 
-            // Check if any items were found
             if (allAvailableItems.isEmpty()) {
                 throw new NotAvalaibleInStockException(
                         String.format("Board game %s has no available items to borrow", name)
                 );
             }
 
-            // Borrow the first item in items list
             BoardGameItem itemToBorrow = allAvailableItems.getFirst();
 
-            // Set the state of the item to borrowed
             itemToBorrow.setState(BoardGameState.BORROWED);
             itemsToBorrow.add(itemToBorrow);
         }
 
-        // Set loan details
         newLoan.setDueDate(dueDate);
         newLoan.setBorrowedAt(now);
         newLoan.setStatus(Status.pending);
@@ -125,18 +172,24 @@ public class  LoanService {
 
         boardGameLoanRepository.save(newLoan);
 
-        // Bind loan to the user
         userService.linkLoanToUser(userId, newLoan.getId());
 
         return newLoan.getId();
     }
 
+    /**
+     * Processes the return of a loan.
+     * Updates return date, item states, loan status and user karma based on punctuality.
+     *
+     * @param loanId the ID of the loan being returned
+     * @throws InvalidLoanReturnException if the loan is not approved or already returned
+     */
     public void returnBoardGameLoan(long loanId) {
         BoardGameLoan loanToReturn = getBoardGameLoan(loanId);
-        if(loanToReturn.getStatus() != Status.approved){
+        if (loanToReturn.getStatus() != Status.approved) {
             throw new InvalidLoanReturnException("Loan with id " + loanId + " is not approved and cannot be returned");
         }
-        if(loanToReturn.getReturnedAt() != null){
+        if (loanToReturn.getReturnedAt() != null) {
             throw new InvalidLoanReturnException("Loan with id " + loanId + " has already been returned");
         }
 
@@ -160,18 +213,36 @@ public class  LoanService {
         }
     }
 
+    /**
+     * Retrieves all board game items associated with a specific loan.
+     *
+     * @param loanId the ID of the loan
+     * @return a list of items in the loan
+     * @throws EntityNotFoundException if the loan is not found
+     */
     public List<BoardGameItem> getBoardGameItemsInLoan(long loanId) {
-        if(!boardGameLoanRepository.existsById(loanId)) {
+        if (!boardGameLoanRepository.existsById(loanId)) {
             throw new EntityNotFoundException(BoardGameLoan.class.getSimpleName(), loanId);
         }
         BoardGameLoan loan = getBoardGameLoan(loanId);
         return loan.getItems();
     }
 
+    /**
+     * Retrieves all loans with the status PENDING.
+     *
+     * @return a list of pending loans
+     */
     public List<BoardGameLoan> getAllPendingLoans() {
         return boardGameLoanRepository.findAllByStatus(Status.pending);
     }
 
+    /**
+     * Retrieves all loans with the status APPROVED.
+     *
+     * @return a list of approved loans
+     */
     public List<BoardGameLoan> getAllApprovedLoans() {
         return boardGameLoanRepository.findAllByStatus(Status.approved);
-}}
+    }
+}
