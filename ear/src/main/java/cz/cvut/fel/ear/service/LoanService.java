@@ -184,6 +184,7 @@ public class LoanService {
      * @param loanId the ID of the loan being returned
      * @throws InvalidLoanReturnException if the loan is not approved or already returned
      */
+    @Transactional
     public void returnBoardGameLoan(long loanId) {
         BoardGameLoan loanToReturn = getBoardGameLoan(loanId);
         if (loanToReturn.getStatus() != Status.approved) {
@@ -211,21 +212,6 @@ public class LoanService {
         for (BoardGameItem boardGameItem : loanToReturn.getItems()) {
             boardGameItem.setState(BoardGameState.FOR_LOAN);
         }
-    }
-
-    /**
-     * Retrieves all board game items associated with a specific loan.
-     *
-     * @param loanId the ID of the loan
-     * @return a list of items in the loan
-     * @throws EntityNotFoundException if the loan is not found
-     */
-    public List<BoardGameItem> getBoardGameItemsInLoan(long loanId) {
-        if (!boardGameLoanRepository.existsById(loanId)) {
-            throw new EntityNotFoundException(BoardGameLoan.class.getSimpleName(), loanId);
-        }
-        BoardGameLoan loan = getBoardGameLoan(loanId);
-        return loan.getItems();
     }
 
     /**
