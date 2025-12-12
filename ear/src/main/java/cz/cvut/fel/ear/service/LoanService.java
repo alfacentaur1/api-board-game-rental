@@ -127,7 +127,7 @@ public class LoanService {
 
     /**
      * Creates a new loan transaction.
-     * Checks availability of games, locks items, and assigns them to the user.
+     * Checks availability of games, locks items, and assigns them to the user if he has sufficient karma.
      *
      * @param dueDate        the date by which the games should be returned
      * @param boardGameNames list of names of games to borrow
@@ -150,7 +150,7 @@ public class LoanService {
             throw new EntityNotFoundException(User.class.getSimpleName(), userId);
         }
 
-        if( ((RegisteredUser) user).getKarma()< 10) {
+        if( ((RegisteredUser) user).getKarma() < 70) {
             throw new InsufficientKarmaException("User karma is too low to borrow board games");
         }
 
