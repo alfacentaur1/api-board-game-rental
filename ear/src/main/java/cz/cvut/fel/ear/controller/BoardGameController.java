@@ -185,7 +185,7 @@ public class BoardGameController {
             @ApiResponse(responseCode = "409", description = "Board Game already in user's favorites", content = @Content(schema = @Schema(hidden = true)))
     })
     @PostMapping("/users/{username}/favorites/{gameId}")
-    @PreAuthorize("isAuthenticated() and hasRole('USER') and #username == principal.username")
+    @PreAuthorize("isAuthenticated() and (hasRole('USER') and #username == principal.username)")
     public ResponseEntity<Map<String, Object>> addFavoriteBoardGame(
             @Parameter(description = "Username of the authenticated user", example = "john_doe", required = true)
             @PathVariable String username,
@@ -219,7 +219,7 @@ public class BoardGameController {
             @ApiResponse(responseCode = "404", description = "User or Board Game not found", content = @Content(schema = @Schema(hidden = true)))
     })
     @DeleteMapping("/users/{username}/favorites/{gameId}")
-    @PreAuthorize("isAuthenticated() and hasRole('USER') and #username == principal.username")
+    @PreAuthorize("isAuthenticated() and (hasRole('USER') and #username == principal.username)")
     public ResponseEntity<Map<String, Object>> deleteGameFromFavorites(
             @Parameter(description = "Username of the authenticated user", example = "john_doe", required = true)
             @PathVariable String username,
@@ -247,7 +247,7 @@ public class BoardGameController {
             @ApiResponse(responseCode = "404", description = "User not found", content = @Content(schema = @Schema(hidden = true)))
     })
     @GetMapping("/users/{username}/favorites/")
-    @PreAuthorize("isAuthenticated() and hasRole('USER') and #username == principal.username")
+    @PreAuthorize("isAuthenticated() and (hasRole('USER') and #username == principal.username)")
     public ResponseEntity<Map<String, Object>> getFavorites(
             @Parameter(description = "Username of the authenticated user", example = "john_doe", required = true)
             @PathVariable String username) {

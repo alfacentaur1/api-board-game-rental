@@ -103,7 +103,7 @@ public class ReviewController {
             @ApiResponse(responseCode = "404", description = "User or Board Game not found", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "403", description = "Forbidden - Authentication required", content = @Content(schema = @Schema(hidden = true))),
     })
-    @PreAuthorize("isAuthenticated() and hasRole('USER') and #userId == authentication.principal.id")
+    @PreAuthorize("isAuthenticated() and (hasRole('USER') and #userId == authentication.principal.id)")
     @PostMapping("/games/{gameId}/users/{userId}")
     public ResponseEntity<Map<String, Object>> createReview(
             @Parameter(description = "ID of the board game to review", example = "1", required = true)
