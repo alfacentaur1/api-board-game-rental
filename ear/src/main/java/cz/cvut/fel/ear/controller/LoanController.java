@@ -7,7 +7,6 @@ import cz.cvut.fel.ear.dto.LoanIdDTO;
 import cz.cvut.fel.ear.dto.LoanStatusDTO;
 import cz.cvut.fel.ear.mapper.LoanMapper;
 import cz.cvut.fel.ear.model.BoardGameLoan;
-import cz.cvut.fel.ear.model.Status;
 import cz.cvut.fel.ear.service.LoanService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -85,6 +84,7 @@ public class LoanController {
 
         ResponseWrapper generator = new ResponseWrapper();
         generator.setResponseInfoMessage(ResponseWrapper.ResponseInfoCode.SUCCESS_FOUND, "Loan");
+        generator.addResponseData("amount", pendingLoanDTOs.size());
         generator.addResponseData("loans", pendingLoanDTOs);
 
         return new ResponseEntity<>(generator.getResponse(), HttpStatus.OK);
@@ -110,6 +110,7 @@ public class LoanController {
 
         ResponseWrapper generator = new ResponseWrapper();
         generator.setResponseInfoMessage(ResponseWrapper.ResponseInfoCode.SUCCESS_FOUND, "Loan");
+        generator.addResponseData("amount", allLoanDTOs.size());
         generator.addResponseData("loans", allLoanDTOs);
 
         return new ResponseEntity<>(generator.getResponse(), HttpStatus.OK);
@@ -139,6 +140,7 @@ public class LoanController {
 
         ResponseWrapper generator = new ResponseWrapper();
         generator.setResponseInfoMessage(ResponseWrapper.ResponseInfoCode.SUCCESS_FOUND, "Loan");
+        generator.addResponseData("amount", userLoanDTOs.size());
         generator.addResponseData("loans", userLoanDTOs);
 
         return new ResponseEntity<>(generator.getResponse(), HttpStatus.OK);
@@ -182,6 +184,7 @@ public class LoanController {
 
         ResponseWrapper generator = new ResponseWrapper();
         generator.setResponseInfoMessage(ResponseWrapper.ResponseInfoCode.SUCCESS_FOUND, "Loan");
+        generator.addResponseData("amount", borrowedLoanDTOs.size());
         generator.addResponseData("loans", borrowedLoanDTOs);
 
         return new ResponseEntity<>(generator.getResponse(), HttpStatus.OK);
