@@ -11,6 +11,7 @@ public class ResponseWrapper {
         MISSING_FIELD ("field %s is required"),
         NUMBER_OUT_OF_RANGE ("field %s is out of set range"),
 
+        INVALID_DATE_FORMAT ("field %s has invalid date format"),
         INVALID_BODY_FORMAT ("the request body you sent has syntax error"),
         MISSING_BODY ("in your request there has been no body set")
         ;
