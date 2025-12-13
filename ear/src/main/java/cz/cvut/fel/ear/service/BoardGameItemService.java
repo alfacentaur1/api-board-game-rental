@@ -1,6 +1,7 @@
 package cz.cvut.fel.ear.service;
 
 import cz.cvut.fel.ear.dao.BoardGameItemRepository;
+import cz.cvut.fel.ear.dao.BoardGameLoanRepository;
 import cz.cvut.fel.ear.dao.BoardGameRepository;
 import cz.cvut.fel.ear.exception.EntityAlreadyExistsException;
 import cz.cvut.fel.ear.exception.EntityNotFoundException;
@@ -19,10 +20,12 @@ import java.util.Optional;
 public class BoardGameItemService {
     private final BoardGameItemRepository boardGameItemRepository;
     private final BoardGameRepository boardGameRepository;
+    private final BoardGameLoanRepository boardGameLoanRepository;
 
-    public BoardGameItemService(BoardGameItemRepository boardGameItemRepository, BoardGameRepository boardGameRepository) {
+    public BoardGameItemService(BoardGameItemRepository boardGameItemRepository, BoardGameRepository boardGameRepository, BoardGameLoanRepository boardGameLoanRepository) {
         this.boardGameItemRepository = boardGameItemRepository;
         this.boardGameRepository = boardGameRepository;
+        this.boardGameLoanRepository = boardGameLoanRepository;
     }
 
     /**
@@ -138,21 +141,42 @@ public class BoardGameItemService {
     }
 
     /**
-     * Deletes a board game item from the system.
+     * Deletes a board game item. If the item has been used in loan history, it is dissociated from the board game
+     * and its state is set to NOT_FOR_LOAN. Otherwise, it is hard deleted.
      *
-     * @param gameId the ID of the item to delete
+     * @param itemId the ID of the item to delete
      * @throws EntityNotFoundException if the item is not found
      */
     @Transactional
-    public void deleteBoardGameItem(long gameId) {
-        BoardGameItem boardGameItemToDelete = boardGameItemRepository.getBoardGameItemById(gameId);
-        if (boardGameItemToDelete == null) {
-            throw new EntityNotFoundException(BoardGameItem.class.getSimpleName(), gameId);
+    public void deleteBoardGameItem(long itemId) {
+        BoardGameItem item = boardGameItemRepository.getBoardGameItemById(itemId);
+        if (item == null) {
+            throw new EntityNotFoundException(BoardGameItem.class.getSimpleName(), itemId);
         }
-        BoardGame parent = boardGameItemToDelete.getBoardGame();
-        if (parent != null) {
-            parent.getAvailableStockItems().remove(boardGameItemToDelete);
+        // Check if the item has been used in any loan history
+        boolean isUsedInHistory = boardGameLoanRepository.countLoansWithItem(itemId) > 0;
+
+        // If it has been used, we cannot delete it completely
+        // Instead, we dissociate it from the board game and set its state to NOT_FOR_LOAN
+        if (isUsedInHistory) {
+            BoardGame parent = item.getBoardGame();
+            if (parent != null) {
+                parent.getAvailableStockItems().remove(item);
+                item.setCachedGameName(parent.getName());
+            }
+            item.setBoardGame(null);
+            item.setState(BoardGameState.NOT_FOR_LOAN);
+
+            boardGameItemRepository.save(item);
+
         }
-        boardGameItemRepository.delete(boardGameItemToDelete);
+        // If it hasn't been used, we can safely delete it - HARD DELETE
+        else {
+            BoardGame parent = item.getBoardGame();
+            if (parent != null) {
+                parent.getAvailableStockItems().remove(item);
+            }
+            boardGameItemRepository.delete(item);
+        }
     }
 }
