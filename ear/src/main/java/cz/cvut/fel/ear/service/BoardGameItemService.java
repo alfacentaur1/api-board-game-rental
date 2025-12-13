@@ -2,6 +2,7 @@ package cz.cvut.fel.ear.service;
 
 import cz.cvut.fel.ear.dao.BoardGameItemRepository;
 import cz.cvut.fel.ear.dao.BoardGameRepository;
+import cz.cvut.fel.ear.exception.EntityAlreadyExistsException;
 import cz.cvut.fel.ear.exception.EntityNotFoundException;
 import cz.cvut.fel.ear.exception.ParametersException;
 import cz.cvut.fel.ear.model.BoardGame;
@@ -100,6 +101,15 @@ public class BoardGameItemService {
         } catch (IllegalArgumentException e) {
             throw new ParametersException("State is not valid");
         }
+        // Check if item with this serialNumber exists
+        List<BoardGameItem> allItems = getAllBoardGameItemsForBoardGame(boardGameId);
+        boolean serialNumberExists = allItems.stream()
+                .anyMatch(item -> item.getSerialNumber().equals(serialNumber));
+
+        if (serialNumberExists) {
+            throw new EntityAlreadyExistsException("BoardGameItem", boardGameId);
+        }
+
         BoardGameItem boardGameItem = new BoardGameItem();
         boardGameItem.setBoardGame(boardGame);
         boardGameItem.setSerialNumber(serialNumber);
