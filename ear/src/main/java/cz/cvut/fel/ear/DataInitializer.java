@@ -8,6 +8,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -272,11 +273,11 @@ public class DataInitializer implements CommandLineRunner {
     private void createPastLoan(RegisteredUser user, String gameName, int daysAgoBorrowed, int daysAgoReturned, boolean late) {
         try {
             List<String> g = Collections.singletonList(gameName);
-            long id = loanService.createLoan(LocalDateTime.now().plusDays(1), g, user.getId());
+            long id = loanService.createLoan(LocalDate.now().plusDays(1), g, user.getId());
             BoardGameLoan loan = loanService.getBoardGameLoan(id);
-            loan.setBorrowedAt(LocalDateTime.now().plusDays(daysAgoBorrowed));
-            loan.setDueDate(LocalDateTime.now().plusDays(daysAgoBorrowed + 14));
-            loan.setReturnedAt(LocalDateTime.now().plusDays(daysAgoReturned));
+            loan.setBorrowedAt(LocalDate.now().plusDays(daysAgoBorrowed));
+            loan.setDueDate(LocalDate.now().plusDays(daysAgoBorrowed + 14));
+            loan.setReturnedAt(LocalDate.now().plusDays(daysAgoReturned));
 
             if (late) {
                 loan.setStatus(Status.RETURNED_LATE);
@@ -296,10 +297,10 @@ public class DataInitializer implements CommandLineRunner {
     private void createActiveLoan(RegisteredUser user, String gameName, int daysAgo) {
         try {
             List<String> g = Collections.singletonList(gameName);
-            long id = loanService.createLoan(LocalDateTime.now().plusDays(14), g, user.getId());
+            long id = loanService.createLoan(LocalDate.now().plusDays(14), g, user.getId());
             loanService.approveGameLoan(id);
             BoardGameLoan loan = loanService.getBoardGameLoan(id);
-            loan.setBorrowedAt(LocalDateTime.now().plusDays(daysAgo));
+            loan.setBorrowedAt(LocalDate.now().plusDays(daysAgo));
             loanRepository.save(loan);
         } catch (Exception e) { }
     }
@@ -307,14 +308,14 @@ public class DataInitializer implements CommandLineRunner {
     private void createPendingLoan(RegisteredUser user, String gameName) {
         try {
             List<String> g = Collections.singletonList(gameName);
-            loanService.createLoan(LocalDateTime.now().plusDays(7), g, user.getId());
+            loanService.createLoan(LocalDate.now().plusDays(7), g, user.getId());
         } catch (Exception e) { }
     }
 
     private void createRejectedLoan(RegisteredUser user, String gameName) {
         try {
             List<String> g = Collections.singletonList(gameName);
-            long id = loanService.createLoan(LocalDateTime.now().plusDays(7), g, user.getId());
+            long id = loanService.createLoan(LocalDate.now().plusDays(7), g, user.getId());
             loanService.rejectGameLoan(id);
         } catch (Exception e) { }
     }
