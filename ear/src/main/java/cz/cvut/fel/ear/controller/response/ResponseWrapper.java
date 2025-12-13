@@ -57,7 +57,7 @@ public class ResponseWrapper {
 
 
 
-    private Map<String, Object> responseData = new HashMap<>();
+    private Map<String, Object> responseData = new LinkedHashMap<>();
     private String responseInfoMessage;
     private List<Object> responseInfoErrors = new ArrayList<>();
 
