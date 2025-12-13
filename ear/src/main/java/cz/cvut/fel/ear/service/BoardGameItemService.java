@@ -143,10 +143,15 @@ public class BoardGameItemService {
      * @param gameId the ID of the item to delete
      * @throws EntityNotFoundException if the item is not found
      */
+    @Transactional
     public void deleteBoardGameItem(long gameId) {
         BoardGameItem boardGameItemToDelete = boardGameItemRepository.getBoardGameItemById(gameId);
         if (boardGameItemToDelete == null) {
             throw new EntityNotFoundException(BoardGameItem.class.getSimpleName(), gameId);
+        }
+        BoardGame parent = boardGameItemToDelete.getBoardGame();
+        if (parent != null) {
+            parent.getAvailableStockItems().remove(boardGameItemToDelete);
         }
         boardGameItemRepository.delete(boardGameItemToDelete);
     }
