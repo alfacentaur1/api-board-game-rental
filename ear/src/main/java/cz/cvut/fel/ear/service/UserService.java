@@ -140,4 +140,27 @@ public class UserService {
         newAdmin.setFullName(registrationDTO.fullName());
         userRepository.save(newAdmin);
     }
+
+    /**
+     * Updates user karma based on loan return punctuality.
+     * Deducts 5 karma points for late returns, adds 10 for on-time returns.
+     *
+     * @param userId the ID of the user
+     * @param isLate whether the loan was returned late
+     */
+    public void updateKarmaForLoanReturn(long userId, boolean isLate) {
+        RegisteredUser user = (RegisteredUser) findById(userId);
+
+        if (isLate) {
+            if (user.getKarma() > 4) {
+                user.setKarma(user.getKarma() - 5);
+            }
+        } else {
+            if (user.getKarma() < 91) {
+                user.setKarma(user.getKarma() + 10);
+            }
+        }
+
+        userRepository.save(user);
+    }
 }
