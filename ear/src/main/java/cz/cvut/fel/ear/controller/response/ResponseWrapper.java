@@ -40,7 +40,6 @@ public class ResponseWrapper {
         ERROR_RESOURCE_NOT_FOUND("Requested resource not found"),
         ERROR_INTERNAL_SERVER_ERROR("Internal server error occurred"),
 
-
         DENIED_AUTHORIZATION ("Access denied"),
 
         INVALID_BODY_FORMAT ("the request body you sent has syntax error"),
