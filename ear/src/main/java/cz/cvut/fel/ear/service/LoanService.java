@@ -71,7 +71,7 @@ public class LoanService {
      */
     public void approveGameLoan(long loanId) {
         BoardGameLoan boardGameLoan = getBoardGameLoan(loanId);
-        boardGameLoan.setStatus(Status.approved);
+        boardGameLoan.setStatus(Status.APPROVED);
     }
 
     /**
@@ -86,7 +86,7 @@ public class LoanService {
         for (BoardGameItem boardGameItem : loanBoardGameItems) {
             boardGameItem.setState(BoardGameState.FOR_LOAN);
         }
-        boardGameLoan.setStatus(Status.rejected);
+        boardGameLoan.setStatus(Status.REJECTED);
     }
 
     /**
@@ -182,7 +182,7 @@ public class LoanService {
 
         newLoan.setDueDate(dueDate);
         newLoan.setBorrowedAt(now);
-        newLoan.setStatus(Status.pending);
+        newLoan.setStatus(Status.PENDING);
         newLoan.setUser((RegisteredUser) userService.findById(userId));
         newLoan.setGamesToBeBorrowed(itemsToBorrow);
 
@@ -203,7 +203,7 @@ public class LoanService {
     @Transactional
     public void returnBoardGameLoan(long loanId) {
         BoardGameLoan loanToReturn = getBoardGameLoan(loanId);
-        if (loanToReturn.getStatus() != Status.approved) {
+        if (loanToReturn.getStatus() != Status.APPROVED) {
             throw new InvalidLoanReturnException("Loan with id " + loanId + " is not approved and cannot be returned");
         }
         if (loanToReturn.getReturnedAt() != null) {
@@ -216,13 +216,13 @@ public class LoanService {
         if (now.isAfter(loanToReturn.getDueDate())) {
             if (user.getKarma() > 4) {
                 user.setKarma(user.getKarma() - 5);
-                loanToReturn.setStatus(Status.returnedLate);
+                loanToReturn.setStatus(Status.RETURNED_LATE);
             }
 
         } else {
             if (user.getKarma() < 91) {
                 user.setKarma(user.getKarma() + 10);
-                loanToReturn.setStatus(Status.returnedInTime);
+                loanToReturn.setStatus(Status.RETURNED_LATE);
             }
         }
         for (BoardGameItem boardGameItem : loanToReturn.getItems()) {
@@ -236,7 +236,7 @@ public class LoanService {
      * @return a list of pending loans
      */
     public List<BoardGameLoan> getAllPendingLoans() {
-        return boardGameLoanRepository.findAllByStatus(Status.pending);
+        return boardGameLoanRepository.findAllByStatus(Status.PENDING);
     }
 
     /**
@@ -245,6 +245,6 @@ public class LoanService {
      * @return a list of approved loans
      */
     public List<BoardGameLoan> getAllApprovedLoans() {
-        return boardGameLoanRepository.findAllByStatus(Status.approved);
+        return boardGameLoanRepository.findAllByStatus(Status.APPROVED);
     }
 }

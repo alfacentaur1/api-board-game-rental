@@ -78,7 +78,7 @@ public class LoanServiceTest {
         testLoan = new BoardGameLoan();
         testLoan.setUser(testUser);
         testLoan.setDueDate(LocalDateTime.now().plusDays(10));
-        testLoan.setStatus(Status.pending);
+        testLoan.setStatus(Status.PENDING);
         testLoan.getItems().add(availableItem);
         availableItem.setState(BoardGameState.BORROWED);
 
@@ -133,14 +133,14 @@ public class LoanServiceTest {
     }
 
     @Test
-    @DisplayName("Should approve a pending loan and throw when loan id is invalid")
+    @DisplayName("Should approve a PENDING loan and throw when loan id is invalid")
     void testApproveBoardGameLoan() {
         sut.approveGameLoan(testLoan.getId());
         em.flush();
 
         // Find the loan and check its state
         BoardGameLoan foundLoan = em.find(BoardGameLoan.class, testLoan.getId());
-        assertEquals(Status.approved, foundLoan.getStatus());
+        assertEquals(Status.APPROVED, foundLoan.getStatus());
 
         // Check if correct exception is thrown when incorrect loan id is given
         assertThrows(
@@ -150,14 +150,14 @@ public class LoanServiceTest {
     }
 
     @Test
-    @DisplayName("Should reject a pending loan and throw when loan id is invalid")
+    @DisplayName("Should reject a PENDING loan and throw when loan id is invalid")
     void testRejectGameLoan() {
         sut.rejectGameLoan(testLoan.getId());
         em.flush();
 
         // Find the loan and check its state
         BoardGameLoan foundLoan = em.find(BoardGameLoan.class, testLoan.getId());
-        assertEquals(Status.rejected, foundLoan.getStatus());
+        assertEquals(Status.REJECTED, foundLoan.getStatus());
 
         // Check if correct exception is thrown when incorrect loan id is given
         assertThrows(
@@ -170,25 +170,25 @@ public class LoanServiceTest {
     @DisplayName("Should change a loan's status and throw exception for incorrect input")
     void testChangeLoanStatus() {
         // Status 1
-        sut.changeLoanStatus(testLoan.getId(), Status.returnedLate);
+        sut.changeLoanStatus(testLoan.getId(), Status.RETURNED_LATE);
         em.flush();
 
         // Find the loan and check its state
         BoardGameLoan foundLoan = em.find(BoardGameLoan.class, testLoan.getId());
-        assertEquals(Status.returnedLate, foundLoan.getStatus());
+        assertEquals(Status.RETURNED_LATE, foundLoan.getStatus());
 
         // Status 2
-        sut.changeLoanStatus(testLoan.getId(), Status.returnedInTime);
+        sut.changeLoanStatus(testLoan.getId(), Status.RETURNED_IN_TIME);
         em.flush();
 
         // Find the loan and check its state
         BoardGameLoan foundLoan2 = em.find(BoardGameLoan.class, testLoan.getId());
-        assertEquals(Status.returnedInTime, foundLoan2.getStatus());
+        assertEquals(Status.RETURNED_IN_TIME, foundLoan2.getStatus());
 
         // Check if correct exception is thrown when incorrect id or state is given
         assertThrows(
                 EntityNotFoundException.class,
-                () -> sut.changeLoanStatus(-1, Status.approved)
+                () -> sut.changeLoanStatus(-1, Status.APPROVED)
         );
 
         assertThrows(
@@ -209,7 +209,7 @@ public class LoanServiceTest {
         // Find the loan and check it properties
         BoardGameLoan foundLoan = em.find(BoardGameLoan.class, newLoanId);
         assertNotNull(foundLoan);
-        assertEquals(Status.pending, foundLoan.getStatus());
+        assertEquals(Status.PENDING, foundLoan.getStatus());
         assertEquals(1, foundLoan.getItems().size());
         assertEquals(testUser.getId(), foundLoan.getUser().getId());
 
@@ -302,7 +302,7 @@ public class LoanServiceTest {
         // Find the loan and check it properties
         BoardGameLoan foundLoan = em.find(BoardGameLoan.class, newLoanId);
         assertNotNull(foundLoan);
-        assertEquals(Status.pending, foundLoan.getStatus());
+        assertEquals(Status.PENDING, foundLoan.getStatus());
         assertEquals(2, foundLoan.getItems().size());
         assertEquals(testUser.getId(), foundLoan.getUser().getId());
 
@@ -312,7 +312,7 @@ public class LoanServiceTest {
 
     @Test
     @DisplayName("Test positive loan lifecycle")
-    void testLoanLifeCycle_approved() {
+    void testLoanLifeCycle_APPROVED() {
         // Check that items are in state borrowed
         List<BoardGameItem> borrowedItems = testLoan.getItems();
 
@@ -320,7 +320,7 @@ public class LoanServiceTest {
             assertEquals(BoardGameState.BORROWED, gameItem.getState());
         }
         // Check that loan has correct state
-        assertEquals(Status.pending, testLoan.getStatus());
+        assertEquals(Status.PENDING, testLoan.getStatus());
 
         // Approve loan
         sut.approveGameLoan(testLoan.getId());
@@ -329,7 +329,7 @@ public class LoanServiceTest {
         BoardGameLoan foundLoan = sut.getBoardGameLoan(testLoan.getId());
 
         // Check that loan has correct state
-        assertEquals(Status.approved, foundLoan.getStatus());
+        assertEquals(Status.APPROVED, foundLoan.getStatus());
 
         // Check that items in loan are still borrowed
         List<BoardGameItem> foundItems = foundLoan.getItems();
@@ -349,14 +349,14 @@ public class LoanServiceTest {
         }
 
         // Check that order has correct state
-        assertEquals(Status.pending, testLoan.getStatus());
+        assertEquals(Status.PENDING, testLoan.getStatus());
 
         // Reject loan
         sut.rejectGameLoan(testLoan.getId());
 
         BoardGameLoan foundLoan = sut.getBoardGameLoan(testLoan.getId());
         // Check that loan has correct state
-        assertEquals(Status.rejected, foundLoan.getStatus());
+        assertEquals(Status.REJECTED, foundLoan.getStatus());
 
         // Check that items have correct state
         List<BoardGameItem> foundItems = foundLoan.getItems();

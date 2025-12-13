@@ -1,5 +1,5 @@
 package cz.cvut.fel.ear.model;
 
 public enum Status {
-    returnedInTime, returnedLate, rejected, approved, pending
+    RETURNED_IN_TIME, RETURNED_LATE, REJECTED, APPROVED, PENDING
 }

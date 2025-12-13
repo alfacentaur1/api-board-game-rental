@@ -279,10 +279,10 @@ public class DataInitializer implements CommandLineRunner {
             loan.setReturnedAt(LocalDateTime.now().plusDays(daysAgoReturned));
 
             if (late) {
-                loan.setStatus(Status.returnedLate);
+                loan.setStatus(Status.RETURNED_LATE);
                 user.setKarma(user.getKarma() - 10);
             } else {
-                loan.setStatus(Status.returnedInTime);
+                loan.setStatus(Status.RETURNED_IN_TIME);
                 user.setKarma(Math.min(100, user.getKarma() + 5));
             }
             userRepository.save(user);
