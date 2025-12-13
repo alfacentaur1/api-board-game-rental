@@ -257,8 +257,8 @@ public class BoardGameController {
 
         ResponseWrapper generator = new ResponseWrapper();
         generator.setResponseInfoMessage(ResponseWrapper.ResponseInfoCode.SUCCESS_FOUND, "Board Game");
+        generator.addResponseData("amount", favoriteGameDTOs.size());
         generator.addResponseData("favorites", favoriteGameDTOs);
-
         return new ResponseEntity<>(generator.getResponse(), HttpStatus.OK);
     }
 
