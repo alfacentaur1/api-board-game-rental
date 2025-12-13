@@ -107,6 +107,7 @@ public class LoanService {
             throw new InvalidStatusException("Invalid status " + newStatus.name());
         }
         boardGameLoan.setStatus(newStatus);
+        boardGameLoanRepository.save(boardGameLoan);
     }
 
     /**
