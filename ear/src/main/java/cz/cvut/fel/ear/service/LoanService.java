@@ -19,13 +19,11 @@ public class LoanService {
     private final BoardGameLoanRepository boardGameLoanRepository;
     private final BoardGameItemRepository boardGameItemRepository;
     private final UserService userService;
-    private final UserRepository userRepository;
 
     public LoanService(BoardGameLoanRepository boardGameLoanRepository, BoardGameItemRepository boardGameItemRepository, @Lazy UserService userService, UserRepository userRepository) {
         this.boardGameLoanRepository = boardGameLoanRepository;
         this.boardGameItemRepository = boardGameItemRepository;
         this.userService = userService;
-        this.userRepository = userRepository;
     }
 
     /**
