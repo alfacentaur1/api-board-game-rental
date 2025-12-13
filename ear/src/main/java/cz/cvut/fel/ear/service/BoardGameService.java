@@ -175,7 +175,7 @@ public class BoardGameService {
             user.getFavoriteBoardGames().remove(boardGameToRemove);
             userRepository.save(user);
         } else {
-            throw new ItemNotInResource("BoardGame", "UserFavourites");
+            throw new ItemNotInResource("BoardGame", "Favourites");
         }
     }
 

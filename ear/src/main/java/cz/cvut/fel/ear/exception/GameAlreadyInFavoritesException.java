@@ -12,6 +12,6 @@ public class GameAlreadyInFavoritesException extends RuntimeException implements
 
     @Override
     public String getSource() {
-        return "UserFavourites";
+        return "Favourites";
     }
 }
