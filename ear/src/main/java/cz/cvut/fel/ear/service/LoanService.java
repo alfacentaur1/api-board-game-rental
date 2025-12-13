@@ -57,6 +57,8 @@ public class LoanService {
      * @throws EntityNotFoundException if the user has no loans or user does not exist
      */
     public List<BoardGameLoan> getAllBoardGameLoansByUser(long userId) {
+        userService.findById(userId);
+
         List<BoardGameLoan> loans = boardGameLoanRepository.findAllByUserId(userId);
         if (loans == null) {
             throw new EntityNotFoundException(BoardGameLoan.class.getSimpleName(), null, User.class.getSimpleName(), userId);
