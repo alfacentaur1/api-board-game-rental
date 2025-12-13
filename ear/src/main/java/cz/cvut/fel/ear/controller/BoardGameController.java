@@ -206,7 +206,6 @@ public class BoardGameController {
     /**
      * Removes a board game from the authenticated user's list of favorite games.
      *
-     * @param username The username of the authenticated user.
      * @param gameId   The ID of the board game to remove from favorites.
      * @return A ResponseEntity indicating the item was removed.
      */
@@ -217,14 +216,13 @@ public class BoardGameController {
             @ApiResponse(responseCode = "403", description = "Forbidden - Authentication required", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "404", description = "User or Board Game not found", content = @Content(schema = @Schema(hidden = true)))
     })
-    @DeleteMapping("/users/{username}/favorites/{gameId}")
-    @PreAuthorize("isAuthenticated() and (hasRole('USER') and #username == principal.username)")
+    @DeleteMapping("/users/favorites/{gameId}")
+    @PreAuthorize("isAuthenticated() and hasRole('USER')")
     public ResponseEntity<Map<String, Object>> deleteGameFromFavorites(
-            @Parameter(description = "Username of the authenticated user", example = "john_doe", required = true)
-            @PathVariable String username,
             @Parameter(description = "ID of the board game to remove from favorites", example = "1", required = true)
-            @PathVariable Long gameId) {
-        RegisteredUser user = (RegisteredUser) userService.getUserByUsername(username);
+            @PathVariable Long gameId,
+            Principal principal) {
+        RegisteredUser user = (RegisteredUser) userService.getUserByUsername(principal.getName());
         boardGameService.removeGameFromFavorites(user, gameId);
 
         ResponseWrapper generator = new ResponseWrapper();
@@ -235,8 +233,7 @@ public class BoardGameController {
 
     /**
      * Retrieves all board games in the authenticated user's favorites list.
-     *
-     * @param username The username of the authenticated user.
+     * @param principal The security principal of the authenticated user.
      * @return A ResponseEntity containing a list of favorite BoardGameDTOs.
      */
     @Operation(summary = "Get Favorite Board Games", description = "Retrieves all board games in the authenticated user's favorites list")
@@ -245,12 +242,12 @@ public class BoardGameController {
             @ApiResponse(responseCode = "403", description = "Forbidden - Authentication required", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "404", description = "User not found", content = @Content(schema = @Schema(hidden = true)))
     })
-    @GetMapping("/users/{username}/favorites/")
+    @GetMapping("/users/favorites/")
     @PreAuthorize("isAuthenticated() and (hasRole('USER') and #username == principal.username)")
     public ResponseEntity<Map<String, Object>> getFavorites(
-            @Parameter(description = "Username of the authenticated user", example = "john_doe", required = true)
-            @PathVariable String username) {
-        RegisteredUser user = (RegisteredUser) userService.getUserByUsername(username);
+            Principal principal
+    ) {
+        RegisteredUser user = (RegisteredUser) userService.getUserByUsername(principal.getName());
         List<BoardGameDTO> favoriteGameDTOs = user.getFavoriteBoardGames().stream()
                 .map(boardGameMapper::toDto)
                 .toList();
