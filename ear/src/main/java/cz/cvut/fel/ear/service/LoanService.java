@@ -216,19 +216,13 @@ public class LoanService {
 
         RegisteredUser user = loanToReturn.getUser();
         LocalDate now = LocalDate.now();
-        loanToReturn.setReturnedAt(LocalDate.now());
-        if (now.isAfter(loanToReturn.getDueDate())) {
-            if (user.getKarma() > 4) {
-                user.setKarma(user.getKarma() - 5);
-                loanToReturn.setStatus(Status.RETURNED_LATE);
-            }
+        boolean isLate = now.isAfter(loanToReturn.getDueDate());
 
-        } else {
-            if (user.getKarma() < 91) {
-                user.setKarma(user.getKarma() + 10);
-                loanToReturn.setStatus(Status.RETURNED_LATE);
-            }
-        }
+        userService.updateKarmaForLoanReturn(user.getId(), isLate);
+
+        loanToReturn.setReturnedAt(LocalDate.now());
+        loanToReturn.setStatus(isLate ? Status.RETURNED_LATE : Status.RETURNED_IN_TIME);
+
         for (BoardGameItem boardGameItem : loanToReturn.getItems()) {
             boardGameItem.setState(BoardGameState.FOR_LOAN);
             boardGameItemRepository.save(boardGameItem);
