@@ -13,7 +13,9 @@ public class ResponseWrapper {
 
         INVALID_DATE_FORMAT ("field %s has invalid date format"),
         INVALID_BODY_FORMAT ("the request body you sent has syntax error"),
-        MISSING_BODY ("in your request there has been no body set")
+        MISSING_BODY ("in your request there has been no body set"),
+
+        INVALID_LOAN_NOT_APPROVED ("Loan cannot be returned because it isn't approved")
         ;
 
         private final String template;
