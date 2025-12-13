@@ -46,6 +46,15 @@ public class GlobalExceptionHandler {
         return buildResponse(generator, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(InvalidLoanReturnException.class)
+    public ResponseEntity<Map<String, Object>>handleInvalidLoanReturnState(InvalidLoanReturnException exception) {
+        ResponseWrapper generator = new ResponseWrapper();
+        generator.setResponseInfoMessage(ResponseInfoCode.ERROR_VALIDATION);
+        generator.addResponseInfoError(ErrorMessageCode.INVALID_LOAN_NOT_APPROVED, "loanId");
+
+        return buildResponse(generator, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(InsufficientKarmaException.class)
     public ResponseEntity<Map<String, Object>> handleInsufficientKarma(InsufficientKarmaException exception) {
         ResponseWrapper generator = new ResponseWrapper();
