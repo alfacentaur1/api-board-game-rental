@@ -154,7 +154,7 @@ public class BoardGameItemService {
             throw new EntityNotFoundException(BoardGameItem.class.getSimpleName(), itemId);
         }
         // Check if the item has been used in any loan history
-        boolean isUsedInHistory = boardGameLoanRepository.existsByItemId(itemId);
+        boolean isUsedInHistory = boardGameLoanRepository.countLoansWithItem(itemId) > 0;
 
         // If it has been used, we cannot delete it completely
         // Instead, we dissociate it from the board game and set its state to NOT_FOR_LOAN
