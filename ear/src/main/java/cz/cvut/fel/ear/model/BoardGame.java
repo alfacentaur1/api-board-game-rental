@@ -82,7 +82,7 @@ public class BoardGame {
     @OrderBy("createdAt DESC")
     private List<Review> ratings = new ArrayList<>();
 
-    @OneToMany(mappedBy = "boardGame")
+    @OneToMany(mappedBy = "boardGame", cascade = CascadeType.ALL)
     private List<BoardGameItem> availableStockItems = new ArrayList<>();
 
     @ManyToMany

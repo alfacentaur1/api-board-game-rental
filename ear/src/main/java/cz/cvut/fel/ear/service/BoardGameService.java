@@ -97,6 +97,10 @@ public class BoardGameService {
         if (boardGameToRemove == null) {
             throw new EntityNotFoundException(BoardGame.class.getSimpleName(), gameId);
         }
+        long usageCount = boardGameLoanRepository.countLoansByGameId(gameId);
+        if (usageCount > 0) {
+            throw new EntityReferenceException("Cannot delete Board Game. It has associated loans (history or active).");
+        }
         boardGameRepository.delete(boardGameToRemove);
     }
 

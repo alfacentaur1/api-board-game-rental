@@ -54,6 +54,14 @@ public class GlobalExceptionHandler {
         return buildResponse(generator, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(EntityReferenceException.class)
+    public ResponseEntity<ResponseWrapper> handleEntityReferencedException(EntityReferenceException e) {
+
+        ResponseWrapper response = new ResponseWrapper();
+        response.setResponseInfoMessage(ResponseInfoCode.ERROR_VALIDATION);
+        return new ResponseEntity<>(response, HttpStatus.CONFLICT);
+    }
+
 
     /**
      * Handles @Validated on Controller parameters
