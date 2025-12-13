@@ -244,7 +244,7 @@ public class BoardGameController {
             @ApiResponse(responseCode = "404", description = "User not found", content = @Content(schema = @Schema(hidden = true)))
     })
     @GetMapping("/users/favorites/")
-    @PreAuthorize("isAuthenticated() and (hasRole('USER') and #username == principal.username)")
+    @PreAuthorize("isAuthenticated() and (hasRole('USER'))")
     public ResponseEntity<Map<String, Object>> getFavorites(
             Principal principal
     ) {
