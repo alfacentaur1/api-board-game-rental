@@ -5,7 +5,9 @@ import cz.cvut.fel.ear.dto.ReviewDetailDTO;
 import cz.cvut.fel.ear.dto.ReviewToCreateDTO;
 import cz.cvut.fel.ear.mapper.ReviewMapper;
 import cz.cvut.fel.ear.model.Review;
+import cz.cvut.fel.ear.model.User;
 import cz.cvut.fel.ear.service.ReviewService;
+import cz.cvut.fel.ear.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -20,6 +22,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -29,10 +32,12 @@ import java.util.stream.Collectors;
 public class ReviewController {
     private final ReviewService reviewService;
     private final ReviewMapper reviewMapper;
+    private final UserService userService;
 
-    public ReviewController(ReviewService reviewService, ReviewMapper reviewMapper) {
+    public ReviewController(ReviewService reviewService, ReviewMapper reviewMapper, UserService userService) {
         this.reviewMapper = reviewMapper;
         this.reviewService = reviewService;
+        this.userService = userService;
     }
 
     /**
@@ -102,11 +107,13 @@ public class ReviewController {
             @ApiResponse(responseCode = "403", description = "Forbidden - Authentication required", content = @Content(schema = @Schema(hidden = true))),
     })
     @PostMapping("/")
-    @PreAuthorize("isAuthenticated() and (hasRole('USER') and #reviewDto.userId() == authentication.principal.id)")
+    @PreAuthorize("isAuthenticated() and hasRole('USER')")
     public ResponseEntity<Map<String, Object>> createReview(
-            @Valid @RequestBody ReviewToCreateDTO reviewDto
+            @Valid @RequestBody ReviewToCreateDTO reviewDto,
+            Principal principal
     ) {
-        Review review = reviewService.createReview(reviewDto.userId(), reviewDto.gameId(), reviewDto.content(), reviewDto.score());
+        User user = userService.getUserByUsername(principal.getName());
+        Review review = reviewService.createReview(user.getId(), reviewDto.gameId(), reviewDto.content(), reviewDto.score());
         ReviewDetailDTO reviewDetailDTO = reviewMapper.toReviewDetailDTO(review);
 
         ResponseWrapper generator = new ResponseWrapper();
