@@ -9,6 +9,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -72,6 +73,7 @@ public class LoanService {
     public void approveGameLoan(long loanId) {
         BoardGameLoan boardGameLoan = getBoardGameLoan(loanId);
         boardGameLoan.setStatus(Status.APPROVED);
+        boardGameLoanRepository.save(boardGameLoan);
     }
 
     /**
@@ -87,6 +89,7 @@ public class LoanService {
             boardGameItem.setState(BoardGameState.FOR_LOAN);
         }
         boardGameLoan.setStatus(Status.REJECTED);
+        boardGameLoanRepository.save(boardGameLoan);
     }
 
     /**
@@ -139,8 +142,8 @@ public class LoanService {
      * @throws NotAvalaibleInStockException if any game is unavailable
      */
     @Transactional
-    public long createLoan(LocalDateTime dueDate, List<String> boardGameNames, long userId) {
-        LocalDateTime now = LocalDateTime.now();
+    public long createLoan(LocalDate dueDate, List<String> boardGameNames, long userId) {
+        LocalDate now = LocalDate.now();
         User user = userService.findById(userId);
 
         if(user instanceof Admin) {
@@ -212,8 +215,8 @@ public class LoanService {
         }
 
         RegisteredUser user = loanToReturn.getUser();
-        LocalDateTime now = LocalDateTime.now();
-        loanToReturn.setReturnedAt(now);
+        LocalDate now = LocalDate.now();
+        loanToReturn.setReturnedAt(LocalDate.now());
         if (now.isAfter(loanToReturn.getDueDate())) {
             if (user.getKarma() > 4) {
                 user.setKarma(user.getKarma() - 5);
@@ -228,7 +231,10 @@ public class LoanService {
         }
         for (BoardGameItem boardGameItem : loanToReturn.getItems()) {
             boardGameItem.setState(BoardGameState.FOR_LOAN);
+            boardGameItemRepository.save(boardGameItem);
         }
+
+        boardGameLoanRepository.save(loanToReturn);
     }
 
     /**

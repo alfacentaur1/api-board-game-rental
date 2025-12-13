@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,9 +18,9 @@ public class BoardGameLoan {
     @GeneratedValue
     private long id;
 
-    private LocalDateTime borrowedAt;
-    private LocalDateTime returnedAt;
-    private LocalDateTime dueDate;
+    private LocalDate borrowedAt;
+    private LocalDate returnedAt;
+    private LocalDate dueDate;
 
     @Enumerated(EnumType.STRING)
     private Status status;
@@ -39,27 +40,27 @@ public class BoardGameLoan {
         this.id = id;
     }
 
-    public LocalDateTime getBorrowedAt() {
+    public LocalDate getBorrowedAt() {
         return borrowedAt;
     }
 
-    public void setBorrowedAt(LocalDateTime borrowedAt) {
+    public void setBorrowedAt(LocalDate borrowedAt) {
         this.borrowedAt = borrowedAt;
     }
 
-    public LocalDateTime getReturnedAt() {
+    public LocalDate getReturnedAt() {
         return returnedAt;
     }
 
-    public void setReturnedAt(LocalDateTime returnedAt) {
+    public void setReturnedAt(LocalDate returnedAt) {
         this.returnedAt = returnedAt;
     }
 
-    public LocalDateTime getDueDate() {
+    public LocalDate getDueDate() {
         return dueDate;
     }
 
-    public void setDueDate(LocalDateTime dueDate) {
+    public void setDueDate(LocalDate dueDate) {
         this.dueDate = dueDate;
     }
 

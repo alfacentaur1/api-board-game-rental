@@ -17,6 +17,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -77,7 +78,7 @@ public class LoanServiceTest {
         // SetUp loan
         testLoan = new BoardGameLoan();
         testLoan.setUser(testUser);
-        testLoan.setDueDate(LocalDateTime.now().plusDays(10));
+        testLoan.setDueDate(LocalDate.now().plusDays(10));
         testLoan.setStatus(Status.PENDING);
         testLoan.getItems().add(availableItem);
         availableItem.setState(BoardGameState.BORROWED);
@@ -200,7 +201,7 @@ public class LoanServiceTest {
     @Test
     @DisplayName("Should create a loan with valid data and validate parameters")
     void testCreateBoardGameLoan() {
-        LocalDateTime dueDate = LocalDateTime.now().plusDays(7);
+        LocalDate dueDate = LocalDate.now().plusDays(7);
         List<String> gameNames = List.of("Game1");
 
         // Create new loan
@@ -219,11 +220,11 @@ public class LoanServiceTest {
         // Check if correct exception is thrown when incorrect dueDate, empty Names list are given
         assertThrows(
                 InvalidDateException.class,
-                () -> sut.createLoan(LocalDateTime.now().minusDays(1), gameNames, testUser.getId())
+                () -> sut.createLoan(LocalDate.now().minusDays(1), gameNames, testUser.getId())
         );
         assertThrows(
                 ParametersException.class,
-                () -> sut.createLoan(LocalDateTime.now().plusDays(2), Collections.emptyList(), testUser.getId())
+                () -> sut.createLoan(LocalDate.now().plusDays(2), Collections.emptyList(), testUser.getId())
         );
     }
 
@@ -263,7 +264,7 @@ public class LoanServiceTest {
     @DisplayName("Should prevent creating a loan for an already borrowed item")
     void testRentedGameItemCantBeRented() {
         // Create a loan for the available item
-        LocalDateTime dueDate = LocalDateTime.now().plusDays(5);
+        LocalDate dueDate = LocalDate.now().plusDays(5);
         List<String> gameNames = List.of(testGame.getName());
 
         sut.createLoan(dueDate, gameNames, testUser.getId());
@@ -295,7 +296,7 @@ public class LoanServiceTest {
         em.flush();
 
         // Create new loan
-        LocalDateTime dueDate = LocalDateTime.now().plusDays(7);
+        LocalDate dueDate = LocalDate.now().plusDays(7);
         List<String> gameNames = List.of("Game1", "Game1");
         long newLoanId = sut.createLoan(dueDate, gameNames, testUser.getId());
 
