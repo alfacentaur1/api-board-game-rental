@@ -7,7 +7,9 @@ import cz.cvut.fel.ear.dto.LoanIdDTO;
 import cz.cvut.fel.ear.dto.LoanStatusDTO;
 import cz.cvut.fel.ear.mapper.LoanMapper;
 import cz.cvut.fel.ear.model.BoardGameLoan;
+import cz.cvut.fel.ear.model.RegisteredUser;
 import cz.cvut.fel.ear.service.LoanService;
+import cz.cvut.fel.ear.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -21,6 +23,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 
@@ -30,10 +33,12 @@ public class LoanController {
 
     private final LoanService loanService;
     private final LoanMapper loanMapper;
+    private final UserService userService;
 
-    public LoanController(LoanService loanService, LoanMapper loanMapper) {
+    public LoanController(LoanService loanService, LoanMapper loanMapper, UserService userService) {
         this.loanService = loanService;
         this.loanMapper = loanMapper;
+        this.userService = userService;
     }
 
     /**
@@ -205,14 +210,17 @@ public class LoanController {
             @ApiResponse(responseCode = "403", description = "Forbidden - Authentication required", content = @Content(schema = @Schema(hidden = true))),
     })
     @PostMapping("/")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("isAuthenticated() and hasRole('USER')")
     public ResponseEntity<Map<String, Object>> createLoan(
-            @RequestBody BoardGameLoanToCreateDTO boardGameLoanToCreateDTO
+            @Valid @RequestBody BoardGameLoanToCreateDTO boardGameLoanToCreateDTO,
+            Principal principal
     ) {
+        RegisteredUser user = (RegisteredUser) userService.getUserByUsername(principal.getName());
+
         long loanId = loanService.createLoan(
                 boardGameLoanToCreateDTO.dueDate(),
                 boardGameLoanToCreateDTO.boardGameNames(),
-                boardGameLoanToCreateDTO.userId()
+                user.getId()
         );
 
         BoardGameLoan newLoan = loanService.getBoardGameLoan(loanId);

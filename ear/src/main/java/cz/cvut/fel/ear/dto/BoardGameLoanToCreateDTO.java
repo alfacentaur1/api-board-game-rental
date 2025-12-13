@@ -1,6 +1,7 @@
 package cz.cvut.fel.ear.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDate;
@@ -11,7 +12,6 @@ public record BoardGameLoanToCreateDTO(
         @NotNull
         @JsonFormat(pattern = "yyyy-MM-dd")
         LocalDate dueDate,
-        @NotNull List<String> boardGameNames,
-        @NotNull Long userId
+        @NotEmpty List<String> boardGameNames
 ) implements BasicDTO {
 }
