@@ -25,6 +25,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 
@@ -185,18 +186,20 @@ public class BoardGameController {
             @ApiResponse(responseCode = "409", description = "Board Game already in user's favorites", content = @Content(schema = @Schema(hidden = true)))
     })
     @PostMapping("/favorites")
-    @PreAuthorize("isAuthenticated() and (hasRole('USER') and #favoriteDto.username() == principal.username)")
+    @PreAuthorize("isAuthenticated() and hasRole('USER')")
     public ResponseEntity<Map<String, Object>> addFavoriteBoardGame(
-            @Valid @RequestBody FavoriteCreationDTO favoriteDto
-    ) {
-        RegisteredUser user = (RegisteredUser) userService.getUserByUsername(favoriteDto.username());
+            @Valid @RequestBody FavoriteCreationDTO favoriteDto,
+            Principal principal) {
+
+        String username = principal.getName();
+        RegisteredUser user = (RegisteredUser) userService.getUserByUsername(username);
         boardGameService.addGameToFavorites(user, favoriteDto.gameId());
 
         ResponseWrapper generator = new ResponseWrapper();
         generator.setResponseInfoMessage(ResponseWrapper.ResponseInfoCode.SUCCESS_ITEM_ADDED_TO_SOURCE, "BoardGame", "Favorites");
 
         HttpHeaders responseHeaders = new HttpHeaders();
-        responseHeaders.add(HttpHeaders.LOCATION, "/api/boardgames/users/" + favoriteDto.username() + "/favorites/");
+        responseHeaders.add(HttpHeaders.LOCATION, "/api/boardgames/users/" + username + "/favorites/");
 
         return new ResponseEntity<>(generator.getResponse(), responseHeaders, HttpStatus.CREATED);
     }
