@@ -20,12 +20,14 @@ public class BoardGameService {
     private final UserRepository userRepository;
     private final BoardGameItemService boardGameItemService;
     private final BoardGameLoanRepository boardGameLoanRepository;
+    private final BoardGameItemRepository boardGameItemRepository;
 
-    public BoardGameService(BoardGameRepository boardGameRepository, UserRepository userRepository, BoardGameItemService boardGameItemService, BoardGameItemService boardGameItemService1, BoardGameLoanRepository boardGameLoanRepository) {
+    public BoardGameService(BoardGameRepository boardGameRepository, UserRepository userRepository, BoardGameItemService boardGameItemService, BoardGameItemService boardGameItemService1, BoardGameLoanRepository boardGameLoanRepository, BoardGameItemRepository boardGameItemRepository) {
         this.boardGameRepository = boardGameRepository;
         this.userRepository = userRepository;
         this.boardGameItemService = boardGameItemService;
         this.boardGameLoanRepository = boardGameLoanRepository;
+        this.boardGameItemRepository = boardGameItemRepository;
     }
 
     /**
@@ -88,20 +90,32 @@ public class BoardGameService {
      * Removes a board game from the system by its ID.
      *
      * @param gameId the ID of the board game to remove
-     * @throws EntityNotFoundException if no board game with the given ID is found
+     * @throws EntityNotFoundException   if no board game with the given ID is found
+     * @throws EntityReferenceException  if any copies of the game are currently borrowed
      */
     @Transactional
     public void removeBoardGame(Long gameId) {
-        BoardGame boardGameToRemove = boardGameRepository.getBoardGameById(gameId);
+        BoardGame boardGame = boardGameRepository.getBoardGameById(gameId);
 
-        if (boardGameToRemove == null) {
+        if (boardGame == null) {
             throw new EntityNotFoundException(BoardGame.class.getSimpleName(), gameId);
         }
-        long usageCount = boardGameLoanRepository.countLoansByGameId(gameId);
-        if (usageCount > 0) {
-            throw new EntityReferenceException("Cannot delete Board Game. It has associated loans (history or active).");
+
+        boolean isCurrentlyBorrowed = boardGame.getAvailableStockItems().stream()
+                .anyMatch(item -> item.getState() == BoardGameState.BORROWED);
+
+        if (isCurrentlyBorrowed) {
+            throw new EntityReferenceException("Game cannot be deleted, some of the copies are still borrowed.");
         }
-        boardGameRepository.delete(boardGameToRemove);
+
+        for (BoardGameItem item : boardGame.getAvailableStockItems()) {
+            item.setCachedGameName(boardGame.getName());
+            item.setBoardGame(null);
+
+            boardGameItemRepository.save(item);
+        }
+        boardGame.getAvailableStockItems().clear();
+        boardGameRepository.delete(boardGame);
     }
 
     /**

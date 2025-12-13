@@ -53,7 +53,8 @@ public class BoardGameController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Board Game successfully retrieved", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "400", description = "Validation error occurred", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "404", description = "Board Game not found", content = @Content(schema = @Schema(hidden = true)))
+            @ApiResponse(responseCode = "404", description = "Board Game not found", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "409", description = "Conflict occurred", content = @Content(schema = @Schema(hidden = true)))
     })
     @GetMapping("/{id}")
     public ResponseEntity<Map<String, Object>> getBoardGame(

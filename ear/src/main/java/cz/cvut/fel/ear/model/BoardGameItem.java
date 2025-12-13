@@ -30,7 +30,7 @@ public class BoardGameItem {
     private BoardGameState state;
 
     @ManyToOne
-    @JoinColumn(name = "BOARD_GAME_ID", nullable = false)
+    @JoinColumn(name = "BOARD_GAME_ID", nullable = true)
     private BoardGame boardGame;
 
     public long getId() {
@@ -65,7 +65,15 @@ public class BoardGameItem {
         this.boardGame = boardGame;
     }
 
+    private String cachedGameName;
+
     public String getName() {
-        return boardGame.getName();
+        if (boardGame != null) {
+            return boardGame.getName();
+        }
+        return cachedGameName;
+    }
+    public void setCachedGameName(String cachedGameName) {
+        this.cachedGameName = cachedGameName;
     }
 }

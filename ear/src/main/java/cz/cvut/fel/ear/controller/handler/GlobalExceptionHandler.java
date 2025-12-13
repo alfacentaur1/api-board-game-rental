@@ -58,7 +58,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ResponseWrapper> handleEntityReferencedException(EntityReferenceException e) {
 
         ResponseWrapper response = new ResponseWrapper();
-        response.setResponseInfoMessage(ResponseInfoCode.ERROR_VALIDATION);
+        response.setResponseInfoMessage(ResponseInfoCode.ERROR_RESOURCE_IN_USE);
         return new ResponseEntity<>(response, HttpStatus.CONFLICT);
     }
 
