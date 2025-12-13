@@ -4,6 +4,7 @@ import cz.cvut.fel.ear.controller.response.ResponseWrapper;
 import cz.cvut.fel.ear.dto.BoardGameDTO;
 import cz.cvut.fel.ear.dto.BoardGameToCreateDTO;
 import cz.cvut.fel.ear.dto.BoardGameUpdateDTO;
+import cz.cvut.fel.ear.dto.FavoriteCreationDTO;
 import cz.cvut.fel.ear.mapper.BoardGameMapper;
 import cz.cvut.fel.ear.model.BoardGame;
 import cz.cvut.fel.ear.model.RegisteredUser;
@@ -172,8 +173,7 @@ public class BoardGameController {
     /**
      * Adds a board game to the authenticated user's list of favorite games.
      *
-     * @param username The username of the authenticated user.
-     * @param gameId   The ID of the board game to add to favorites.
+     * @param favoriteDto The DTO containing username and game ID.
      * @return A ResponseEntity indicating the item was added.
      */
     @Operation(summary = "Add Board Game to Favorites", description = "Adds a board game to the authenticated user's list of favorite games")
@@ -184,26 +184,22 @@ public class BoardGameController {
             @ApiResponse(responseCode = "404", description = "User or Board Game not found", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "409", description = "Board Game already in user's favorites", content = @Content(schema = @Schema(hidden = true)))
     })
-    @PostMapping("/users/{username}/favorites/{gameId}")
-    @PreAuthorize("isAuthenticated() and (hasRole('USER') and #username == principal.username)")
+    @PostMapping("/favorites")
+    @PreAuthorize("isAuthenticated() and (hasRole('USER') and #favoriteDto.username() == principal.username)")
     public ResponseEntity<Map<String, Object>> addFavoriteBoardGame(
-            @Parameter(description = "Username of the authenticated user", example = "john_doe", required = true)
-            @PathVariable String username,
-            @Parameter(description = "ID of the board game to add to favorites", example = "1", required = true)
-            @Min(0) @PathVariable Long gameId
+            @Valid @RequestBody FavoriteCreationDTO favoriteDto
     ) {
-        RegisteredUser user = (RegisteredUser) userService.getUserByUsername(username);
-        boardGameService.addGameToFavorites(user, gameId);
+        RegisteredUser user = (RegisteredUser) userService.getUserByUsername(favoriteDto.username());
+        boardGameService.addGameToFavorites(user, favoriteDto.gameId());
 
         ResponseWrapper generator = new ResponseWrapper();
         generator.setResponseInfoMessage(ResponseWrapper.ResponseInfoCode.SUCCESS_ITEM_ADDED_TO_SOURCE, "BoardGame", "Favorites");
 
         HttpHeaders responseHeaders = new HttpHeaders();
-        responseHeaders.add(HttpHeaders.LOCATION, "/api/boardgames/users/" + username + "/favorites/" + gameId);
+        responseHeaders.add(HttpHeaders.LOCATION, "/api/boardgames/users/" + favoriteDto.username() + "/favorites/");
 
         return new ResponseEntity<>(generator.getResponse(), responseHeaders, HttpStatus.CREATED);
     }
-
     /**
      * Removes a board game from the authenticated user's list of favorite games.
      *

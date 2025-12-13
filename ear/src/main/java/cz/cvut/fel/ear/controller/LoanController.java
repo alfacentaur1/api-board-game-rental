@@ -3,6 +3,8 @@ package cz.cvut.fel.ear.controller;
 import cz.cvut.fel.ear.controller.response.ResponseWrapper;
 import cz.cvut.fel.ear.dto.BoardGameLoanDetailDTO;
 import cz.cvut.fel.ear.dto.BoardGameLoanToCreateDTO;
+import cz.cvut.fel.ear.dto.LoanIdDTO;
+import cz.cvut.fel.ear.dto.LoanStatusDTO;
 import cz.cvut.fel.ear.mapper.LoanMapper;
 import cz.cvut.fel.ear.model.BoardGameLoan;
 import cz.cvut.fel.ear.model.Status;
@@ -13,6 +15,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -141,70 +144,21 @@ public class LoanController {
         return new ResponseEntity<>(generator.getResponse(), HttpStatus.OK);
     }
 
-    /**
-     * Approves a pending loan request.
-     *
-     * @param id The ID of the loan to approve.
-     * @return A ResponseEntity indicating success.
-     */
-    @Operation(summary = "Approve Loan", description = "Approves a pending loan request")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Loan successfully approved", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "400", description = "Validation error occurred or loan is not in a valid state for approval", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "404", description = "Loan not found", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "403", description = "Forbidden - Authentication required", content = @Content(schema = @Schema(hidden = true))),
-    })
-    @PatchMapping("/{id}/approve")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Map<String, Object>> approveLoan(
-            @Parameter(description = "ID of the loan to approve", example = "1", required = true)
-            @PathVariable long id) {
-        loanService.approveGameLoan(id);
 
-        ResponseWrapper generator = new ResponseWrapper();
-        generator.setResponseInfoMessage(ResponseWrapper.ResponseInfoCode.SUCCESS_MODIFIED, "Loan");
-
-        return new ResponseEntity<>(generator.getResponse(), HttpStatus.OK);
-    }
-
-    /**
-     * Rejects a pending loan request.
-     *
-     * @param id The ID of the loan to reject.
-     * @return A ResponseEntity indicating success.
-     */
-    @Operation(summary = "Reject Loan", description = "Rejects a pending loan request")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Loan successfully rejected", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "400", description = "Validation error occurred or loan is not in a valid state for rejection", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "404", description = "Loan not found", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "403", description = "Forbidden - Authentication required", content = @Content(schema = @Schema(hidden = true))),
-    })
-    @PatchMapping("/{id}/reject")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Map<String, Object>> rejectLoan(
-            @Parameter(description = "ID of the loan to reject", example = "1", required = true)
-            @PathVariable long id) {
-        loanService.rejectGameLoan(id);
-
-        ResponseWrapper generator = new ResponseWrapper();
-        generator.setResponseInfoMessage(ResponseWrapper.ResponseInfoCode.SUCCESS_MODIFIED, "Loan");
-
-        return new ResponseEntity<>(generator.getResponse(), HttpStatus.OK);
-    }
 
     /**
      * Changes the status of a specific loan.
      *
-     * @param id     The ID of the loan.
-     * @param status The new status to set.
+     * @param dto The DTO containing the loan ID and the new status.
      * @return A ResponseEntity indicating success.
      */
     @Operation(summary = "Change Loan Status", description = "Manually changes the status of a loan")
-    @PatchMapping("/{id}/status")
+    @PatchMapping("/status")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Map<String, Object>> changeLoanStatus(@PathVariable long id, @RequestParam Status status) {
-        loanService.changeLoanStatus(id, status);
+    public ResponseEntity<Map<String, Object>> changeLoanStatus(
+            @Valid @RequestBody LoanStatusDTO dto
+    ) {
+        loanService.changeLoanStatus(dto.loanId(), dto.status());
 
         ResponseWrapper generator = new ResponseWrapper();
         generator.setResponseInfoMessage(ResponseWrapper.ResponseInfoCode.SUCCESS_MODIFIED, "Loan");
@@ -272,24 +226,49 @@ public class LoanController {
     }
 
     /**
-     * Marks a loan as returned.
-     *
-     * @param loanId The ID of the loan to return.
-     * @return A ResponseEntity indicating the loan was returned.
+     * Approves a pending loan request.
      */
-    @Operation(summary = "Return Loan", description = "Marks a loan as returned. Only accessible to administrators or the loan owner.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Loan successfully marked as returned", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "400", description = "Validation error occurred or loan is not in a valid state for return", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "404", description = "Loan not found", content = @Content(schema = @Schema(hidden = true))),
-            @ApiResponse(responseCode = "403", description = "Forbidden - Authentication required", content = @Content(schema = @Schema(hidden = true))),
-    })
-    @PatchMapping("/{loanId}/return")
-    @PreAuthorize("isAuthenticated() and (hasRole('USER') and @loanSecurity.isLoanOwner(#loanId, authentication)) or hasRole('ADMIN')")
+    @Operation(summary = "Approve Loan", description = "Approves a pending loan request")
+    @PatchMapping("/approve")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Map<String, Object>> approveLoan(
+            @Valid @RequestBody LoanIdDTO dto
+    ) {
+        loanService.approveGameLoan(dto.loanId());
+
+        ResponseWrapper generator = new ResponseWrapper();
+        generator.setResponseInfoMessage(ResponseWrapper.ResponseInfoCode.SUCCESS_MODIFIED, "Loan");
+
+        return new ResponseEntity<>(generator.getResponse(), HttpStatus.OK);
+    }
+
+    /**
+     * Rejects a pending loan request.
+     */
+    @Operation(summary = "Reject Loan", description = "Rejects a pending loan request")
+    @PatchMapping("/reject")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Map<String, Object>> rejectLoan(
+            @Valid @RequestBody LoanIdDTO dto
+    ) {
+        loanService.rejectGameLoan(dto.loanId());
+
+        ResponseWrapper generator = new ResponseWrapper();
+        generator.setResponseInfoMessage(ResponseWrapper.ResponseInfoCode.SUCCESS_MODIFIED, "Loan");
+
+        return new ResponseEntity<>(generator.getResponse(), HttpStatus.OK);
+    }
+
+    /**
+     * Marks a loan as returned.
+     */
+    @Operation(summary = "Return Loan", description = "Marks a loan as returned")
+    @PatchMapping("/return")
+    @PreAuthorize("isAuthenticated() and (hasRole('USER') and @loanSecurity.isLoanOwner(#dto.loanId(), authentication)) or hasRole('ADMIN')")
     public ResponseEntity<Map<String, Object>> returnLoan(
-            @Parameter(description = "ID of the loan to return", example = "1", required = true)
-            @PathVariable long loanId) {
-        loanService.returnBoardGameLoan(loanId);
+            @Valid @RequestBody LoanIdDTO dto
+    ) {
+        loanService.returnBoardGameLoan(dto.loanId());
 
         ResponseWrapper generator = new ResponseWrapper();
         generator.setResponseInfoMessage(ResponseWrapper.ResponseInfoCode.SUCCESS_MODIFIED, "Loan");

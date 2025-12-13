@@ -3,7 +3,7 @@ package cz.cvut.fel.ear.controller;
 import cz.cvut.fel.ear.controller.response.ResponseWrapper;
 import cz.cvut.fel.ear.dto.BoardGameItemCreationDTO;
 import cz.cvut.fel.ear.dto.BoardGameItemDTO;
-import cz.cvut.fel.ear.dto.BoardGameItemStateDTO;
+import cz.cvut.fel.ear.dto.BoardGameItemStateUpdateDTO;
 import cz.cvut.fel.ear.mapper.BoardGameItemMapper;
 import cz.cvut.fel.ear.model.BoardGameItem;
 import cz.cvut.fel.ear.service.BoardGameItemService;
@@ -137,7 +137,7 @@ public class BoardGameItemController {
     public ResponseEntity<Map<String, Object>> addBoardGameItem(
             @Valid @RequestBody BoardGameItemCreationDTO boardGameItemCreationDTO
     ) {
-        Long idItem = boardGameItemService.addBoardGameItem(boardGameItemCreationDTO.boardGameId(), boardGameItemCreationDTO.serialNumber(), boardGameItemCreationDTO.state());
+        long idItem = boardGameItemService.addBoardGameItem(boardGameItemCreationDTO.boardGameId(), boardGameItemCreationDTO.serialNumber(), boardGameItemCreationDTO.state());
 
         ResponseWrapper generator = new ResponseWrapper();
         generator.setResponseInfoMessage(ResponseWrapper.ResponseInfoCode.SUCCESS_CREATED, "BoardGameItem");
@@ -152,8 +152,7 @@ public class BoardGameItemController {
     /**
      * Updates the state of a specific board game item.
      *
-     * @param itemId                The ID of the board game item to update.
-     * @param boardGameItemStateDTO Data transfer object containing the new state.
+     * @param dto Data transfer object containing the item ID and new state.
      * @return A ResponseEntity indicating success.
      */
     @Operation(summary = "Update Board Game Item State", description = "Updates the state of a specific board game item")
@@ -163,22 +162,18 @@ public class BoardGameItemController {
             @ApiResponse(responseCode = "401", description = "Forbidden - Authentication required", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "404", description = "Board Game Item not found", content = @Content(schema = @Schema(hidden = true)))
     })
-    @PatchMapping("/items/{itemId}")
+    @PatchMapping("/items/state")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Map<String, Object>> updateBoardGameItemState(
-            @Parameter(description = "ID of the board game item to update", example = "1", required = true)
-            @PathVariable Long itemId,
-            @Valid @RequestBody BoardGameItemStateDTO boardGameItemStateDTO
+            @Valid @RequestBody BoardGameItemStateUpdateDTO dto
     ) {
-
-        boardGameItemService.updateBoardGameItemState(itemId, boardGameItemStateDTO.boardGameState());
+        boardGameItemService.updateBoardGameItemState(dto.itemId(), dto.state());
 
         ResponseWrapper generator = new ResponseWrapper();
         generator.setResponseInfoMessage(ResponseWrapper.ResponseInfoCode.SUCCESS_MODIFIED, "BoardGameItem");
 
         return new ResponseEntity<>(generator.getResponse(), HttpStatus.OK);
     }
-
     /**
      * Deletes a specific board game item from the system.
      *

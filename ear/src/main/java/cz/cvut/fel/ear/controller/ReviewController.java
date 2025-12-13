@@ -91,9 +91,7 @@ public class ReviewController {
     /**
      * Creates a new review for a board game.
      *
-     * @param gameId    The ID of the board game to review.
-     * @param userId    The ID of the user creating the review.
-     * @param reviewDto Data transfer object containing review content and score.
+     * @param reviewDto Data transfer object containing review details (userId, gameId, content, score).
      * @return A ResponseEntity indicating success and the location of the new review.
      */
     @Operation(summary = "Create Review", description = "Creates a new review for a board game")
@@ -103,17 +101,12 @@ public class ReviewController {
             @ApiResponse(responseCode = "404", description = "User or Board Game not found", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "403", description = "Forbidden - Authentication required", content = @Content(schema = @Schema(hidden = true))),
     })
-    @PreAuthorize("isAuthenticated() and (hasRole('USER') and #userId == authentication.principal.id)")
-    @PostMapping("/games/{gameId}/users/{userId}")
+    @PostMapping("/")
+    @PreAuthorize("isAuthenticated() and (hasRole('USER') and #reviewDto.userId() == authentication.principal.id)")
     public ResponseEntity<Map<String, Object>> createReview(
-            @Parameter(description = "ID of the board game to review", example = "1", required = true)
-            @PathVariable("gameId") Long gameId,
-            @Parameter(description = "ID of the user creating the review", example = "1", required = true)
-            @PathVariable("userId") Long userId,
-            @Parameter(description = "Content of the review", example = "Great game!", required = true)
             @Valid @RequestBody ReviewToCreateDTO reviewDto
     ) {
-        Review review = reviewService.createReview(userId, gameId, reviewDto.content(), reviewDto.score());
+        Review review = reviewService.createReview(reviewDto.userId(), reviewDto.gameId(), reviewDto.content(), reviewDto.score());
         ReviewDetailDTO reviewDetailDTO = reviewMapper.toReviewDetailDTO(review);
 
         ResponseWrapper generator = new ResponseWrapper();

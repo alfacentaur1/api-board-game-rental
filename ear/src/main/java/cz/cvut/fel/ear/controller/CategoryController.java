@@ -3,6 +3,7 @@ package cz.cvut.fel.ear.controller;
 import cz.cvut.fel.ear.controller.response.ResponseWrapper;
 import cz.cvut.fel.ear.dto.CategoryCreationDTO;
 import cz.cvut.fel.ear.dto.CategoryDTO;
+import cz.cvut.fel.ear.dto.CategoryGameDTO;
 import cz.cvut.fel.ear.model.Category;
 import cz.cvut.fel.ear.service.CategoryService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -48,7 +49,7 @@ public class CategoryController {
     public ResponseEntity<Map<String, Object>> createCategory(
             @Valid @RequestBody CategoryCreationDTO categoryCreationDTO
     ) {
-        Long id = categoryService.addCategory(categoryCreationDTO.name());
+        long id = categoryService.addCategory(categoryCreationDTO.name());
 
         ResponseWrapper generator = new ResponseWrapper();
         generator.setResponseInfoMessage(ResponseWrapper.ResponseInfoCode.SUCCESS_CREATED, "Category");
@@ -62,8 +63,7 @@ public class CategoryController {
     /**
      * Adds a board game to a specific category.
      *
-     * @param categoryId  The ID of the category.
-     * @param boardGameId The ID of the board game.
+     * @param dto Data transfer object containing category ID and board game ID.
      * @return A ResponseEntity indicating the game was added to the category.
      */
     @Operation(summary = "Add Board Game to Category", description = "Adds a board game to a specific category")
@@ -74,14 +74,12 @@ public class CategoryController {
             @ApiResponse(responseCode = "404", description = "Category or Board Game not found", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "409", description = "Board Game already in Category", content = @Content(schema = @Schema(hidden = true)))
     })
-    @PutMapping("/{categoryId}/games/{boardGameId}")
+    @PutMapping("/games")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Map<String, Object>> addBoardGameToCategory(
-            @Parameter(description = "ID of the category", example = "1", required = true)
-            @PathVariable Long categoryId,
-            @Parameter(description = "ID of the board game to add to the category", example = "1", required = true)
-            @PathVariable Long boardGameId) {
-        categoryService.addBoardGameToCategory(boardGameId, categoryId);
+            @Valid @RequestBody CategoryGameDTO dto
+    ) {
+        categoryService.addBoardGameToCategory(dto.boardGameId(), dto.categoryId());
 
         ResponseWrapper generator = new ResponseWrapper();
         generator.setResponseInfoMessage(ResponseWrapper.ResponseInfoCode.SUCCESS_ITEM_ADDED_TO_SOURCE, "Board Game", "Category");
