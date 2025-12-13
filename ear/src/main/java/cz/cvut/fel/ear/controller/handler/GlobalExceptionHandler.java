@@ -101,6 +101,8 @@ public class GlobalExceptionHandler {
             String fieldName = extractJsonFieldName(ife.getPath());
             if (ife.getTargetType().isEnum()) {
                 generator.addResponseInfoError(ErrorMessageCode.INVALID_FIELD_VALUE, fieldName);
+            } else if (ife.getTargetType() == java.time.LocalDate.class) {
+                generator.addResponseInfoError(ErrorMessageCode.INVALID_DATE_FORMAT, fieldName);
             } else {
                 generator.addResponseInfoError(ErrorMessageCode.INVALID_FIELD_TYPE, fieldName);
             }
