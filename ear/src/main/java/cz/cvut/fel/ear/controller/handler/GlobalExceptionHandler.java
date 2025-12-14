@@ -55,6 +55,13 @@ public class GlobalExceptionHandler {
         return buildResponse(generator, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(NotAvalaibleInStockException.class)
+    public ResponseEntity<Map<String, Object>> handleNoItemAvailable(NotAvalaibleInStockException exception) {
+        ResponseWrapper generator = new ResponseWrapper();
+        generator.setResponseInfoMessage(ResponseInfoCode.ERROR_NO_AVAILABLE_ITEM_FOR_GAME, exception.getBoardGameName());
+        return buildResponse(generator, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(InsufficientKarmaException.class)
     public ResponseEntity<Map<String, Object>> handleInsufficientKarma(InsufficientKarmaException exception) {
         ResponseWrapper generator = new ResponseWrapper();

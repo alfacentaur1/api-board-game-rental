@@ -194,9 +194,7 @@ public class LoanService {
             List<BoardGameItem> allAvailableItems = boardGameItemRepository.findAvailableByNameWithLock(name, BoardGameState.FOR_LOAN);
 
             if (allAvailableItems.isEmpty()) {
-                throw new NotAvalaibleInStockException(
-                        String.format("Board game %s has no available items to borrow", name)
-                );
+                throw new NotAvalaibleInStockException(name);
             }
 
             BoardGameItem itemToBorrow = allAvailableItems.getFirst();

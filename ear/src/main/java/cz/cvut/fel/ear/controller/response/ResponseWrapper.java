@@ -44,6 +44,8 @@ public class ResponseWrapper {
         ERROR_RESOURCE_NOT_FOUND("Requested resource not found"),
         ERROR_INTERNAL_SERVER_ERROR("Internal server error occurred"),
 
+        ERROR_NO_AVAILABLE_ITEM_FOR_GAME ("Game %s has no available item to borrow"),
+
         DENIED_AUTHORIZATION ("Access denied"),
 
         INVALID_BODY_FORMAT ("the request body you sent has syntax error"),
