@@ -170,20 +170,49 @@ public class LoanServiceTest {
     @Test
     @DisplayName("Should change a loan's status and throw exception for incorrect input")
     void testChangeLoanStatus() {
-        // Status 1
+        // Test 1: PENDING → APPROVED → RETURNED_LATE
+        sut.changeLoanStatus(testLoan.getId(), Status.APPROVED);
+        em.flush();
+
+        BoardGameLoan foundLoan = em.find(BoardGameLoan.class, testLoan.getId());
+        assertEquals(Status.APPROVED, foundLoan.getStatus());
+
         sut.changeLoanStatus(testLoan.getId(), Status.RETURNED_LATE);
         em.flush();
 
-        // Find the loan and check its state
-        BoardGameLoan foundLoan = em.find(BoardGameLoan.class, testLoan.getId());
+        foundLoan = em.find(BoardGameLoan.class, testLoan.getId());
         assertEquals(Status.RETURNED_LATE, foundLoan.getStatus());
 
-        // Status 2
-        sut.changeLoanStatus(testLoan.getId(), Status.RETURNED_IN_TIME);
+        // Test 2: Create second loan for RETURNED_IN_TIME
+        BoardGameLoan testLoan2 = new BoardGameLoan();
+        testLoan2.setUser(testUser);
+        testLoan2.setDueDate(LocalDate.now().plusDays(10));
+        testLoan2.setStatus(Status.PENDING);
+
+        BoardGameItem availableItem2 = em.find(BoardGameItem.class,
+            testGame.getAvailableStockItems().stream()
+                .filter(item -> item.getState() == BoardGameState.FOR_LOAN)
+                .findFirst()
+                .orElseThrow()
+                .getId()
+        );
+        testLoan2.getItems().add(availableItem2);
+        availableItem2.setState(BoardGameState.BORROWED);
+
+        em.persist(testLoan2);
         em.flush();
 
-        // Find the loan and check its state
-        BoardGameLoan foundLoan2 = em.find(BoardGameLoan.class, testLoan.getId());
+        // PENDING → APPROVED → RETURNED_IN_TIME
+        sut.changeLoanStatus(testLoan2.getId(), Status.APPROVED);
+        em.flush();
+
+        BoardGameLoan foundLoan2 = em.find(BoardGameLoan.class, testLoan2.getId());
+        assertEquals(Status.APPROVED, foundLoan2.getStatus());
+
+        sut.changeLoanStatus(testLoan2.getId(), Status.RETURNED_IN_TIME);
+        em.flush();
+
+        foundLoan2 = em.find(BoardGameLoan.class, testLoan2.getId());
         assertEquals(Status.RETURNED_IN_TIME, foundLoan2.getStatus());
 
         // Check if correct exception is thrown when incorrect id or state is given

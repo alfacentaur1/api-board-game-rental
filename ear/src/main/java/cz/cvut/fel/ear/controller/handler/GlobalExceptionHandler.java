@@ -46,11 +46,11 @@ public class GlobalExceptionHandler {
         return buildResponse(generator, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(InvalidLoanReturnException.class)
-    public ResponseEntity<Map<String, Object>>handleInvalidLoanReturnState(InvalidLoanReturnException exception) {
+    @ExceptionHandler(InvalidLoanStateChangeException.class)
+    public ResponseEntity<Map<String, Object>>handleInvalidLoanReturnState(InvalidLoanStateChangeException exception) {
         ResponseWrapper generator = new ResponseWrapper();
         generator.setResponseInfoMessage(ResponseInfoCode.ERROR_VALIDATION);
-        generator.addResponseInfoError(ErrorMessageCode.INVALID_LOAN_NOT_APPROVED, "loanId");
+        generator.addResponseInfoError(ErrorMessageCode.INVALID_LOAN_STATE_FOR_STATE, "state", exception.getCurrentState(), exception.getNewState());
 
         return buildResponse(generator, HttpStatus.BAD_REQUEST);
     }

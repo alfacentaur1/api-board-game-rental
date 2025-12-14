@@ -72,8 +72,13 @@ public class LoanService {
      */
     public void approveGameLoan(long loanId) {
         BoardGameLoan boardGameLoan = getBoardGameLoan(loanId);
-        boardGameLoan.setStatus(Status.APPROVED);
-        boardGameLoanRepository.save(boardGameLoan);
+        // Check if loan is in state that can be approved
+        if (boardGameLoan.getStatus().equals(Status.PENDING)) {
+            boardGameLoan.setStatus(Status.APPROVED);
+            boardGameLoanRepository.save(boardGameLoan);
+        } else {
+            throw new InvalidLoanStateChangeException(loanId, boardGameLoan.getStatus().name(), Status.APPROVED.name());
+        }
     }
 
     /**
@@ -84,12 +89,18 @@ public class LoanService {
      */
     public void rejectGameLoan(long loanId) {
         BoardGameLoan boardGameLoan = getBoardGameLoan(loanId);
-        List<BoardGameItem> loanBoardGameItems = boardGameLoan.getItems();
-        for (BoardGameItem boardGameItem : loanBoardGameItems) {
-            boardGameItem.setState(BoardGameState.FOR_LOAN);
+
+        // Check if loan is in a state that can be rejected
+        if (boardGameLoan.getStatus().equals(Status.PENDING)) {
+            List<BoardGameItem> loanBoardGameItems = boardGameLoan.getItems();
+            for (BoardGameItem boardGameItem : loanBoardGameItems) {
+                boardGameItem.setState(BoardGameState.FOR_LOAN);
+            }
+            boardGameLoan.setStatus(Status.REJECTED);
+            boardGameLoanRepository.save(boardGameLoan);
+        } else {
+            throw new InvalidLoanStateChangeException(loanId, boardGameLoan.getStatus().name(), Status.REJECTED.name());
         }
-        boardGameLoan.setStatus(Status.REJECTED);
-        boardGameLoanRepository.save(boardGameLoan);
     }
 
     /**
@@ -109,8 +120,18 @@ public class LoanService {
         } catch (IllegalArgumentException e) {
             throw new InvalidStatusException("Invalid status " + newStatus.name());
         }
-        boardGameLoan.setStatus(newStatus);
-        boardGameLoanRepository.save(boardGameLoan);
+
+        // Set the state
+        if (newStatus.equals(Status.APPROVED)) {
+            approveGameLoan(loanId);
+        } else if (newStatus.equals(Status.REJECTED)) {
+            rejectGameLoan(loanId);
+        } else if (newStatus.equals(Status.RETURNED_IN_TIME) || newStatus.equals(Status.RETURNED_IN_TIME)) {
+            returnBoardGameLoan(loanId);
+        } else {
+            boardGameLoan.setStatus(newStatus);
+            boardGameLoanRepository.save(boardGameLoan);
+        }
     }
 
     /**
@@ -202,16 +223,16 @@ public class LoanService {
      * Updates return date, item states, loan status and user karma based on punctuality.
      *
      * @param loanId the ID of the loan being returned
-     * @throws InvalidLoanReturnException if the loan is not approved or already returned
+     * @throws InvalidLoanStateChangeException if the loan is not approved or already returned
      */
     @Transactional
     public void returnBoardGameLoan(long loanId) {
         BoardGameLoan loanToReturn = getBoardGameLoan(loanId);
         if (loanToReturn.getStatus() != Status.APPROVED) {
-            throw new InvalidLoanReturnException("Loan with id " + loanId + " is not approved and cannot be returned");
+            throw new InvalidLoanStateChangeException(loanId, loanToReturn.getStatus().name(), Status.RETURNED_IN_TIME.name());
         }
         if (loanToReturn.getReturnedAt() != null) {
-            throw new InvalidLoanReturnException("Loan with id " + loanId + " has already been returned");
+            throw new InvalidLoanStateChangeException(loanId, loanToReturn.getStatus().name(), loanToReturn.getStatus().name());
         }
 
         RegisteredUser user = loanToReturn.getUser();

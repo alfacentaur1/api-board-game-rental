@@ -15,12 +15,12 @@ public class ResponseWrapper {
         INVALID_BODY_FORMAT ("the request body you sent has syntax error"),
         MISSING_BODY ("in your request there has been no body set"),
 
-        INVALID_LOAN_NOT_APPROVED ("Loan cannot be returned because it isn't approved")
+        INVALID_LOAN_STATE_FOR_STATE ("cannot change loan state from %s to %s")
         ;
 
         private final String template;
         ErrorMessageCode(String template) { this.template = template; }
-        public String format(String field) { return String.format(template, field); }
+        public String format(String... field) { return String.format(template, field); }
     }
 
     public enum ResponseInfoCode {
@@ -125,6 +125,20 @@ public class ResponseWrapper {
     public void addResponseInfoError(ErrorMessageCode errorCode, String fieldName) {
         Map<String, String> error = new LinkedHashMap<>();
         error.put("message", errorCode.format(fieldName));
+        error.put("fieldName", fieldName);
+
+        this.responseInfoErrors.add(error);
+    }
+
+    /**
+     * Adds new error to ResponseInfoError
+     * @param errorCode
+     * @param fieldName - field name where error occured
+     * @param messageFormat - params to set to the message
+     */
+    public void addResponseInfoError(ErrorMessageCode errorCode, String fieldName, String... messageFormat) {
+        Map<String, String> error = new LinkedHashMap<>();
+        error.put("message", errorCode.format(messageFormat));
         error.put("fieldName", fieldName);
 
         this.responseInfoErrors.add(error);
