@@ -9,7 +9,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.*;
 
 @Component
@@ -111,7 +110,6 @@ public class DataInitializer implements CommandLineRunner {
             try {
                 map.put(c, categoryService.addCategory(c));
             } catch (Exception e) {
-                // If creation fails (already exists), fetch ID from DB
                 categoryRepository.findByName(c).ifPresent(cat -> map.put(c, cat.getId()));
             }
         }
@@ -121,12 +119,10 @@ public class DataInitializer implements CommandLineRunner {
     private Long getCatId(Map<String, Long> categories, String name) {
         Long id = categories.get(name);
         if (id == null) {
-            // Last resort fallback
             try {
                 id = categoryService.addCategory(name);
                 categories.put(name, id);
             } catch (Exception e) {
-                // Try fetching again if add failed race condition style
                 id = categoryRepository.findByName(name).map(Category::getId).orElse(null);
             }
         }
@@ -182,6 +178,8 @@ public class DataInitializer implements CommandLineRunner {
         createGame(g, "Crokinole", "Flicking.", 2, 0, getCatId(c, "Dexterity"));
         createGame(g, "Klask", "Magnets.", 2, 0, getCatId(c, "Dexterity"));
 
+        createGame(g, "Starcraft: TBG", "Rare game, no items available.", 0, 1, getCatId(c, "Sci-Fi"), getCatId(c, "Wargame"));
+
         return g;
     }
 
@@ -196,7 +194,6 @@ public class DataInitializer implements CommandLineRunner {
             for (int i = 1; i <= good; i++) boardGameItemService.addBoardGameItem(id, name.substring(0, Math.min(3, name.length())).toUpperCase() + String.format("%03d", i), BoardGameState.FOR_LOAN);
             for (int i = 1; i <= bad; i++) boardGameItemService.addBoardGameItem(id, name.substring(0, Math.min(3, name.length())).toUpperCase() + "-DMG-" + i, BoardGameState.NOT_FOR_LOAN);
         } catch (Exception e) {
-            // Game likely exists, find ID from repository if needed, but for create-drop it shouldn't happen
         }
     }
 
@@ -210,31 +207,28 @@ public class DataInitializer implements CommandLineRunner {
     private void createLoans(Map<String, Long> games, List<RegisteredUser> users) {
         if (users.size() < 10) return;
 
-        // History: Returned In Time
         safeCreatePastLoan(users.get(0), games, "Catan", -60, -50, false);
         safeCreatePastLoan(users.get(1), games, "Carcassonne", -55, -48, false);
         safeCreatePastLoan(users.get(2), games, "Wingspan", -40, -35, false);
         safeCreatePastLoan(users.get(3), games, "Azul", -30, -20, false);
         safeCreatePastLoan(users.get(4), games, "Pandemic", -20, -10, false);
 
-        // History: Returned Late
         safeCreatePastLoan(users.get(5), games, "Scythe", -100, -10, true);
         safeCreatePastLoan(users.get(6), games, "Root", -90, -5, true);
         safeCreatePastLoan(users.get(0), games, "Gloomhaven", -200, -150, true);
 
-        // Active
         safeCreateActiveLoan(users.get(3), games, "Terraforming Mars", -5);
         safeCreateActiveLoan(users.get(4), games, "Brass: Birmingham", -1);
         safeCreateActiveLoan(users.get(5), games, "Dune: Imperium", 0);
         safeCreateActiveLoan(users.get(0), games, "Azul", -2);
 
-        // Pending
         safeCreatePendingLoan(users.get(6), games, "Arkham Horror");
         safeCreatePendingLoan(users.get(7), games, "Nemesis");
         safeCreatePendingLoan(users.get(8), games, "Twilight Struggle");
 
-        // Rejected
         safeCreateRejectedLoan(users.get(9), games, "Secret Hitler");
+        safeCreateRejectedLoan(users.get(8), games, "Catan");
+        safeCreateRejectedLoan(users.get(2), games, "Pandemic");
     }
 
     private void safeCreatePastLoan(RegisteredUser user, Map<String, Long> games, String gameName, int d1, int d2, boolean late) {
