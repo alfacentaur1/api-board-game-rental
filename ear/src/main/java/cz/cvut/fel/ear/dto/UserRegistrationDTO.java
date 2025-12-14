@@ -1,4 +1,11 @@
 package cz.cvut.fel.ear.dto;
 
-public record UserRegistrationDTO(String fullName, String email, String password, String username) {
+import jakarta.validation.constraints.NotBlank;
+
+public record UserRegistrationDTO(
+        @NotBlank String fullName,
+        @NotBlank String email,
+        @NotBlank String password,
+        @NotBlank String username
+) implements BasicDTO {
 }

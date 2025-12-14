@@ -1,10 +1,6 @@
 package cz.cvut.fel.ear.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.hibernate.annotations.Formula;
 
 import java.util.ArrayList;
@@ -83,9 +79,10 @@ public class BoardGame {
 
     //mapping composition here
     @OneToMany(mappedBy = "boardGame", cascade = CascadeType.ALL)
+    @OrderBy("createdAt DESC")
     private List<Review> ratings = new ArrayList<>();
 
-    @OneToMany(mappedBy = "boardGame")
+    @OneToMany(mappedBy = "boardGame", cascade = CascadeType.ALL)
     private List<BoardGameItem> availableStockItems = new ArrayList<>();
 
     @ManyToMany

@@ -1,5 +1,9 @@
 package cz.cvut.fel.ear.dto;
 
-public record CategoryCreationDTO(String name) {
+import jakarta.validation.constraints.NotBlank;
+
+public record CategoryCreationDTO(
+        @NotBlank String name
+) implements BasicDTO {
 
 }

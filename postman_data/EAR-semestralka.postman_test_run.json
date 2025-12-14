@@ -1,0 +1,1698 @@
+{
+	"id": "cb1f2792-63a1-49d1-8576-1399da0eaad9",
+	"name": "EAR-semestralka",
+	"timestamp": "2025-12-12T13:36:06.698Z",
+	"collection_id": "50389883-044afbf8-48e9-4bed-9968-53a81bf85409",
+	"folder_id": 0,
+	"environment_id": "0",
+	"totalPass": 45,
+	"delay": 0,
+	"persist": true,
+	"status": "finished",
+	"startedAt": "2025-12-12T13:35:39.609Z",
+	"totalFail": 59,
+	"results": [
+		{
+			"id": "c6838abd-dfd9-4dbd-99c6-841f252bbc3a",
+			"name": "add Board Game To Category",
+			"url": "http://localhost:8080/api/categories/1/games/admin",
+			"time": 11,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {
+				"409 || expected code is 1": false
+			},
+			"testPassFailCounts": {
+				"Added Game 2 to Cat 1 || expected code is 200": {
+					"pass": 0,
+					"fail": 1
+				},
+				"Category Not Found || expected code is 404": {
+					"pass": 1,
+					"fail": 0
+				},
+				"409 || expected code is 1": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				162,
+				50,
+				11
+			],
+			"allTests": [
+				{
+					"Added Game 2 to Cat 1 || expected code is 200": false
+				},
+				{
+					"Category Not Found || expected code is 404": true
+				},
+				{
+					"409 || expected code is 1": false
+				}
+			]
+		},
+		{
+			"id": "be613c60-2a4b-4a93-80a8-c67235345039",
+			"name": "remove Board Game From Category",
+			"url": "http://localhost:8080/api/categories/1/games/admin",
+			"time": 9,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {
+				"404 || expected code is 1": false
+			},
+			"testPassFailCounts": {
+				"Removed Game 2 from Cat 1 || expected code is 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Game Not Found || expected code is 404": {
+					"pass": 1,
+					"fail": 0
+				},
+				"404 || expected code is 1": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				124,
+				61,
+				9
+			],
+			"allTests": [
+				{
+					"Removed Game 2 from Cat 1 || expected code is 200": true
+				},
+				{
+					"Game Not Found || expected code is 404": true
+				},
+				{
+					"404 || expected code is 1": false
+				}
+			]
+		},
+		{
+			"id": "6e85c96b-7ce6-4baf-a4a5-cad398b177b6",
+			"name": "get All Categories",
+			"url": "http://localhost:8080/api/categories/",
+			"time": 29,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"403 || expected code is john0": false
+			},
+			"testPassFailCounts": {
+				"All Categories OK || expected code is 200": {
+					"pass": 2,
+					"fail": 0
+				},
+				"403 || expected code is john0": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				68,
+				53,
+				29
+			],
+			"allTests": [
+				{
+					"All Categories OK || expected code is 200": true
+				},
+				{
+					"All Categories OK || expected code is 200": true
+				},
+				{
+					"403 || expected code is john0": false
+				}
+			]
+		},
+		{
+			"id": "81562c2a-57b0-4019-a3fc-799a5fe69123",
+			"name": "create Category",
+			"url": "http://localhost:8080/api/categories/",
+			"time": 14,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {
+				"400 || expected code is Invalid Category": false
+			},
+			"testPassFailCounts": {
+				"Category Created || expected code is 201": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Conflict - Already Exists || expected code is 409": {
+					"pass": 1,
+					"fail": 0
+				},
+				"400 || expected code is Invalid Category": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				79,
+				49,
+				14
+			],
+			"allTests": [
+				{
+					"Category Created || expected code is 201": true
+				},
+				{
+					"Conflict - Already Exists || expected code is 409": true
+				},
+				{
+					"400 || expected code is Invalid Category": false
+				}
+			]
+		},
+		{
+			"id": "cf638ac5-e34a-431a-ae0a-8923fc2707e7",
+			"name": "add Favorite Board Game",
+			"url": "http://localhost:8080/api/boardgames/users/alice2/favorites/john0",
+			"time": 7,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {
+				"409 || expected code is 1": false
+			},
+			"testPassFailCounts": {
+				"Game 2 Added || expected code is 201": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Game Not Found || expected code is 404": {
+					"pass": 1,
+					"fail": 0
+				},
+				"409 || expected code is 1": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				148,
+				69,
+				7
+			],
+			"allTests": [
+				{
+					"Game 2 Added || expected code is 201": true
+				},
+				{
+					"Game Not Found || expected code is 404": true
+				},
+				{
+					"409 || expected code is 1": false
+				}
+			]
+		},
+		{
+			"id": "d01ce1f7-a8dc-4aee-9a0a-90d65bcb11b7",
+			"name": "delete Game From Favorites",
+			"url": "http://localhost:8080/api/boardgames/users/john0/favorites/john0",
+			"time": 7,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {
+				"404 || expected code is 1": false
+			},
+			"testPassFailCounts": {
+				"Game 2 Removed || expected code is 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Game Not Found || expected code is 404": {
+					"pass": 1,
+					"fail": 0
+				},
+				"404 || expected code is 1": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				112,
+				69,
+				7
+			],
+			"allTests": [
+				{
+					"Game 2 Removed || expected code is 200": true
+				},
+				{
+					"Game Not Found || expected code is 404": true
+				},
+				{
+					"404 || expected code is 1": false
+				}
+			]
+		},
+		{
+			"id": "bd765116-c2a5-48a5-957d-f24069369b7d",
+			"name": "get Favorites",
+			"url": "http://localhost:8080/api/boardgames/users/john0/favorites/",
+			"time": 8,
+			"responseCode": {
+				"code": 403,
+				"name": "Forbidden"
+			},
+			"tests": {
+				"403 || expected code is john0": false
+			},
+			"testPassFailCounts": {
+				"Favorites Retrieved || expected code is 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Forbidden (Admin has no favourites) || expected code is 403": {
+					"pass": 1,
+					"fail": 0
+				},
+				"403 || expected code is john0": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				62,
+				33,
+				8
+			],
+			"allTests": [
+				{
+					"Favorites Retrieved || expected code is 200": true
+				},
+				{
+					"Forbidden (Admin has no favourites) || expected code is 403": true
+				},
+				{
+					"403 || expected code is john0": false
+				}
+			]
+		},
+		{
+			"id": "367d0810-503f-45ac-b7d4-e464c1008129",
+			"name": "number Of Stock Items For Game",
+			"url": "http://localhost:8080/api/boardgames/john0/items/stock",
+			"time": 20,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {
+				"200 || expected code is 1": false
+			},
+			"testPassFailCounts": {
+				"Stock Count OK || expected code is 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Game Not Found || expected code is 404": {
+					"pass": 1,
+					"fail": 0
+				},
+				"200 || expected code is 1": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				73,
+				76,
+				20
+			],
+			"allTests": [
+				{
+					"Stock Count OK || expected code is 200": true
+				},
+				{
+					"Game Not Found || expected code is 404": true
+				},
+				{
+					"200 || expected code is 1": false
+				}
+			]
+		},
+		{
+			"id": "17149019-133b-46eb-9a05-f77f2af224cf",
+			"name": "available Items For Game",
+			"url": "http://localhost:8080/api/boardgames/:id/items/available",
+			"time": 25,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {
+				"200 || expected code is 1": false
+			},
+			"testPassFailCounts": {
+				"Available Items OK || expected code is 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Game Not Found || expected code is 404": {
+					"pass": 1,
+					"fail": 0
+				},
+				"200 || expected code is 1": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				90,
+				50,
+				25
+			],
+			"allTests": [
+				{
+					"Available Items OK || expected code is 200": true
+				},
+				{
+					"Game Not Found || expected code is 404": true
+				},
+				{
+					"200 || expected code is 1": false
+				}
+			]
+		},
+		{
+			"id": "07231375-3f81-4c55-9442-00d9b9b75592",
+			"name": "all Items For Game",
+			"url": "http://localhost:8080/api/boardgames/:id/items/all",
+			"time": 6,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {
+				"200 || expected code is 1": false
+			},
+			"testPassFailCounts": {
+				"All Items OK || expected code is 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Game Not Found || expected code is 404": {
+					"pass": 1,
+					"fail": 0
+				},
+				"200 || expected code is 1": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				68,
+				48,
+				6
+			],
+			"allTests": [
+				{
+					"All Items OK || expected code is 200": true
+				},
+				{
+					"Game Not Found || expected code is 404": true
+				},
+				{
+					"200 || expected code is 1": false
+				}
+			]
+		},
+		{
+			"id": "d5f8febe-774e-47b8-b244-7096ddf9a0e6",
+			"name": "Get Board Game by ID",
+			"url": "http://localhost:8080/api/boardgames/1",
+			"time": 48,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Game 1 Found || expected code is 200": true
+			},
+			"testPassFailCounts": {
+				"Game 1 Found || expected code is 200": {
+					"pass": 2,
+					"fail": 0
+				},
+				"Game Not Found || expected code is 404": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				47,
+				46,
+				48
+			],
+			"allTests": [
+				{
+					"Game 1 Found || expected code is 200": true
+				},
+				{
+					"Game Not Found || expected code is 404": true
+				},
+				{
+					"Game 1 Found || expected code is 200": true
+				}
+			]
+		},
+		{
+			"id": "3d2a9f4e-02c5-43b3-af36-99af81a214ee",
+			"name": "Get Top X Borrowed Board Games",
+			"url": "http://localhost:8080/api/boardgames/topBorrowed/john0",
+			"time": 6,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {
+				"400 || expected code is -5": false
+			},
+			"testPassFailCounts": {
+				"Top 5 Games OK || expected code is 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Invalid Count 0 || expected code is 400": {
+					"pass": 1,
+					"fail": 0
+				},
+				"400 || expected code is -5": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				345,
+				87,
+				6
+			],
+			"allTests": [
+				{
+					"Top 5 Games OK || expected code is 200": true
+				},
+				{
+					"Invalid Count 0 || expected code is 400": true
+				},
+				{
+					"400 || expected code is -5": false
+				}
+			]
+		},
+		{
+			"id": "1f765ee2-8016-4a83-9bff-6fc01c6e9207",
+			"name": "Deletes Board Game from the system",
+			"url": "http://localhost:8080/api/boardgames/9134",
+			"time": 5,
+			"responseCode": {
+				"code": 403,
+				"name": "Forbidden"
+			},
+			"tests": {
+				"400 || expected code is -5": false
+			},
+			"testPassFailCounts": {
+				"Top 5 Games OK || expected code is 200": {
+					"pass": 0,
+					"fail": 1
+				},
+				"Invalid Count 0 || expected code is 400": {
+					"pass": 0,
+					"fail": 1
+				},
+				"400 || expected code is -5": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				7,
+				8,
+				5
+			],
+			"allTests": [
+				{
+					"Top 5 Games OK || expected code is 200": false
+				},
+				{
+					"Invalid Count 0 || expected code is 400": false
+				},
+				{
+					"400 || expected code is -5": false
+				}
+			]
+		},
+		{
+			"id": "e35c4132-2fd0-47c6-a2a9-7be2e49f3d3b",
+			"name": "Gets all Board Games currently in the system",
+			"url": "http://localhost:8080/api/boardgames/",
+			"time": 181,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"⚠️ SKIPPED - No Data": false
+			},
+			"testPassFailCounts": {
+				"⚠️ SKIPPED - No Data": {
+					"pass": 0,
+					"fail": 0
+				}
+			},
+			"times": [
+				225,
+				123,
+				181
+			],
+			"allTests": [
+				{
+					"⚠️ SKIPPED - No Data": false
+				},
+				{
+					"⚠️ SKIPPED - No Data": false
+				},
+				{
+					"⚠️ SKIPPED - No Data": false
+				}
+			]
+		},
+		{
+			"id": "ede67360-d4dd-47b6-9b53-d3276c2b8973",
+			"name": "update Board Game",
+			"url": "http://localhost:8080/api/boardgames/",
+			"time": 7,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {
+				"403 || expected code is Description Update": false
+			},
+			"testPassFailCounts": {
+				"Update OK || expected code is 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Game Not Found || expected code is 404": {
+					"pass": 1,
+					"fail": 0
+				},
+				"403 || expected code is Description Update": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				80,
+				61,
+				7
+			],
+			"allTests": [
+				{
+					"Update OK || expected code is 200": true
+				},
+				{
+					"Game Not Found || expected code is 404": true
+				},
+				{
+					"403 || expected code is Description Update": false
+				}
+			]
+		},
+		{
+			"id": "cb5f7ff0-de1a-4cb4-aaac-7d8c1af68a17",
+			"name": "Create new Board Game",
+			"url": "http://localhost:8080/api/boardgames/",
+			"time": 6,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {
+				"403 || expected code is Description Y": false
+			},
+			"testPassFailCounts": {
+				"Game X Created || expected code is 201": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Conflict - Already Exists || expected code is 409": {
+					"pass": 0,
+					"fail": 1
+				},
+				"403 || expected code is Description Y": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				71,
+				85,
+				6
+			],
+			"allTests": [
+				{
+					"Game X Created || expected code is 201": true
+				},
+				{
+					"Conflict - Already Exists || expected code is 409": false
+				},
+				{
+					"403 || expected code is Description Y": false
+				}
+			]
+		},
+		{
+			"id": "00dcca05-16ea-4483-b8d8-7f26d5ac2a85",
+			"name": "create Review",
+			"url": "http://localhost:8080/api/reviews/games/1/users/:userId?content=1&rating=Valid Content",
+			"time": 11,
+			"responseCode": {
+				"code": 404,
+				"name": "Not Found"
+			},
+			"tests": {
+				"400 || expected code is 7": false
+			},
+			"testPassFailCounts": {
+				"Review Created || expected code is 201": {
+					"pass": 0,
+					"fail": 1
+				},
+				"Validation Error (Content) || expected code is 400": {
+					"pass": 1,
+					"fail": 0
+				},
+				"400 || expected code is 7": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				43,
+				34,
+				11
+			],
+			"allTests": [
+				{
+					"Review Created || expected code is 201": false
+				},
+				{
+					"Validation Error (Content) || expected code is 400": true
+				},
+				{
+					"400 || expected code is 7": false
+				}
+			]
+		},
+		{
+			"id": "c4ed55e2-b25d-4d89-a966-811846f4c426",
+			"name": "get Reviews By Game Id",
+			"url": "http://localhost:8080/api/reviews/games/admin",
+			"time": 6,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {
+				"200 || expected code is 1": false
+			},
+			"testPassFailCounts": {
+				"Reviews for Game 1 OK || expected code is 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Game Not Found || expected code is 404": {
+					"pass": 1,
+					"fail": 0
+				},
+				"200 || expected code is 1": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				82,
+				45,
+				6
+			],
+			"allTests": [
+				{
+					"Reviews for Game 1 OK || expected code is 200": true
+				},
+				{
+					"Game Not Found || expected code is 404": true
+				},
+				{
+					"200 || expected code is 1": false
+				}
+			]
+		},
+		{
+			"id": "31c1ff7e-36ce-4b81-860e-ef72139444b2",
+			"name": "get Review By Id",
+			"url": "http://localhost:8080/api/reviews/:id",
+			"time": 7,
+			"responseCode": {
+				"code": 404,
+				"name": "Not Found"
+			},
+			"tests": {
+				"200 || expected code is 1": false
+			},
+			"testPassFailCounts": {
+				"Review 1 Found || expected code is 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Review Not Found || expected code is 404": {
+					"pass": 1,
+					"fail": 0
+				},
+				"200 || expected code is 1": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				47,
+				55,
+				7
+			],
+			"allTests": [
+				{
+					"Review 1 Found || expected code is 200": true
+				},
+				{
+					"Review Not Found || expected code is 404": true
+				},
+				{
+					"200 || expected code is 1": false
+				}
+			]
+		},
+		{
+			"id": "b4f27b0a-bb06-4cc8-b702-0c6b44adcc4b",
+			"name": "delete Review",
+			"url": "http://localhost:8080/api/reviews/john0",
+			"time": 6,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {
+				"403 || expected code is 1": false
+			},
+			"testPassFailCounts": {
+				"Review Deleted (Auth User) || expected code is 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Review Not Found || expected code is 404": {
+					"pass": 1,
+					"fail": 0
+				},
+				"403 || expected code is 1": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				115,
+				62,
+				6
+			],
+			"allTests": [
+				{
+					"Review Deleted (Auth User) || expected code is 200": true
+				},
+				{
+					"Review Not Found || expected code is 404": true
+				},
+				{
+					"403 || expected code is 1": false
+				}
+			]
+		},
+		{
+			"id": "bb02fdc4-b4a1-4eb3-b720-b75d94f2e5da",
+			"name": "return Loan",
+			"url": "http://localhost:8080/api/loans/9134/return",
+			"time": 5,
+			"responseCode": {
+				"code": 405,
+				"name": "Method Not Allowed"
+			},
+			"tests": {
+				"403 || expected code is 1": false
+			},
+			"testPassFailCounts": {
+				"Review Deleted (Auth User) || expected code is 200": {
+					"pass": 0,
+					"fail": 1
+				},
+				"Review Not Found || expected code is 404": {
+					"pass": 0,
+					"fail": 1
+				},
+				"403 || expected code is 1": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				12,
+				5,
+				5
+			],
+			"allTests": [
+				{
+					"Review Deleted (Auth User) || expected code is 200": false
+				},
+				{
+					"Review Not Found || expected code is 404": false
+				},
+				{
+					"403 || expected code is 1": false
+				}
+			]
+		},
+		{
+			"id": "48f4e312-fa49-47fd-8e0d-05c77cc1a661",
+			"name": "change Loan Status",
+			"url": "http://localhost:8080/api/loans/9134/status?status=returnedLate",
+			"time": 4,
+			"responseCode": {
+				"code": 403,
+				"name": "Forbidden"
+			},
+			"tests": {
+				"403 || expected code is 1": false
+			},
+			"testPassFailCounts": {
+				"Review Deleted (Auth User) || expected code is 200": {
+					"pass": 0,
+					"fail": 1
+				},
+				"Review Not Found || expected code is 404": {
+					"pass": 0,
+					"fail": 1
+				},
+				"403 || expected code is 1": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				13,
+				5,
+				4
+			],
+			"allTests": [
+				{
+					"Review Deleted (Auth User) || expected code is 200": false
+				},
+				{
+					"Review Not Found || expected code is 404": false
+				},
+				{
+					"403 || expected code is 1": false
+				}
+			]
+		},
+		{
+			"id": "90d279a4-6cc2-4a17-ad0a-ab17cac23cf4",
+			"name": "reject Loan",
+			"url": "http://localhost:8080/api/loans/9134/reject",
+			"time": 4,
+			"responseCode": {
+				"code": 403,
+				"name": "Forbidden"
+			},
+			"tests": {
+				"403 || expected code is 1": false
+			},
+			"testPassFailCounts": {
+				"Review Deleted (Auth User) || expected code is 200": {
+					"pass": 0,
+					"fail": 1
+				},
+				"Review Not Found || expected code is 404": {
+					"pass": 0,
+					"fail": 1
+				},
+				"403 || expected code is 1": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				7,
+				5,
+				4
+			],
+			"allTests": [
+				{
+					"Review Deleted (Auth User) || expected code is 200": false
+				},
+				{
+					"Review Not Found || expected code is 404": false
+				},
+				{
+					"403 || expected code is 1": false
+				}
+			]
+		},
+		{
+			"id": "9513c102-d5c5-4998-aa27-9ade826407e3",
+			"name": "approve Loan",
+			"url": "http://localhost:8080/api/loans/9134/approve",
+			"time": 5,
+			"responseCode": {
+				"code": 403,
+				"name": "Forbidden"
+			},
+			"tests": {
+				"403 || expected code is 1": false
+			},
+			"testPassFailCounts": {
+				"Review Deleted (Auth User) || expected code is 200": {
+					"pass": 0,
+					"fail": 1
+				},
+				"Review Not Found || expected code is 404": {
+					"pass": 0,
+					"fail": 1
+				},
+				"403 || expected code is 1": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				11,
+				5,
+				5
+			],
+			"allTests": [
+				{
+					"Review Deleted (Auth User) || expected code is 200": false
+				},
+				{
+					"Review Not Found || expected code is 404": false
+				},
+				{
+					"403 || expected code is 1": false
+				}
+			]
+		},
+		{
+			"id": "1c53528d-7c47-47dc-af6b-879149288e13",
+			"name": "get Loan By Id",
+			"url": "http://localhost:8080/api/loans/9134",
+			"time": 32,
+			"responseCode": {
+				"code": 403,
+				"name": "Forbidden"
+			},
+			"tests": {
+				"403 || expected code is 1": false
+			},
+			"testPassFailCounts": {
+				"Review Deleted (Auth User) || expected code is 200": {
+					"pass": 0,
+					"fail": 1
+				},
+				"Review Not Found || expected code is 404": {
+					"pass": 0,
+					"fail": 1
+				},
+				"403 || expected code is 1": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				42,
+				32,
+				32
+			],
+			"allTests": [
+				{
+					"Review Deleted (Auth User) || expected code is 200": false
+				},
+				{
+					"Review Not Found || expected code is 404": false
+				},
+				{
+					"403 || expected code is 1": false
+				}
+			]
+		},
+		{
+			"id": "526ea3cb-347d-4c0b-a21b-22eebc0a8d96",
+			"name": "get Loans By User Id",
+			"url": "http://localhost:8080/api/loans/user/9134",
+			"time": 6,
+			"responseCode": {
+				"code": 403,
+				"name": "Forbidden"
+			},
+			"tests": {
+				"403 || expected code is 1": false
+			},
+			"testPassFailCounts": {
+				"Review Deleted (Auth User) || expected code is 200": {
+					"pass": 0,
+					"fail": 1
+				},
+				"Review Not Found || expected code is 404": {
+					"pass": 0,
+					"fail": 1
+				},
+				"403 || expected code is 1": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				9,
+				6,
+				6
+			],
+			"allTests": [
+				{
+					"Review Deleted (Auth User) || expected code is 200": false
+				},
+				{
+					"Review Not Found || expected code is 404": false
+				},
+				{
+					"403 || expected code is 1": false
+				}
+			]
+		},
+		{
+			"id": "e1f25912-b9d8-403a-9a78-336976744084",
+			"name": "get All Pending Loans",
+			"url": "http://localhost:8080/api/loans/pending",
+			"time": 6,
+			"responseCode": {
+				"code": 403,
+				"name": "Forbidden"
+			},
+			"tests": {
+				"403 || expected code is 1": false
+			},
+			"testPassFailCounts": {
+				"Review Deleted (Auth User) || expected code is 200": {
+					"pass": 0,
+					"fail": 1
+				},
+				"Review Not Found || expected code is 404": {
+					"pass": 0,
+					"fail": 1
+				},
+				"403 || expected code is 1": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				7,
+				4,
+				6
+			],
+			"allTests": [
+				{
+					"Review Deleted (Auth User) || expected code is 200": false
+				},
+				{
+					"Review Not Found || expected code is 404": false
+				},
+				{
+					"403 || expected code is 1": false
+				}
+			]
+		},
+		{
+			"id": "3eaf06b3-2406-47c1-bdeb-4eaf45b093f9",
+			"name": "get All Borrowed Loans",
+			"url": "http://localhost:8080/api/loans/borrowed",
+			"time": 4,
+			"responseCode": {
+				"code": 403,
+				"name": "Forbidden"
+			},
+			"tests": {
+				"403 || expected code is 1": false
+			},
+			"testPassFailCounts": {
+				"Review Deleted (Auth User) || expected code is 200": {
+					"pass": 0,
+					"fail": 1
+				},
+				"Review Not Found || expected code is 404": {
+					"pass": 0,
+					"fail": 1
+				},
+				"403 || expected code is 1": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				5,
+				6,
+				4
+			],
+			"allTests": [
+				{
+					"Review Deleted (Auth User) || expected code is 200": false
+				},
+				{
+					"Review Not Found || expected code is 404": false
+				},
+				{
+					"403 || expected code is 1": false
+				}
+			]
+		},
+		{
+			"id": "c10fc28d-dd86-4956-8bc9-cdcb56f14af0",
+			"name": "get All Loans",
+			"url": "http://localhost:8080/api/loans/",
+			"time": 7,
+			"responseCode": {
+				"code": 403,
+				"name": "Forbidden"
+			},
+			"tests": {
+				"403 || expected code is 1": false
+			},
+			"testPassFailCounts": {
+				"Review Deleted (Auth User) || expected code is 200": {
+					"pass": 0,
+					"fail": 1
+				},
+				"Review Not Found || expected code is 404": {
+					"pass": 0,
+					"fail": 1
+				},
+				"403 || expected code is 1": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				6,
+				6,
+				7
+			],
+			"allTests": [
+				{
+					"Review Deleted (Auth User) || expected code is 200": false
+				},
+				{
+					"Review Not Found || expected code is 404": false
+				},
+				{
+					"403 || expected code is 1": false
+				}
+			]
+		},
+		{
+			"id": "7f0ec3b6-62f2-4290-9a24-e525cfe9c2fd",
+			"name": "create Loan",
+			"url": "http://localhost:8080/api/loans/",
+			"time": 8,
+			"responseCode": {
+				"code": 403,
+				"name": "Forbidden"
+			},
+			"tests": {
+				"403 || expected code is 1": false
+			},
+			"testPassFailCounts": {
+				"Review Deleted (Auth User) || expected code is 200": {
+					"pass": 0,
+					"fail": 1
+				},
+				"Review Not Found || expected code is 404": {
+					"pass": 0,
+					"fail": 1
+				},
+				"403 || expected code is 1": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				13,
+				10,
+				8
+			],
+			"allTests": [
+				{
+					"Review Deleted (Auth User) || expected code is 200": false
+				},
+				{
+					"Review Not Found || expected code is 404": false
+				},
+				{
+					"403 || expected code is 1": false
+				}
+			]
+		},
+		{
+			"id": "6adedc1a-6b5e-4abf-a235-7fea6f694f1b",
+			"name": "delete Board Game Item",
+			"url": "http://localhost:8080/api/items/admin",
+			"time": 7,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {
+				"403 || expected code is 1": false
+			},
+			"testPassFailCounts": {
+				"Item Deleted || expected code is 200": {
+					"pass": 0,
+					"fail": 1
+				},
+				"Item Not Found || expected code is 404": {
+					"pass": 1,
+					"fail": 0
+				},
+				"403 || expected code is 1": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				99,
+				87,
+				7
+			],
+			"allTests": [
+				{
+					"Item Deleted || expected code is 200": false
+				},
+				{
+					"Item Not Found || expected code is 404": true
+				},
+				{
+					"403 || expected code is 1": false
+				}
+			]
+		},
+		{
+			"id": "3ad915e2-e4f1-42e0-a67b-0b5a7c64d9f8",
+			"name": "update Board Game Item State",
+			"url": "http://localhost:8080/api/items/admin",
+			"time": 7,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {
+				"400 || expected code is INVALID_STATE": false
+			},
+			"testPassFailCounts": {
+				"State Updated || expected code is 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Item Not Found || expected code is 404": {
+					"pass": 1,
+					"fail": 0
+				},
+				"400 || expected code is INVALID_STATE": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				102,
+				48,
+				7
+			],
+			"allTests": [
+				{
+					"State Updated || expected code is 200": true
+				},
+				{
+					"Item Not Found || expected code is 404": true
+				},
+				{
+					"400 || expected code is INVALID_STATE": false
+				}
+			]
+		},
+		{
+			"id": "1fccca79-0727-4747-bf31-b3f1f8cd3044",
+			"name": "add Board Game Item",
+			"url": "http://localhost:8080/api/items",
+			"time": 132,
+			"responseCode": {
+				"code": 404,
+				"name": "Not Found"
+			},
+			"tests": {
+				"⚠️ SKIPPED - No Data": false
+			},
+			"testPassFailCounts": {
+				"Item Created || expected code is 201": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Game ID Not Found || expected code is 404": {
+					"pass": 1,
+					"fail": 0
+				},
+				"⚠️ SKIPPED - No Data": {
+					"pass": 0,
+					"fail": 0
+				}
+			},
+			"times": [
+				80,
+				77,
+				132
+			],
+			"allTests": [
+				{
+					"Item Created || expected code is 201": true
+				},
+				{
+					"Game ID Not Found || expected code is 404": true
+				},
+				{
+					"⚠️ SKIPPED - No Data": false
+				}
+			]
+		},
+		{
+			"id": "a714476f-54d8-4181-bee7-a1877ec6011d",
+			"name": "register User",
+			"url": "http://localhost:8080/api/auth/signup/user",
+			"time": 7,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {
+				"400 || expected code is password": false
+			},
+			"testPassFailCounts": {
+				"User Registration OK || expected code is 201": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Conflict - Username Exists || expected code is 409": {
+					"pass": 1,
+					"fail": 0
+				},
+				"400 || expected code is password": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				190,
+				33,
+				7
+			],
+			"allTests": [
+				{
+					"User Registration OK || expected code is 201": true
+				},
+				{
+					"Conflict - Username Exists || expected code is 409": true
+				},
+				{
+					"400 || expected code is password": false
+				}
+			]
+		},
+		{
+			"id": "d21e033c-ef44-45c1-95ee-0f39c9b64238",
+			"name": "register Admin",
+			"url": "http://localhost:8080/api/auth/signup/admin",
+			"time": 7,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {
+				"400 || expected code is password": false
+			},
+			"testPassFailCounts": {
+				"Admin Registration OK || expected code is 201": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Conflict - Username Exists || expected code is 409": {
+					"pass": 1,
+					"fail": 0
+				},
+				"400 || expected code is password": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				182,
+				35,
+				7
+			],
+			"allTests": [
+				{
+					"Admin Registration OK || expected code is 201": true
+				},
+				{
+					"Conflict - Username Exists || expected code is 409": true
+				},
+				{
+					"400 || expected code is password": false
+				}
+			]
+		},
+		{
+			"id": "60ac9ce9-c08e-4285-b2b7-1677a946ef58",
+			"name": "authenticate User",
+			"url": "http://localhost:8080/api/auth/signin",
+			"time": 203,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {
+				"200 || expected code is 12345": false
+			},
+			"testPassFailCounts": {
+				"Admin Login OK || expected code is 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Bad Credentials || expected code is 400": {
+					"pass": 1,
+					"fail": 0
+				},
+				"200 || expected code is 12345": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				157,
+				185,
+				203
+			],
+			"allTests": [
+				{
+					"Admin Login OK || expected code is 200": true
+				},
+				{
+					"Bad Credentials || expected code is 400": true
+				},
+				{
+					"200 || expected code is 12345": false
+				}
+			]
+		}
+	],
+	"count": 3,
+	"totalTime": 5559,
+	"collection": {
+		"requests": [
+			{
+				"id": "c6838abd-dfd9-4dbd-99c6-841f252bbc3a",
+				"method": "PUT"
+			},
+			{
+				"id": "be613c60-2a4b-4a93-80a8-c67235345039",
+				"method": "DELETE"
+			},
+			{
+				"id": "6e85c96b-7ce6-4baf-a4a5-cad398b177b6",
+				"method": "GET"
+			},
+			{
+				"id": "81562c2a-57b0-4019-a3fc-799a5fe69123",
+				"method": "POST"
+			},
+			{
+				"id": "cf638ac5-e34a-431a-ae0a-8923fc2707e7",
+				"method": "POST"
+			},
+			{
+				"id": "d01ce1f7-a8dc-4aee-9a0a-90d65bcb11b7",
+				"method": "DELETE"
+			},
+			{
+				"id": "bd765116-c2a5-48a5-957d-f24069369b7d",
+				"method": "GET"
+			},
+			{
+				"id": "367d0810-503f-45ac-b7d4-e464c1008129",
+				"method": "GET"
+			},
+			{
+				"id": "17149019-133b-46eb-9a05-f77f2af224cf",
+				"method": "GET"
+			},
+			{
+				"id": "07231375-3f81-4c55-9442-00d9b9b75592",
+				"method": "GET"
+			},
+			{
+				"id": "d5f8febe-774e-47b8-b244-7096ddf9a0e6",
+				"method": "GET"
+			},
+			{
+				"id": "3d2a9f4e-02c5-43b3-af36-99af81a214ee",
+				"method": "GET"
+			},
+			{
+				"id": "1f765ee2-8016-4a83-9bff-6fc01c6e9207",
+				"method": "DELETE"
+			},
+			{
+				"id": "e35c4132-2fd0-47c6-a2a9-7be2e49f3d3b",
+				"method": "GET"
+			},
+			{
+				"id": "ede67360-d4dd-47b6-9b53-d3276c2b8973",
+				"method": "PUT"
+			},
+			{
+				"id": "cb5f7ff0-de1a-4cb4-aaac-7d8c1af68a17",
+				"method": "POST"
+			},
+			{
+				"id": "00dcca05-16ea-4483-b8d8-7f26d5ac2a85",
+				"method": "POST"
+			},
+			{
+				"id": "c4ed55e2-b25d-4d89-a966-811846f4c426",
+				"method": "GET"
+			},
+			{
+				"id": "31c1ff7e-36ce-4b81-860e-ef72139444b2",
+				"method": "GET"
+			},
+			{
+				"id": "b4f27b0a-bb06-4cc8-b702-0c6b44adcc4b",
+				"method": "DELETE"
+			},
+			{
+				"id": "bb02fdc4-b4a1-4eb3-b720-b75d94f2e5da",
+				"method": "POST"
+			},
+			{
+				"id": "48f4e312-fa49-47fd-8e0d-05c77cc1a661",
+				"method": "PATCH"
+			},
+			{
+				"id": "90d279a4-6cc2-4a17-ad0a-ab17cac23cf4",
+				"method": "PATCH"
+			},
+			{
+				"id": "9513c102-d5c5-4998-aa27-9ade826407e3",
+				"method": "PATCH"
+			},
+			{
+				"id": "1c53528d-7c47-47dc-af6b-879149288e13",
+				"method": "GET"
+			},
+			{
+				"id": "526ea3cb-347d-4c0b-a21b-22eebc0a8d96",
+				"method": "GET"
+			},
+			{
+				"id": "e1f25912-b9d8-403a-9a78-336976744084",
+				"method": "GET"
+			},
+			{
+				"id": "3eaf06b3-2406-47c1-bdeb-4eaf45b093f9",
+				"method": "GET"
+			},
+			{
+				"id": "c10fc28d-dd86-4956-8bc9-cdcb56f14af0",
+				"method": "GET"
+			},
+			{
+				"id": "7f0ec3b6-62f2-4290-9a24-e525cfe9c2fd",
+				"method": "POST"
+			},
+			{
+				"id": "6adedc1a-6b5e-4abf-a235-7fea6f694f1b",
+				"method": "DELETE"
+			},
+			{
+				"id": "3ad915e2-e4f1-42e0-a67b-0b5a7c64d9f8",
+				"method": "PATCH"
+			},
+			{
+				"id": "1fccca79-0727-4747-bf31-b3f1f8cd3044",
+				"method": "POST"
+			},
+			{
+				"id": "a714476f-54d8-4181-bee7-a1877ec6011d",
+				"method": "POST"
+			},
+			{
+				"id": "d21e033c-ef44-45c1-95ee-0f39c9b64238",
+				"method": "POST"
+			},
+			{
+				"id": "60ac9ce9-c08e-4285-b2b7-1677a946ef58",
+				"method": "POST"
+			}
+		]
+	}
+}

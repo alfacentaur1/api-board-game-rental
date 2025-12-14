@@ -264,7 +264,7 @@ public class BoardGameServiceTest {
 
         // Act & Assert
         // Catan is not a favorite
-        assertThrows(EntityNotFoundException.class, () -> {
+        assertThrows(ItemNotInResource.class, () -> {
             sut.removeGameFromFavorites(user, catanId);
         });
     }
