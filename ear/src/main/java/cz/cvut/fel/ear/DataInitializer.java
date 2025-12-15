@@ -12,7 +12,7 @@ import java.time.LocalDate;
 import java.util.*;
 
 @Component
-@Profile("!test")
+@Profile("!test & !prod")
 public class DataInitializer implements CommandLineRunner {
 
     private final UserService userService;
