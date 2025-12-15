@@ -50,7 +50,7 @@ public class ReviewService {
      * @return a list of Review entities
      */
     public List<Review> getReviewsForBoardGame(long gameId) {
-        BoardGame boardGame = boardGameService.getBoardGame(gameId);
+        boardGameService.getBoardGame(gameId);
 
         return reviewRepository.findAllByBoardGame_IdIn(List.of(gameId));
     }

@@ -15,12 +15,12 @@ public class ResponseWrapper {
         INVALID_BODY_FORMAT ("the request body you sent has syntax error"),
         MISSING_BODY ("in your request there has been no body set"),
 
-        INVALID_LOAN_NOT_APPROVED ("Loan cannot be returned because it isn't approved")
+        INVALID_LOAN_STATE_FOR_STATE ("cannot change loan state from %s to %s")
         ;
 
         private final String template;
         ErrorMessageCode(String template) { this.template = template; }
-        public String format(String field) { return String.format(template, field); }
+        public String format(String... field) { return String.format(template, field); }
     }
 
     public enum ResponseInfoCode {
@@ -43,6 +43,8 @@ public class ResponseWrapper {
         ERROR_INVALID_REQUEST_FORMAT("Invalid request format"),
         ERROR_RESOURCE_NOT_FOUND("Requested resource not found"),
         ERROR_INTERNAL_SERVER_ERROR("Internal server error occurred"),
+
+        ERROR_NO_AVAILABLE_ITEM_FOR_GAME ("Game %s has no available item to borrow"),
 
         DENIED_AUTHORIZATION ("Access denied"),
 
@@ -120,11 +122,25 @@ public class ResponseWrapper {
     /**
      * Adds new error to ResponseInfoError
      * @param errorCode
-     * @param fieldName - field name where error occured
+     * @param fieldName - field name where error occurred
      */
     public void addResponseInfoError(ErrorMessageCode errorCode, String fieldName) {
         Map<String, String> error = new LinkedHashMap<>();
         error.put("message", errorCode.format(fieldName));
+        error.put("fieldName", fieldName);
+
+        this.responseInfoErrors.add(error);
+    }
+
+    /**
+     * Adds new error to ResponseInfoError
+     * @param errorCode
+     * @param fieldName - field name where error occurred
+     * @param messageFormat - params to set to the message
+     */
+    public void addResponseInfoError(ErrorMessageCode errorCode, String fieldName, String... messageFormat) {
+        Map<String, String> error = new LinkedHashMap<>();
+        error.put("message", errorCode.format(messageFormat));
         error.put("fieldName", fieldName);
 
         this.responseInfoErrors.add(error);

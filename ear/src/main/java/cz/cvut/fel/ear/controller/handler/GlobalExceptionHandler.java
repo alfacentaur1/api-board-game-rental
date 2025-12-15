@@ -46,12 +46,19 @@ public class GlobalExceptionHandler {
         return buildResponse(generator, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(InvalidLoanReturnException.class)
-    public ResponseEntity<Map<String, Object>>handleInvalidLoanReturnState(InvalidLoanReturnException exception) {
+    @ExceptionHandler(InvalidLoanStateChangeException.class)
+    public ResponseEntity<Map<String, Object>>handleInvalidLoanReturnState(InvalidLoanStateChangeException exception) {
         ResponseWrapper generator = new ResponseWrapper();
         generator.setResponseInfoMessage(ResponseInfoCode.ERROR_VALIDATION);
-        generator.addResponseInfoError(ErrorMessageCode.INVALID_LOAN_NOT_APPROVED, "loanId");
+        generator.addResponseInfoError(ErrorMessageCode.INVALID_LOAN_STATE_FOR_STATE, "state", exception.getCurrentState(), exception.getNewState());
 
+        return buildResponse(generator, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(NotAvalaibleInStockException.class)
+    public ResponseEntity<Map<String, Object>> handleNoItemAvailable(NotAvalaibleInStockException exception) {
+        ResponseWrapper generator = new ResponseWrapper();
+        generator.setResponseInfoMessage(ResponseInfoCode.ERROR_NO_AVAILABLE_ITEM_FOR_GAME, exception.getBoardGameName());
         return buildResponse(generator, HttpStatus.BAD_REQUEST);
     }
 
@@ -173,10 +180,10 @@ public class GlobalExceptionHandler {
         ResponseWrapper generator = new ResponseWrapper();
 
         if (exception instanceof EntityNotFoundException e) {
-            if (e.getResouce() == null) {
+            if (e.getResource() == null) {
                 generator.setResponseInfoMessage(ResponseInfoCode.ERROR_ITEM_NOT_FOUND, e.getItem());
             } else {
-                generator.setResponseInfoMessage(ResponseInfoCode.ERROR_ITEM_NOT_IN_RESOURCE, e.getItem(), e.getResouce());
+                generator.setResponseInfoMessage(ResponseInfoCode.ERROR_ITEM_NOT_IN_RESOURCE, e.getItem(), e.getResource());
             }
         } else if (exception instanceof ItemNotInResource e) {
             generator.setResponseInfoMessage(ResponseInfoCode.ERROR_ITEM_NOT_IN_RESOURCE, e.getItem(), e.getResource());
@@ -197,10 +204,10 @@ public class GlobalExceptionHandler {
         ResponseWrapper generator = new ResponseWrapper();
 
         if (exception instanceof EntityAlreadyExistsException e) {
-            if (e.getResouce() == null) {
+            if (e.getResource() == null) {
                 generator.setResponseInfoMessage(ResponseInfoCode.ERROR_ALREADY_EXISTS, e.getItem());
             } else {
-                generator.setResponseInfoMessage(ResponseInfoCode.ERROR_ITEM_ALREADY_EXISTS_IN_RESOURCE, e.getItem(), e.getResouce());
+                generator.setResponseInfoMessage(ResponseInfoCode.ERROR_ITEM_ALREADY_EXISTS_IN_RESOURCE, e.getItem(), e.getResource());
             }
         } else if (exception instanceof ItemAlreadyInSourceI e) {
 
