@@ -2,7 +2,6 @@ package cz.cvut.fel.ear.service;
 
 import cz.cvut.fel.ear.dao.BoardGameItemRepository;
 import cz.cvut.fel.ear.dao.BoardGameLoanRepository;
-import cz.cvut.fel.ear.dao.UserRepository;
 import cz.cvut.fel.ear.exception.*;
 import cz.cvut.fel.ear.model.*;
 import jakarta.transaction.Transactional;
@@ -10,7 +9,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 

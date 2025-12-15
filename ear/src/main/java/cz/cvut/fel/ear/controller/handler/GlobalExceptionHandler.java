@@ -180,10 +180,10 @@ public class GlobalExceptionHandler {
         ResponseWrapper generator = new ResponseWrapper();
 
         if (exception instanceof EntityNotFoundException e) {
-            if (e.getResouce() == null) {
+            if (e.getResource() == null) {
                 generator.setResponseInfoMessage(ResponseInfoCode.ERROR_ITEM_NOT_FOUND, e.getItem());
             } else {
-                generator.setResponseInfoMessage(ResponseInfoCode.ERROR_ITEM_NOT_IN_RESOURCE, e.getItem(), e.getResouce());
+                generator.setResponseInfoMessage(ResponseInfoCode.ERROR_ITEM_NOT_IN_RESOURCE, e.getItem(), e.getResource());
             }
         } else if (exception instanceof ItemNotInResource e) {
             generator.setResponseInfoMessage(ResponseInfoCode.ERROR_ITEM_NOT_IN_RESOURCE, e.getItem(), e.getResource());
@@ -204,10 +204,10 @@ public class GlobalExceptionHandler {
         ResponseWrapper generator = new ResponseWrapper();
 
         if (exception instanceof EntityAlreadyExistsException e) {
-            if (e.getResouce() == null) {
+            if (e.getResource() == null) {
                 generator.setResponseInfoMessage(ResponseInfoCode.ERROR_ALREADY_EXISTS, e.getItem());
             } else {
-                generator.setResponseInfoMessage(ResponseInfoCode.ERROR_ITEM_ALREADY_EXISTS_IN_RESOURCE, e.getItem(), e.getResouce());
+                generator.setResponseInfoMessage(ResponseInfoCode.ERROR_ITEM_ALREADY_EXISTS_IN_RESOURCE, e.getItem(), e.getResource());
             }
         } else if (exception instanceof ItemAlreadyInSourceI e) {
 

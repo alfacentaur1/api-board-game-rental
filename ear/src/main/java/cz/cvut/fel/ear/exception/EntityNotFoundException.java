@@ -2,7 +2,7 @@ package cz.cvut.fel.ear.exception;
 
 public class EntityNotFoundException extends RuntimeException {
     private String item = null;
-    private String resouce = null;
+    private String resource = null;
 
     public EntityNotFoundException(String item, Long itemId) {
         super("%s with id %s not found".formatted(item, itemId));
@@ -12,14 +12,14 @@ public class EntityNotFoundException extends RuntimeException {
     public EntityNotFoundException(String item, Long itemId, String resource, Long resourceId) {
         super("%s with id %s not found in %s with id %s".formatted(item, itemId, resource, resourceId));
         this.item = item;
-        this.resouce = resource;
+        this.resource = resource;
     }
 
     public String getItem() {
         return item;
     }
 
-    public String getResouce() {
-        return resouce;
+    public String getResource() {
+        return resource;
     }
 }

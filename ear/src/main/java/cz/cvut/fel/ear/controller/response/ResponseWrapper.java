@@ -122,7 +122,7 @@ public class ResponseWrapper {
     /**
      * Adds new error to ResponseInfoError
      * @param errorCode
-     * @param fieldName - field name where error occured
+     * @param fieldName - field name where error occurred
      */
     public void addResponseInfoError(ErrorMessageCode errorCode, String fieldName) {
         Map<String, String> error = new LinkedHashMap<>();
@@ -135,7 +135,7 @@ public class ResponseWrapper {
     /**
      * Adds new error to ResponseInfoError
      * @param errorCode
-     * @param fieldName - field name where error occured
+     * @param fieldName - field name where error occurred
      * @param messageFormat - params to set to the message
      */
     public void addResponseInfoError(ErrorMessageCode errorCode, String fieldName, String... messageFormat) {
